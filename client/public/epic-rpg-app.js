@@ -879,7 +879,7 @@ function renderDashboard() {
             <div class="child-card" onclick="openChildProfile('${child.id}')">
                 <div class="child-info">
                     <div class="child-name">${child.name}</div>
-                    <div class="child-details">Age: ${age} | QML: ${child.qmlType}</div>
+                    <div class="child-details">Age: ${age} | ${child.currentQMLTier}</div>
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
                     <div class="qml-progress">
                         <div class="qml-progress-label">${child.currentQMLTier}</div>
@@ -1027,11 +1027,12 @@ function renderSettings() {
             <div class="badge-glossary">
                 ${['Coal', 'Copper', 'Iron', 'Gold', 'Redstone', 'Diamond', 'Emerald', 'Ancient Debris'].map(cat => {
                     const badges = appState.badges.filter(b => b.category === cat);
-                    const icons = {'Coal': '⬛', 'Copper': '🟧', 'Iron': '⬜', 'Gold': '🟨', 'Redstone': '🔴', 'Diamond': '🔷', 'Emerald': '🟢', 'Ancient Debris': '🟫'};
+                    const iconMap = {'Coal': 'coal-ore', 'Copper': 'copper-ore', 'Iron': 'iron-ore', 'Gold': 'gold-ore', 'Redstone': 'redstone-ore', 'Diamond': 'diamond-ore', 'Emerald': 'emerald-ore', 'Ancient Debris': 'ancient-debris'};
                     return `
                         <div class="glossary-category" onclick="toggleGlossary('${cat}')">
                             <div class="glossary-header">
-                                <span>${icons[cat]} ${cat} Badges</span>
+                                <img src="/badges/${iconMap[cat]}.png" alt="${cat}" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;">
+                                <span>${cat} Badges</span>
                                 <span>▼</span>
                             </div>
                             <div id="glossary-${cat.replace(' ', '-')}" class="glossary-details" style="display: none;">
@@ -1088,7 +1089,14 @@ function renderChildProfile() {
                 <div style="margin-bottom: 8px;">
                     <strong>QML Progress:</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
-                        <input type="number" id="qmlProgressInput" value="${child.currentQMLProgress}" onchange="updateQMLProgress('${child.id}', parseInt(this.value))" style="width: 80px; padding: 6px; border: 2px solid #1a1a1a; font-size: 16px;">
+                        <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
+                        <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                            <div style="flex: 1; height: 20px; background: #1a1a1a; border: 2px solid #1a1a1a; position: relative; overflow: hidden;">
+                                <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${(child.currentQMLProgress / 30) * 100}%; transition: width 0.2s;"></div>
+                            </div>
+                            <span style="font-weight: bold; min-width: 40px; text-align: center;">${child.currentQMLProgress}/30</span>
+                        </div>
+                        <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} + 1)">+</button>
                     </div>
                 </div>
             </div>
