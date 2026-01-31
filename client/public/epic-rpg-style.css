@@ -1,0 +1,1002 @@
+/* EPIC RPG - Minecraft-Themed Styling */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #2D5016 0%, #8B4513 100%);
+    color: #1a1a1a;
+    padding: 10px;
+    padding-bottom: 100px;
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #2D5016 0%, #8B4513 100%);
+    border: 4px solid #2D5016;
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.3), 0 10px 20px rgba(0,0,0,0.5);
+}
+
+/* Header */
+.header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 4px solid #1a1a1a;
+    background: linear-gradient(135deg, #2D5016 0%, #4CAF50 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.header h1 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.header p {
+    font-size: 12px;
+    color: #fff;
+    opacity: 0.9;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    padding: 20px;
+    min-height: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #fff;
+    border-bottom: 3px solid #FFD700;
+    padding-bottom: 10px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+/* Bottom Tab Navigation */
+.bottom-tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    z-index: 100;
+    border-top: 4px solid #1a1a1a;
+    background: linear-gradient(135deg, #2D5016 0%, #8B4513 100%);
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+    display: flex;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #C0C0C0;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+}
+
+.tab-icon {
+    font-size: 20px;
+}
+
+.tab-btn.active {
+    background: #4CAF50;
+    color: #1a1a1a;
+    border-top: 3px solid #7CB342;
+}
+
+.tab-btn:hover:not(.active) {
+    background: rgba(76, 175, 80, 0.2);
+}
+
+/* Scrollbar Styling */
+.tab-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border: 1px solid #1a1a1a;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: #4CAF50;
+    border: 1px solid #1a1a1a;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: #2D5016;
+}
+
+/* Child Card */
+.child-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 3px solid #1a1a1a;
+    background: linear-gradient(135deg, #4CAF50 0%, #2D5016 100%);
+    box-shadow: inset -1px -1px 0 rgba(0,0,0,0.3), 3px 3px 0 rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.1s;
+    display: grid;
+    grid-template-columns: 1fr 60px;
+    grid-template-areas: 
+        "info avatar"
+        "status status";
+    gap: 10px;
+    position: relative;
+}
+
+.child-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: inset -1px -1px 0 rgba(0,0,0,0.3), 5px 5px 0 rgba(0,0,0,0.3);
+}
+
+.child-card:active {
+    transform: translate(1px, 1px);
+    box-shadow: inset -1px -1px 0 rgba(0,0,0,0.3), 1px 1px 0 rgba(0,0,0,0.3);
+}
+
+.child-avatar {
+    grid-area: avatar;
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    border: 2px solid #fff;
+    object-fit: cover;
+    justify-self: end;
+}
+
+.child-info {
+    grid-area: info;
+}
+
+.child-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-decoration: underline;
+    color: #fff;
+}
+
+.child-details {
+    font-size: 12px;
+    margin-bottom: 5px;
+    opacity: 0.95;
+    color: #fff;
+}
+
+.tokens-display {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px solid rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.qml-progress {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.qml-progress-label {
+    font-size: 11px;
+    margin-bottom: 5px;
+    color: #fff;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #000;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #7CB342;
+    transition: width 0.3s;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 15px;
+    margin-top: 8px;
+    margin-right: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #4CAF50 0%, #2D5016 100%);
+    border: 2px solid #1a1a1a;
+    color: white;
+    box-shadow: inset -1px -1px 0 rgba(0,0,0,0.3), 3px 3px 0 rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+.btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: inset -1px -1px 0 rgba(0,0,0,0.3), 4px 4px 0 rgba(0,0,0,0.3);
+}
+
+.btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: inset -1px -1px 0 rgba(0,0,0,0.3), 1px 1px 0 rgba(0,0,0,0.3);
+}
+
+.btn-small {
+    padding: 8px 12px;
+    font-size: 11px;
+    margin: 3px 2px;
+}
+
+.btn-add {
+    background: linear-gradient(135deg, #7CB342 0%, #4CAF50 100%);
+    width: 100%;
+    margin-top: 15px;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #d63447 0%, #8B0000 100%);
+}
+
+/* Quest Card */
+.quest-card {
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 2px solid #1a1a1a;
+    background: #f0f0f0;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+.quest-type {
+    display: inline-block;
+    background: #4CAF50;
+    color: white;
+    padding: 4px 8px;
+    border: 1px solid #1a1a1a;
+    font-size: 10px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.quest-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2D5016;
+}
+
+.quest-tokens {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* Treasure Card */
+.treasure-card {
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 2px solid #1a1a1a;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #1a1a1a;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+}
+
+.treasure-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.treasure-cost {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+/* Leaderboard */
+.leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 2px solid #1a1a1a;
+    align-items: center;
+    background: #f0f0f0;
+}
+
+.rank {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4CAF50;
+    min-width: 40px;
+    text-align: center;
+}
+
+.rank-1 {
+    color: #FFD700;
+}
+
+.rank-2 {
+    color: #C0C0C0;
+}
+
+.rank-3 {
+    color: #CD7F32;
+}
+
+.name {
+    flex: 1;
+    margin-left: 15px;
+    font-weight: bold;
+    color: #2D5016;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.name:hover {
+    color: #4CAF50;
+}
+
+.score {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    background: rgba(0,0,0,0.7);
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #C0C0C0;
+    border: 4px solid #2D5016;
+    padding: 20px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: inset -2px -2px 0 #000, 2px 2px 0 #fff, 0 10px 40px rgba(0,0,0,0.8);
+}
+
+.modal-header {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #2D5016;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 10px;
+}
+
+.modal-buttons {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.modal-buttons .btn {
+    flex: 1;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2D5016;
+    font-size: 12px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #1a1a1a;
+    font-size: 12px;
+    background: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #4CAF50;
+}
+
+/* Avatar Grid */
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.avatar-option {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid #1a1a1a;
+    cursor: pointer;
+    background: #fff;
+    padding: 4px;
+    transition: all 0.2s;
+}
+
+.avatar-option:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.avatar-option.selected {
+    border-color: #4CAF50;
+    background: #4CAF50;
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.8);
+}
+
+.avatar-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Back Button */
+.back-button {
+    background: #8B4513;
+    color: white;
+    border: 2px solid #1a1a1a;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+}
+
+.back-button:hover {
+    background: #A0522D;
+}
+
+/* Messages */
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border: 2px solid #1a1a1a;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border: 2px solid #1a1a1a;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: #666;
+    font-size: 12px;
+}
+
+/* Weekly Stats */
+.weekly-stats-container {
+    margin-top: 20px;
+}
+
+.weekly-stat-item {
+    padding: 12px;
+    border: 2px solid #1a1a1a;
+    margin-bottom: 10px;
+    background: #f0f0f0;
+}
+
+.weekly-stat-title {
+    font-weight: bold;
+    color: #2D5016;
+    margin-bottom: 8px;
+}
+
+.stat-row {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+/* Ongoing Quest */
+.ongoing-quest {
+    background: #fff3cd;
+    border: 2px solid #1a1a1a;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.ongoing-quest-name {
+    font-weight: bold;
+    color: #2D5016;
+    margin-bottom: 8px;
+}
+
+.status-badge {
+    display: inline-block;
+    background: #4CAF50;
+    color: white;
+    padding: 3px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    border: 1px solid #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.status-badge.pending {
+    background: #FF9800;
+}
+
+/* Badge Grid */
+.badge-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.badge-item {
+    background: #fff;
+    border: 2px solid #1a1a1a;
+    padding: 8px;
+    text-align: center;
+    font-size: 10px;
+}
+
+.badge-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.badge-name {
+    font-weight: bold;
+    color: #2D5016;
+    margin-bottom: 3px;
+}
+
+.badge-progress {
+    font-size: 9px;
+    color: #666;
+}
+
+/* Profile Section */
+.profile-section {
+    background: #f0f0f0;
+    border: 2px solid #1a1a1a;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.profile-section-title {
+    font-weight: bold;
+    color: #2D5016;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 5px;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, #4CAF50 0%, #2D5016 100%);
+    color: white;
+    padding: 12px;
+    border: 2px solid #1a1a1a;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+/* Timer Display */
+.timer-display {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4CAF50;
+    text-align: center;
+    padding: 10px;
+    background: #f0f0f0;
+    border: 2px solid #1a1a1a;
+    margin: 8px 0;
+    font-family: 'Courier New', monospace;
+}
+
+/* Disabled State */
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.disabled:hover {
+    transform: none !important;
+}
+
+/* QML Tier */
+.qml-tier {
+    background: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 2px solid #1a1a1a;
+    border-left: 4px solid #4CAF50;
+}
+
+.qml-tier-name {
+    font-weight: bold;
+    margin-bottom: 3px;
+    color: #2D5016;
+}
+
+.qml-tier-bonus {
+    color: #4CAF50;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* History Item */
+.history-item {
+    background: #f0f0f0;
+    border: 2px solid #1a1a1a;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 11px;
+}
+
+.history-item-title {
+    font-weight: bold;
+    color: #2D5016;
+    margin-bottom: 5px;
+}
+
+.history-item-detail {
+    color: #666;
+    margin-bottom: 3px;
+}
+
+/* Setting Item */
+.setting-item {
+    padding: 12px;
+    border: 2px solid #1a1a1a;
+    margin-bottom: 10px;
+    background: #f0f0f0;
+}
+
+.setting-label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: #2D5016;
+}
+
+.setting-input {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #1a1a1a;
+    font-size: 12px;
+    background: #fff;
+}
+
+.setting-input:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #4CAF50;
+}
+
+/* Checkbox List */
+.checkbox-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid #1a1a1a;
+    padding: 10px;
+    background: #fff;
+}
+
+.checkbox-item {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-item input {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.checkbox-item label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: normal;
+    color: #1a1a1a;
+}
+
+/* Children Container */
+.children-container,
+.quests-container,
+.treasures-container,
+.leaderboard-container {
+    margin-bottom: 15px;
+}
+
+
+/* NFC Button in Header */
+.nfc-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 8px 12px;
+    background: #FFD700;
+    border: 2px solid #1a1a1a;
+    color: #1a1a1a;
+    font-weight: bold;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    transition: all 0.1s;
+}
+
+.nfc-button:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+}
+
+.nfc-button:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+
+/* NFC Modal Styles */
+.nfc-status {
+    padding: 15px;
+    margin: 15px 0;
+    background: #E8F5E9;
+    border: 2px solid #4CAF50;
+    color: #1a1a1a;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.nfc-status.scanning {
+    background: #FFF9C4;
+    border-color: #FBC02D;
+    animation: pulse 1s infinite;
+}
+
+.nfc-status.success {
+    background: #C8E6C9;
+    border-color: #2E7D32;
+}
+
+.nfc-status.error {
+    background: #FFCDD2;
+    border-color: #C62828;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.nfc-input-group {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.nfc-input-group input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #1a1a1a;
+    font-size: 12px;
+    background: #fff;
+    color: #1a1a1a;
+}
+
+.nfc-input-group button {
+    padding: 10px 15px;
+    background: #4CAF50;
+    border: 2px solid #1a1a1a;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.nfc-result {
+    padding: 15px;
+    margin: 15px 0;
+    border: 2px solid #1a1a1a;
+    background: #f0f0f0;
+    border-radius: 4px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+    font-weight: bold;
+}
+
+.nfc-result.success {
+    background: #C8E6C9;
+    border-color: #2E7D32;
+}
+
+.nfc-result.error {
+    background: #FFCDD2;
+    border-color: #C62828;
+}
+
+/* Badge Glossary Styles */
+.badge-glossary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.glossary-category {
+    background: #2a2a2a;
+    border: 2px solid #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.glossary-header {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 13px;
+    background: #333;
+}
+
+.glossary-details {
+    padding: 10px;
+    background: #222;
+    border-top: 1px solid #444;
+}
+
+.glossary-item {
+    font-size: 11px;
+    color: #ccc;
+    margin-bottom: 6px;
+    padding-left: 10px;
+    border-left: 2px solid #4CAF50;
+}
+
+.glossary-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Minecraft Ore Style Badge Icons */
+.badge-icon {
+    image-rendering: pixelated;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.5));
+}
+
+/* Specific category border colors */
+.glossary-category:nth-child(1) { border-left: 6px solid #444; } /* Coal */
+.glossary-category:nth-child(2) { border-left: 6px solid #B87333; } /* Copper */
+.glossary-category:nth-child(3) { border-left: 6px solid #A8A9AD; } /* Iron */
+.glossary-category:nth-child(4) { border-left: 6px solid #FFD700; } /* Gold */
+.glossary-category:nth-child(5) { border-left: 6px solid #DC143C; } /* Redstone */
+.glossary-category:nth-child(6) { border-left: 6px solid #00CED1; } /* Diamond */
+.glossary-category:nth-child(7) { border-left: 6px solid #50C878; } /* Emerald */
+.glossary-category:nth-child(8) { border-left: 6px solid #8B4513; } /* Ancient Debris */
+
+/* Status Notifications on Dashboard */
+.child-status-area {
+    grid-area: status;
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-notification {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border: 1px solid #1a1a1a;
+    border-radius: 2px;
+    display: inline-block;
+    width: fit-content;
+}
+
+.status-on-quest {
+    background: #FFD700;
+    color: #1a1a1a;
+}
+
+.status-enjoying-treasure {
+    background: #4CAF50;
+    color: #fff;
+}
+
+.dashboard-timer-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #000;
+    margin-top: 2px;
+}
+
+.dashboard-timer-fill {
+    height: 100%;
+    background: #7CB342;
+    transition: width 1s linear;
+}

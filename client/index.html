@@ -1,26 +1,184 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 EPIC RPG - Family Quest & Treasure System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/epic-rpg-style.css">
+</head>
+<body>
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>EPIC RPG</title>    
-    <!-- THIS IS THE START OF A COMMENT BLOCK, BLOCK TO BE DELETED: Google Fonts here, example:
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
-  </head>
+  <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎮 EPIC RPG</h1>
+            <p>Family Quest & Treasure System</p>
+            <button class="nfc-button" onclick="openModal('nfcScanModal')" title="Scan NFC Card">📱 Scan Card</button>
+        </div>
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
-  </body>
+        <!-- Tab Content Areas -->
+        <div id="dashboard" class="tab-content active">
+            <h2>👨‍👩‍👧‍👦 Dashboard</h2>
+            <div id="children-list" class="children-container"></div>
+            <button class="btn btn-add" onclick="openModal('addChildModal')">+ Add Child</button>
+        </div>
 
+        <div id="leaderboard" class="tab-content">
+            <h2>🏆 Leaderboard</h2>
+            <div id="leaderboard-list" class="leaderboard-container"></div>
+            <div id="weekly-stats" class="weekly-stats-container"></div>
+        </div>
+
+        <div id="play" class="tab-content">
+            <h2>⚔️ Play/Quests</h2>
+            <div id="quests-list" class="quests-container"></div>
+            <button class="btn btn-add" onclick="openModal('addQuestModal')">+ Add Quest</button>
+        </div>
+
+        <div id="shop" class="tab-content">
+            <h2>🎁 Shop/Treasures</h2>
+            <div id="treasures-list" class="treasures-container"></div>
+            <button class="btn btn-add" onclick="openModal('addTreasureModal')">+ Add Treasure</button>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <h2>⚙️ Settings</h2>
+            <div id="settings-content"></div>
+        </div>
+
+        <!-- Child Profile Screen -->
+        <div id="profile-screen" class="tab-content">
+            <button class="back-button" onclick="backToDashboard()">← Back to Dashboard</button>
+            <div id="profile-content"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Tab Navigation -->
+    <div class="bottom-tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard')">
+            <span class="tab-icon">🏠</span>
+            <span>Dashboard</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('leaderboard')">
+            <span class="tab-icon">🏆</span>
+            <span>Leaderboard</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('play')">
+            <span class="tab-icon">⚔️</span>
+            <span>Play</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('shop')">
+            <span class="tab-icon">🎁</span>
+            <span>Shop</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('settings')">
+            <span class="tab-icon">⚙️</span>
+            <span>Settings</span>
+        </button>
+    </div>
+
+    <!-- Modals -->
+    <div id="addChildModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Child</div>
+            <div class="form-group">
+                <label>Child Name</label>
+                <input type="text" id="childName" placeholder="Enter child's name">
+            </div>
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" id="childDOB">
+            </div>
+            <div class="form-group">
+                <label>NFC Card ID (Optional)</label>
+                <input type="text" id="childNFC" placeholder="NFC card ID">
+            </div>
+            <div class="form-group">
+                <label>Select Avatar</label>
+                <div id="avatarGrid" class="avatar-grid"></div>
+            </div>
+            <div class="form-group">
+                <label>QML Type</label>
+                <select id="childQMLType">
+                    <option value="Juz Amma">Juz Amma</option>
+                    <option value="Al-Quran">Al-Quran</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="createChild()">Create</button>
+                <button class="btn" onclick="closeModal('addChildModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addQuestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Quest</div>
+            <div class="form-group">
+                <label>Quest Name</label>
+                <input type="text" id="questName" placeholder="Enter quest name">
+            </div>
+            <div class="form-group">
+                <label>Quest Type</label>
+                <select id="questType">
+                    <option value="Quick Quest">Quick Quest</option>
+                    <option value="Standard Mission">Standard Mission</option>
+                    <option value="Boss Fight">Boss Fight</option>
+                    <option value="Team Raid">Team Raid</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Base Tokens</label>
+                <input type="number" id="questTokens" min="1" placeholder="Enter token reward">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="createQuest()">Create</button>
+                <button class="btn" onclick="closeModal('addQuestModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addTreasureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Treasure</div>
+            <div class="form-group">
+                <label>Treasure Name</label>
+                <input type="text" id="treasureName" placeholder="Enter treasure name">
+            </div>
+            <div class="form-group">
+                <label>Cost (Tokens)</label>
+                <input type="number" id="treasureCost" min="1" placeholder="Enter token cost">
+            </div>
+            <div class="form-group">
+                <label>Timer (Minutes)</label>
+                <input type="number" id="treasureTimer" min="1" placeholder="Enter timer in minutes">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="createTreasure()">Create</button>
+                <button class="btn" onclick="closeModal('addTreasureModal')">Cancel</button>
+            </div>
+        </div>
+
+        </div>
+    </div>
+
+    <!-- NFC Scan Modal (Outside Container) -->
+    <div id="nfcScanModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('nfcScanModal')">&times;</span>
+            <h3>📱 Scan NFC Card</h3>
+            <div id="nfc-status" class="nfc-status">Ready to scan...</div>
+            <div class="nfc-input-group">
+                <input type="text" id="nfcCardInput" placeholder="Tap NFC card or enter ID" autofocus>
+                <button class="btn" onclick="processNFCCard()">Scan</button>
+            </div>
+            <div id="nfc-result" class="nfc-result"></div>
+            <button class="btn" onclick="closeModal('nfcScanModal')">Close</button>
+        </div>
+    </div>
+
+    <script src="/epic-rpg-app.js"></script>
+
+</body>
 </html>

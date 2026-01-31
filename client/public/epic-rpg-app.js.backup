@@ -1,0 +1,1295 @@
+// EPIC RPG - Complete Application Logic
+// Vanilla HTML5, CSS3, JavaScript (ES6+)
+
+// ============================================
+// PRESET DATA
+// ============================================
+
+const PRESET_CHILDREN = [
+    {
+        id: 'child_1',
+        name: 'Muhammad Darwish Ar-Rayyan',
+        dateOfBirth: '2013-08-09',
+        nfcCardId: null,
+        avatarId: 'avatar_m_1',
+        tokens: 0,
+        qmlType: 'Juz Amma',
+        currentQMLTier: 'Beginner',
+        currentQMLProgress: 0,
+        ongoingQuests: [],
+        activeTreasures: [],
+        badges: [],
+        questHistory: [],
+        treasureHistory: []
+    },
+    {
+        id: 'child_2',
+        name: 'Muhammad Daniyal Al-Fateh',
+        dateOfBirth: '2015-07-05',
+        nfcCardId: null,
+        avatarId: 'avatar_m_2',
+        tokens: 0,
+        qmlType: 'Al-Quran',
+        currentQMLTier: 'Beginner',
+        currentQMLProgress: 0,
+        ongoingQuests: [],
+        activeTreasures: [],
+        badges: [],
+        questHistory: [],
+        treasureHistory: []
+    },
+    {
+        id: 'child_3',
+        name: 'Muhammad Dawood Ariq',
+        dateOfBirth: '2018-06-14',
+        nfcCardId: null,
+        avatarId: 'avatar_f_1',
+        tokens: 0,
+        qmlType: 'Juz Amma',
+        currentQMLTier: 'Beginner',
+        currentQMLProgress: 0,
+        ongoingQuests: [],
+        activeTreasures: [],
+        badges: [],
+        questHistory: [],
+        treasureHistory: []
+    },
+    {
+        id: 'child_4',
+        name: 'Muhammad Danish Adeeb',
+        dateOfBirth: '2021-04-17',
+        nfcCardId: null,
+        avatarId: 'avatar_m_3',
+        tokens: 0,
+        qmlType: 'Al-Quran',
+        currentQMLTier: 'Beginner',
+        currentQMLProgress: 0,
+        ongoingQuests: [],
+        activeTreasures: [],
+        badges: [],
+        questHistory: [],
+        treasureHistory: []
+    }
+];
+
+const PRESET_QUESTS = [
+    { id: 'quest_1', name: 'Pick up toys', type: 'Quick Quest', baseTokenReward: 1 },
+    { id: 'quest_2', name: 'Sweep the floor', type: 'Standard Mission', baseTokenReward: 3 },
+    { id: 'quest_3', name: 'Clean the bathroom', type: 'Boss Fight', baseTokenReward: 6 },
+    { id: 'quest_4', name: 'Wash the Car', type: 'Team Raid', baseTokenReward: 8 }
+];
+
+const PRESET_TREASURES = [
+    { id: 'treasure_1', name: 'TV (15min)', costTokens: 5, baseTimerSeconds: 900 },
+    { id: 'treasure_2', name: 'TV (30min)', costTokens: 9, baseTimerSeconds: 1800 },
+    { id: 'treasure_3', name: 'PS5 (15min)', costTokens: 6, baseTimerSeconds: 900 },
+    { id: 'treasure_4', name: 'PS5 (30min)', costTokens: 11, baseTimerSeconds: 1800 }
+];
+
+const PRESET_AGE_GROUPS = [
+    {
+        id: 'age_1',
+        name: 'Age 5 and Below',
+        ageRangeMin: 0,
+        ageRangeMax: 5,
+        ageRangeDescription: '5 and below',
+        multiplierOptions: [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+        currentMultiplier: 1.5
+    },
+    {
+        id: 'age_2',
+        name: 'Age 6-10',
+        ageRangeMin: 6,
+        ageRangeMax: 10,
+        ageRangeDescription: '6-10',
+        multiplierOptions: [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+        currentMultiplier: 1.2
+    },
+    {
+        id: 'age_3',
+        name: 'Age 11-12',
+        ageRangeMin: 11,
+        ageRangeMax: 12,
+        ageRangeDescription: '11-12',
+        multiplierOptions: [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+        currentMultiplier: 1.0
+    }
+];
+
+const PRESET_QML_TIERS = {
+    'Juz Amma': [
+        { id: 'qml_juz_1', tierName: 'Beginner', tierRangeMin: 0, tierRangeMax: 2, tierRangeDescription: '0-2 surah', bonusPercentage: 0 },
+        { id: 'qml_juz_2', tierName: 'Learner', tierRangeMin: 3, tierRangeMax: 6, tierRangeDescription: '3-6 surah', bonusPercentage: 15 },
+        { id: 'qml_juz_3', tierName: 'Strong Reader', tierRangeMin: 7, tierRangeMax: 12, tierRangeDescription: '7-12 surah', bonusPercentage: 35 },
+        { id: 'qml_juz_4', tierName: 'Young Hafiz', tierRangeMin: 13, tierRangeMax: 20, tierRangeDescription: '13-20 surah', bonusPercentage: 50 },
+        { id: 'qml_juz_5', tierName: 'Advance Hafiz', tierRangeMin: 21, tierRangeMax: 30, tierRangeDescription: '21-30 surah', bonusPercentage: 65 },
+        { id: 'qml_juz_6', tierName: 'Master Hafiz', tierRangeMin: 31, tierRangeMax: 36, tierRangeDescription: '31-36 surah', bonusPercentage: 85 },
+        { id: 'qml_juz_7', tierName: 'Ultimate Hafiz', tierRangeMin: 37, tierRangeMax: 37, tierRangeDescription: '37 surah', bonusPercentage: 100 }
+    ],
+    'Al-Quran': [
+        { id: 'qml_quran_1', tierName: 'Beginner', tierRangeMin: 0, tierRangeMax: 2, tierRangeDescription: '0-2 Juz', bonusPercentage: 0 },
+        { id: 'qml_quran_2', tierName: 'Learner', tierRangeMin: 3, tierRangeMax: 6, tierRangeDescription: '3-6 Juz', bonusPercentage: 15 },
+        { id: 'qml_quran_3', tierName: 'Strong Reader', tierRangeMin: 7, tierRangeMax: 12, tierRangeDescription: '7-12 Juz', bonusPercentage: 35 },
+        { id: 'qml_quran_4', tierName: 'Young Hafiz', tierRangeMin: 13, tierRangeMax: 18, tierRangeDescription: '13-18 Juz', bonusPercentage: 50 },
+        { id: 'qml_quran_5', tierName: 'Advance Hafiz', tierRangeMin: 19, tierRangeMax: 24, tierRangeDescription: '19-24 Juz', bonusPercentage: 65 },
+        { id: 'qml_quran_6', tierName: 'Master Hafiz', tierRangeMin: 25, tierRangeMax: 29, tierRangeDescription: '25-29 Juz', bonusPercentage: 85 },
+        { id: 'qml_quran_7', tierName: 'Ultimate Hafiz', tierRangeMin: 30, tierRangeMax: 30, tierRangeDescription: '30 Juz', bonusPercentage: 100 }
+    ]
+};
+
+const PRESET_BADGES = [
+    // Coal
+    { id: 'badge_coal_1', name: 'Quest Starter', category: 'Coal', description: 'Complete 1 quest', achievementType: 'quests_completed', targetValue: 1 },
+    { id: 'badge_coal_2', name: 'Token Collector', category: 'Coal', description: 'Earn 10 tokens', achievementType: 'tokens_earned', targetValue: 10 },
+    { id: 'badge_coal_3', name: 'First Treasure', category: 'Coal', description: 'Claim first treasure', achievementType: 'treasures_claimed', targetValue: 1 },
+    // Copper
+    { id: 'badge_copper_1', name: 'Quest Master', category: 'Copper', description: 'Complete 5 quests', achievementType: 'quests_completed', targetValue: 5 },
+    { id: 'badge_copper_2', name: 'Token Hoarder', category: 'Copper', description: 'Earn 50 tokens', achievementType: 'tokens_earned', targetValue: 50 },
+    { id: 'badge_copper_3', name: 'Treasure Hunter', category: 'Copper', description: 'Claim 5 treasures', achievementType: 'treasures_claimed', targetValue: 5 }
+];
+
+const AVATAR_LIST = Array.from({length: 30}, (_, i) => ({
+    id: i < 20 ? `avatar_m_${i + 1}` : `avatar_f_${i - 19}`,
+    path: `/avatars/avatar_${i < 20 ? 'm_' : 'f_'}${i < 20 ? i + 1 : i - 19}.png`
+}));
+
+// ============================================
+// GLOBAL STATE
+// ============================================
+
+let appState = {
+    children: [],
+    quests: [],
+    treasures: [],
+    ageGroups: [],
+    qmlTiers: {},
+    badges: [],
+    birthdayTokenReward: 25,
+    currentProfileChildId: null,
+    timerIntervals: {}
+};
+
+let selectedAvatarId = null;
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+function generateId() {
+    return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function calculateAge(dob) {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
+function getAgeMultiplier(age) {
+    const ageGroup = appState.ageGroups.find(g => age >= g.ageRangeMin && age <= g.ageRangeMax);
+    return ageGroup ? ageGroup.currentMultiplier : 1.0;
+}
+
+function getQMLBonus(tierName) {
+    for (const category in appState.qmlTiers) {
+        const tier = appState.qmlTiers[category].find(t => t.tierName === tierName);
+        if (tier) return tier.bonusPercentage / 100;
+    }
+    return 0;
+}
+
+function calculateTokens(baseTokens, age, qmlTierName) {
+    const ageMultiplier = getAgeMultiplier(age);
+    const qmlBonus = getQMLBonus(qmlTierName);
+    return Math.round(baseTokens * ageMultiplier * (1 + qmlBonus));
+}
+
+function calculateTimerDuration(baseSeconds, qmlTierName) {
+    const qmlBonus = getQMLBonus(qmlTierName);
+    return Math.round(baseSeconds * (1 + qmlBonus));
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function saveData() {
+    localStorage.setItem('epic-rpg-data', JSON.stringify(appState));
+}
+
+function loadData() {
+    const saved = localStorage.getItem('epic-rpg-data');
+    if (saved) {
+        appState = JSON.parse(saved);
+    } else {
+        appState.children = JSON.parse(JSON.stringify(PRESET_CHILDREN));
+        appState.quests = JSON.parse(JSON.stringify(PRESET_QUESTS));
+        appState.treasures = JSON.parse(JSON.stringify(PRESET_TREASURES));
+        appState.ageGroups = JSON.parse(JSON.stringify(PRESET_AGE_GROUPS));
+        appState.qmlTiers = JSON.parse(JSON.stringify(PRESET_QML_TIERS));
+        appState.badges = JSON.parse(JSON.stringify(PRESET_BADGES));
+        appState.birthdayTokenReward = 25;
+        saveData();
+    }
+}
+
+// ============================================
+// MODAL FUNCTIONS
+// ============================================
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
+}
+
+// ============================================
+// TAB NAVIGATION
+// ============================================
+
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    const selectedTab = document.getElementById(tabName);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Add active class to clicked button
+    event.target.closest('.tab-btn').classList.add('active');
+    
+    // Render appropriate content
+    if (tabName === 'dashboard') renderDashboard();
+    else if (tabName === 'leaderboard') renderLeaderboard();
+    else if (tabName === 'play') renderPlay();
+    else if (tabName === 'shop') renderShop();
+    else if (tabName === 'settings') renderSettings();
+}
+
+// ============================================
+// CHILD MANAGEMENT
+// ============================================
+
+function createChild() {
+    const name = document.getElementById('childName').value;
+    const dob = document.getElementById('childDOB').value;
+    const nfc = document.getElementById('childNFC').value || null;
+    const qmlType = document.getElementById('childQMLType').value;
+    
+    if (!name || !dob) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    if (!selectedAvatarId) {
+        alert('Please select an avatar');
+        return;
+    }
+    
+    const newChild = {
+        id: generateId(),
+        name,
+        dateOfBirth: dob,
+        nfcCardId: nfc,
+        avatarId: selectedAvatarId,
+        tokens: 0,
+        qmlType,
+        currentQMLTier: 'Beginner',
+        currentQMLProgress: 0,
+        ongoingQuests: [],
+        activeTreasures: [],
+        badges: appState.badges.map(b => ({ badgeId: b.id, progress: 0, earned: false })),
+        questHistory: [],
+        treasureHistory: []
+    };
+    
+    appState.children.push(newChild);
+    saveData();
+    closeModal('addChildModal');
+    document.getElementById('childName').value = '';
+    document.getElementById('childDOB').value = '';
+    document.getElementById('childNFC').value = '';
+    selectedAvatarId = null;
+    renderDashboard();
+}
+
+function openChildProfile(childId) {
+    appState.currentProfileChildId = childId;
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById('profile-screen').classList.add('active');
+    renderChildProfile();
+}
+
+function backToDashboard() {
+    appState.currentProfileChildId = null;
+    document.getElementById('profile-screen').classList.remove('active');
+    document.getElementById('dashboard').classList.add('active');
+    renderDashboard();
+}
+
+function deleteChild(childId) {
+    if (confirm('Are you sure you want to delete this child?')) {
+        appState.children = appState.children.filter(c => c.id !== childId);
+        saveData();
+        renderDashboard();
+    }
+}
+
+function editChild(childId) {
+    alert('Edit child functionality - coming soon');
+}
+
+// ============================================
+// QUEST MANAGEMENT
+// ============================================
+
+function createQuest() {
+    const name = document.getElementById('questName').value;
+    const type = document.getElementById('questType').value;
+    const tokens = parseInt(document.getElementById('questTokens').value);
+    
+    if (!name || !type || !tokens) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    const newQuest = {
+        id: generateId(),
+        name,
+        type,
+        baseTokenReward: tokens
+    };
+    
+    appState.quests.push(newQuest);
+    saveData();
+    closeModal('addQuestModal');
+    document.getElementById('questName').value = '';
+    document.getElementById('questTokens').value = '';
+    renderPlay();
+}
+
+function requestQuestFromPlay(questId) {
+    if (appState.children.length === 0) {
+        alert('Please add a child first');
+        return;
+    }
+    
+    const childSelect = document.createElement('div');
+    childSelect.innerHTML = '<select id="childSelectForQuest">' +
+        appState.children.map(c => `<option value="${c.id}">${c.name}</option>`).join('') +
+        '</select>';
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">Assign Quest to Child</div>
+            <div class="form-group">
+                <label>Select Child</label>
+                <select id="childSelectForQuest">
+                    ${appState.children.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="confirmQuestAssignment('${questId}')">Assign</button>
+                <button class="btn" onclick="this.closest('.modal').remove()">Cancel</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function confirmQuestAssignment(questId) {
+    const childId = document.getElementById('childSelectForQuest').value;
+    requestQuest(childId, questId);
+    document.querySelector('.modal').remove();
+}
+
+function requestQuest(childId, questId) {
+    const child = appState.children.find(c => c.id === childId);
+    const quest = appState.quests.find(q => q.id === questId);
+    
+    if (!child || !quest) return;
+    
+    if (child.ongoingQuests.find(q => q.questId === questId)) {
+        alert('This child already has this quest');
+        return;
+    }
+    
+    child.ongoingQuests.push({
+        questId,
+        status: 'ongoing',
+        startDate: new Date().toISOString().split('T')[0]
+    });
+    
+    saveData();
+    renderPlay();
+}
+
+function markQuestComplete(childId, questId) {
+    const child = appState.children.find(c => c.id === childId);
+    const ongoingQuest = child.ongoingQuests.find(q => q.questId === questId);
+    
+    if (ongoingQuest) {
+        ongoingQuest.status = 'pending_approval';
+        ongoingQuest.completedDate = new Date().toISOString().split('T')[0];
+        saveData();
+        renderChildProfile();
+    }
+}
+
+function approveQuest(childId, questId) {
+    const child = appState.children.find(c => c.id === childId);
+    const quest = appState.quests.find(q => q.id === questId);
+    const ongoingQuest = child.ongoingQuests.find(q => q.questId === questId);
+    
+    if (!child || !quest || !ongoingQuest) return;
+    
+    const age = calculateAge(child.dateOfBirth);
+    const tokensEarned = calculateTokens(quest.baseTokenReward, age, child.currentQMLTier);
+    const qmlBonus = getQMLBonus(child.currentQMLTier);
+    
+    child.tokens += tokensEarned;
+    child.questHistory.push({
+        questId,
+        questName: quest.name,
+        questType: quest.type,
+        baseTokens: quest.baseTokenReward,
+        ageMultiplier: getAgeMultiplier(age),
+        qmlBonus: qmlBonus * 100,
+        tokensEarned,
+        completedDate: ongoingQuest.completedDate,
+        approvedDate: new Date().toISOString().split('T')[0]
+    });
+    
+    child.ongoingQuests = child.ongoingQuests.filter(q => q.questId !== questId);
+    updateBadgeProgress(child, 'quests_completed', 1);
+    updateBadgeProgress(child, 'tokens_earned', tokensEarned);
+    
+    saveData();
+    alert(`Quest approved! ${tokensEarned} tokens awarded`);
+    renderChildProfile();
+}
+
+function rejectQuest(childId, questId) {
+    const child = appState.children.find(c => c.id === childId);
+    child.ongoingQuests = child.ongoingQuests.filter(q => q.questId !== questId);
+    saveData();
+    renderChildProfile();
+}
+
+function cancelQuest(childId, questId) {
+    const child = appState.children.find(c => c.id === childId);
+    child.ongoingQuests = child.ongoingQuests.filter(q => q.questId !== questId);
+    saveData();
+    renderChildProfile();
+}
+
+function deleteQuest(questId) {
+    if (confirm('Delete this quest?')) {
+        appState.quests = appState.quests.filter(q => q.id !== questId);
+        saveData();
+        renderPlay();
+    }
+}
+
+function editQuest(questId) {
+    alert('Edit quest functionality - coming soon');
+}
+
+// ============================================
+// TREASURE MANAGEMENT
+// ============================================
+
+function createTreasure() {
+    const name = document.getElementById('treasureName').value;
+    const cost = parseInt(document.getElementById('treasureCost').value);
+    const timer = parseInt(document.getElementById('treasureTimer').value);
+    
+    if (!name || !cost || !timer) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    const newTreasure = {
+        id: generateId(),
+        name,
+        costTokens: cost,
+        baseTimerSeconds: timer * 60
+    };
+    
+    appState.treasures.push(newTreasure);
+    saveData();
+    closeModal('addTreasureModal');
+    document.getElementById('treasureName').value = '';
+    document.getElementById('treasureCost').value = '';
+    document.getElementById('treasureTimer').value = '';
+    renderShop();
+}
+
+function claimTreasure(childId, treasureId) {
+    const child = appState.children.find(c => c.id === childId);
+    const treasure = appState.treasures.find(t => t.id === treasureId);
+    
+    if (!child || !treasure) return;
+    
+    if (child.tokens < treasure.costTokens) {
+        alert(`Need ${treasure.costTokens - child.tokens} more tokens`);
+        return;
+    }
+    
+    child.tokens -= treasure.costTokens;
+    const finalTimer = calculateTimerDuration(treasure.baseTimerSeconds, child.currentQMLTier);
+    
+    child.activeTreasures.push({
+        treasureId,
+        claimDate: new Date().toISOString(),
+        timerDuration: finalTimer,
+        timeRemaining: finalTimer,
+        isPaused: false,
+        pausedTime: 0
+    });
+    
+    child.treasureHistory.push({
+        treasureId,
+        treasureName: treasure.name,
+        costTokens: treasure.costTokens,
+        baseTimerSeconds: treasure.baseTimerSeconds,
+        qmlBonusPercentage: getQMLBonus(child.currentQMLTier) * 100,
+        finalTimerSeconds: finalTimer,
+        claimDate: new Date().toISOString().split('T')[0]
+    });
+    
+    updateBadgeProgress(child, 'treasures_claimed', 1);
+    saveData();
+    alert(`Treasure claimed! Timer: ${formatTime(finalTimer)}`);
+    renderChildProfile();
+}
+
+function pauseTreasure(childId, treasureIndex) {
+    const child = appState.children.find(c => c.id === childId);
+    const treasure = child.activeTreasures[treasureIndex];
+    
+    if (treasure) {
+        treasure.isPaused = !treasure.isPaused;
+        if (treasure.isPaused) {
+            treasure.pausedTime = treasure.timeRemaining;
+        }
+        saveData();
+        renderChildProfile();
+    }
+}
+
+function deleteTreasure(treasureId) {
+    if (confirm('Delete this treasure?')) {
+        appState.treasures = appState.treasures.filter(t => t.id !== treasureId);
+        saveData();
+        renderShop();
+    }
+}
+
+function editTreasure(treasureId) {
+    alert('Edit treasure functionality - coming soon');
+}
+
+// ============================================
+// BADGE TRACKING
+// ============================================
+
+function updateBadgeProgress(child, achievementType, value) {
+    child.badges.forEach(badge => {
+        const badgeData = appState.badges.find(b => b.id === badge.badgeId);
+        if (badgeData && badgeData.achievementType === achievementType) {
+            badge.progress = (badge.progress || 0) + value;
+            if (badge.progress >= badgeData.targetValue && !badge.earned) {
+                badge.earned = true;
+            }
+        }
+    });
+}
+
+// ============================================
+// QML MANAGEMENT
+// ============================================
+
+function updateQMLProgress(childId, newProgress) {
+    const child = appState.children.find(c => c.id === childId);
+    if (!child) return;
+    
+    child.currentQMLProgress = newProgress;
+    
+    // Update tier based on progress
+    const tiers = appState.qmlTiers[child.qmlType];
+    for (let tier of tiers) {
+        if (newProgress >= tier.tierRangeMin && newProgress <= tier.tierRangeMax) {
+            child.currentQMLTier = tier.tierName;
+            break;
+        }
+    }
+    
+    saveData();
+    renderChildProfile();
+}
+
+function changeQMLType(childId, newType) {
+    const child = appState.children.find(c => c.id === childId);
+    if (child) {
+        child.qmlType = newType;
+        child.currentQMLTier = 'Beginner';
+        child.currentQMLProgress = 0;
+        saveData();
+        renderChildProfile();
+    }
+}
+
+// ============================================
+// NFC TRIGGER
+// ============================================
+
+function triggerProfileByNFC(nfcId) {
+    const child = appState.children.find(c => c.nfcCardId === nfcId);
+    if (child) {
+        openChildProfile(child.id);
+    } else {
+        alert('NFC card not found');
+    }
+}
+
+// ============================================
+// BIRTHDAY DETECTION
+// ============================================
+
+function checkBirthdays() {
+    const today = new Date();
+    appState.children.forEach(child => {
+        const birthDate = new Date(child.dateOfBirth);
+        if (birthDate.getMonth() === today.getMonth() && birthDate.getDate() === today.getDate()) {
+            child.birthdayNotification = true;
+        }
+    });
+}
+
+function approveBirthdayReward(childId) {
+    const child = appState.children.find(c => c.id === childId);
+    if (child) {
+        child.tokens += appState.birthdayTokenReward;
+        child.birthdayNotification = false;
+        updateBadgeProgress(child, 'tokens_earned', appState.birthdayTokenReward);
+        saveData();
+        alert(`Happy Birthday! ${appState.birthdayTokenReward} tokens awarded!`);
+        renderChildProfile();
+    }
+}
+
+// ============================================
+// TIMER UPDATES
+// ============================================
+
+function startTimerUpdates() {
+    setInterval(() => {
+        let updated = false;
+        appState.children.forEach(child => {
+            child.activeTreasures = child.activeTreasures.filter(treasure => {
+                if (!treasure.isPaused) {
+                    treasure.timeRemaining--;
+                }
+                return treasure.timeRemaining > 0;
+            });
+            if (child.activeTreasures.length > 0) {
+                updated = true;
+            }
+        });
+        if (updated) {
+            saveData();
+            if (appState.currentProfileChildId) {
+                renderChildProfile();
+            }
+        }
+    }, 1000);
+}
+
+// ============================================
+// RENDER FUNCTIONS
+// ============================================
+
+function renderDashboard() {
+    checkBirthdays();
+    const container = document.getElementById('children-list');
+    
+    if (appState.children.length === 0) {
+        container.innerHTML = '<div class="empty-state">No children yet. Add one to get started!</div>';
+        return;
+    }
+    
+    container.innerHTML = appState.children.map(child => `
+        <div class="child-card" onclick="openChildProfile('${child.id}')">
+            <img src="/avatars/${child.avatarId}.png" alt="${child.name}" class="child-avatar">
+            <div class="child-info">
+                <div class="child-name">${child.name}</div>
+                <div class="child-details">Age: ${calculateAge(child.dateOfBirth)}</div>
+                <div class="child-details">QML Type: ${child.qmlType}</div>
+                <div class="tokens-display">💰 ${child.tokens} Tokens</div>
+                <div class="qml-progress">
+                    <div class="qml-progress-label">${child.currentQMLTier}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min((child.currentQMLProgress / 30) * 100, 100)}%"></div>
+                    </div>
+                </div>
+                ${child.birthdayNotification ? '<div style="color: #FFD700; font-weight: bold; margin-top: 5px;">🎂 Birthday Reward Available!</div>' : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderLeaderboard() {
+    const sorted = [...appState.children].sort((a, b) => b.tokens - a.tokens);
+    const container = document.getElementById('leaderboard-list');
+    
+    if (sorted.length === 0) {
+        container.innerHTML = '<div class="empty-state">No children yet.</div>';
+        return;
+    }
+    
+    const ranks = ['🥇', '🥈', '🥉'];
+    container.innerHTML = sorted.map((child, index) => {
+        const rank = index < 3 ? ranks[index] : `#${index + 1}`;
+        return `
+            <div class="leaderboard-row">
+                <div class="rank rank-${index + 1}">${rank}</div>
+                <div class="name" onclick="openChildProfile('${child.id}')">${child.name}</div>
+                <div class="score">💰 ${child.tokens}</div>
+            </div>
+        `;
+    }).join('');
+    
+    // Weekly Stats
+    const statsContainer = document.getElementById('weekly-stats');
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    
+    statsContainer.innerHTML = '<h3 style="margin-top: 20px; margin-bottom: 10px; color: #2D5016;">📊 Weekly Performance</h3>' +
+        sorted.map(child => {
+            const weeklyQuests = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).length;
+            const weeklyTokens = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).reduce((sum, q) => sum + q.tokensEarned, 0);
+            const weeklyTreasures = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).length;
+            const weeklyTime = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).reduce((sum, t) => sum + t.finalTimerSeconds, 0);
+            const weeklyBadges = child.badges.filter(b => b.earned).length;
+            
+            return `
+                <div class="weekly-stat-item">
+                    <div class="weekly-stat-title">${child.name}</div>
+                    <div class="stat-row">Quests Completed: ${weeklyQuests}</div>
+                    <div class="stat-row">Tokens Earned: ${weeklyTokens}</div>
+                    <div class="stat-row">Treasures Claimed: ${weeklyTreasures}</div>
+                    <div class="stat-row">Total Treasure Time: ${Math.floor(weeklyTime / 60)} mins</div>
+                    <div class="stat-row">Badges Earned: ${weeklyBadges}</div>
+                </div>
+            `;
+        }).join('');
+}
+
+function renderPlay() {
+    const container = document.getElementById('quests-list');
+    
+    if (appState.quests.length === 0) {
+        container.innerHTML = '<div class="empty-state">No quests yet.</div>';
+        return;
+    }
+    
+    container.innerHTML = appState.quests.map(quest => `
+        <div class="quest-card">
+            <div class="quest-type">${quest.type}</div>
+            <div class="quest-name">${quest.name}</div>
+            <div class="quest-tokens">💰 ${quest.baseTokenReward} tokens</div>
+            <button class="btn btn-small" onclick="requestQuestFromPlay('${quest.id}')">Request Quest</button>
+            <button class="btn btn-small btn-danger" onclick="deleteQuest('${quest.id}')">Delete</button>
+        </div>
+    `).join('');
+}
+
+function renderShop() {
+    const container = document.getElementById('treasures-list');
+    
+    if (appState.treasures.length === 0) {
+        container.innerHTML = '<div class="empty-state">No treasures yet.</div>';
+        return;
+    }
+    
+    container.innerHTML = appState.treasures.map(treasure => `
+        <div class="treasure-card">
+            <div class="treasure-name">${treasure.name}</div>
+            <div class="treasure-cost">💰 ${treasure.costTokens} tokens | ⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} mins</div>
+            <button class="btn btn-small btn-danger" onclick="deleteTreasure('${treasure.id}')">Delete</button>
+        </div>
+    `).join('');
+}
+
+function renderSettings() {
+    const container = document.getElementById('settings-content');
+    
+    let html = '<div>';
+    
+    // Age Groups
+    html += '<div class="profile-section"><div class="profile-section-title">Age Multiplier Groups</div>';
+    appState.ageGroups.forEach(group => {
+        html += `
+            <div class="setting-item">
+                <div class="setting-label">${group.name} (${group.ageRangeDescription})</div>
+                <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
+                    ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}</option>`).join('')}
+                </select>
+                <button class="btn btn-small" onclick="deleteAgeGroup('${group.id}')">Delete</button>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    // QML Tiers
+    html += '<div class="profile-section"><div class="profile-section-title">QML Tiers</div>';
+    for (const category in appState.qmlTiers) {
+        html += `<div style="margin-bottom: 15px;"><strong>${category}</strong>`;
+        appState.qmlTiers[category].forEach(tier => {
+            html += `
+                <div class="qml-tier">
+                    <div class="qml-tier-name">${tier.tierName}</div>
+                    <div class="qml-tier-bonus">${tier.tierRangeDescription} - ${tier.bonusPercentage}% bonus</div>
+                    <button class="btn btn-small" onclick="deleteQMLTier('${category}', '${tier.id}')">Delete</button>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    html += '</div>';
+    
+    // Birthday Reward
+    html += `
+        <div class="profile-section">
+            <div class="profile-section-title">Birthday Reward</div>
+            <div class="setting-item">
+                <div class="setting-label">Tokens to Award on Birthday</div>
+                <input type="number" class="setting-input" value="${appState.birthdayTokenReward}" onchange="updateBirthdayReward(this.value)">
+            </div>
+        </div>
+    `;
+    
+    // Master Reset
+    html += `
+        <div class="profile-section">
+            <button class="btn btn-danger" onclick="masterReset()">Master Reset All Data</button>
+        </div>
+    `;
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function renderChildProfile() {
+    const child = appState.children.find(c => c.id === appState.currentProfileChildId);
+    if (!child) return;
+    
+    const container = document.getElementById('profile-content');
+    const age = calculateAge(child.dateOfBirth);
+    
+    let html = `
+        <div class="profile-section">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                <img src="/avatars/${child.avatarId}.png" alt="${child.name}" style="width: 80px; height: 80px; border: 2px solid #1a1a1a; border-radius: 4px;">
+                <div>
+                    <div class="profile-section-title" style="border: none; margin: 0; padding: 0;">${child.name}</div>
+                    <div style="font-size: 12px; color: #666;">Age: ${age} | DOB: ${child.dateOfBirth}</div>
+                    ${child.nfcCardId ? `<div style="font-size: 12px; color: #666;">NFC: ${child.nfcCardId}</div>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Birthday Notification
+    if (child.birthdayNotification) {
+        html += `
+            <div class="success-message" style="background: #FFD700; color: #1a1a1a;">
+                🎂 It's ${child.name}'s Birthday!
+                <button class="btn btn-small" onclick="approveBirthdayReward('${child.id}')">Award ${appState.birthdayTokenReward} Tokens</button>
+            </div>
+        `;
+    }
+    
+    // Status Section
+    html += `
+        <div class="profile-section">
+            <div class="profile-section-title">Status</div>
+            <div style="font-size: 12px; margin-bottom: 10px;">
+                <div style="margin-bottom: 8px;"><strong>Tokens:</strong> 💰 ${child.tokens}</div>
+                <div style="margin-bottom: 8px;">
+                    <strong>QML Type:</strong>
+                    <select onchange="changeQMLType('${child.id}', this.value)" style="margin-left: 10px; padding: 4px;">
+                        <option value="Juz Amma" ${child.qmlType === 'Juz Amma' ? 'selected' : ''}>Juz Amma</option>
+                        <option value="Al-Quran" ${child.qmlType === 'Al-Quran' ? 'selected' : ''}>Al-Quran</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 8px;"><strong>Current Tier:</strong> ${child.currentQMLTier}</div>
+                <div style="margin-bottom: 8px;">
+                    <strong>QML Progress:</strong>
+                    <div style="display: flex; gap: 5px; margin-top: 5px;">
+                        <input type="number" id="qmlProgressInput" value="${child.currentQMLProgress}" style="width: 60px; padding: 4px; border: 2px solid #1a1a1a;">
+                        <button class="btn btn-small" onclick="updateQMLProgress('${child.id}', parseInt(document.getElementById('qmlProgressInput').value))">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Ongoing Quests
+    html += `<div class="profile-section"><div class="profile-section-title">Ongoing Quests</div>`;
+    if (child.ongoingQuests.length === 0) {
+        html += '<div class="empty-state">No ongoing quests</div>';
+    } else {
+        child.ongoingQuests.forEach(oq => {
+            const quest = appState.quests.find(q => q.id === oq.questId);
+            html += `
+                <div class="ongoing-quest">
+                    <div class="ongoing-quest-name">${quest.name}</div>
+                    <div class="status-badge ${oq.status === 'pending_approval' ? 'pending' : ''}">${oq.status === 'ongoing' ? 'Ongoing' : 'Pending Approval'}</div>
+                    ${oq.status === 'ongoing' ? `
+                        <button class="btn btn-small" onclick="markQuestComplete('${child.id}', '${oq.questId}')">Mark Complete</button>
+                        <button class="btn btn-small btn-danger" onclick="cancelQuest('${child.id}', '${oq.questId}')">Cancel</button>
+                    ` : `
+                        <button class="btn btn-small" onclick="approveQuest('${child.id}', '${oq.questId}')">Approve</button>
+                        <button class="btn btn-small btn-danger" onclick="rejectQuest('${child.id}', '${oq.questId}')">Reject</button>
+                    `}
+                </div>
+            `;
+        });
+    }
+    html += '</div>';
+    
+    // Active Treasures
+    html += `<div class="profile-section"><div class="profile-section-title">Active Treasures</div>`;
+    if (child.activeTreasures.length === 0) {
+        html += '<div class="empty-state">No active treasures</div>';
+    } else {
+        child.activeTreasures.forEach((treasure, index) => {
+            const treasureData = appState.treasures.find(t => t.id === treasure.treasureId);
+            html += `
+                <div style="padding: 10px; border: 2px solid #1a1a1a; margin-bottom: 8px; background: #fff3cd;">
+                    <div style="font-weight: bold; margin-bottom: 8px;">${treasureData.name}</div>
+                    <div class="timer-display">${formatTime(treasure.timeRemaining)}</div>
+                    <button class="btn btn-small" onclick="pauseTreasure('${child.id}', ${index})">${treasure.isPaused ? 'Resume' : 'Pause'}</button>
+                </div>
+            `;
+        });
+    }
+    html += '</div>';
+    
+    // Available Treasures
+    html += `<div class="profile-section"><div class="profile-section-title">Available Treasures</div>`;
+    if (appState.treasures.length === 0) {
+        html += '<div class="empty-state">No treasures available</div>';
+    } else {
+        appState.treasures.forEach(treasure => {
+            const canClaim = child.tokens >= treasure.costTokens;
+            html += `
+                <div style="padding: 10px; border: 2px solid #1a1a1a; margin-bottom: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);">
+                    <div style="font-weight: bold; margin-bottom: 5px;">${treasure.name}</div>
+                    <div style="font-size: 12px; margin-bottom: 8px;">💰 ${treasure.costTokens} tokens | ⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} mins</div>
+                    <button class="btn btn-small ${!canClaim ? 'disabled' : ''}" onclick="claimTreasure('${child.id}', '${treasure.id}')" ${!canClaim ? 'disabled' : ''}>
+                        ${canClaim ? 'Claim' : `Need ${treasure.costTokens - child.tokens} more`}
+                    </button>
+                </div>
+            `;
+        });
+    }
+    html += '</div>';
+    
+    // Badges
+    html += `<div class="profile-section"><div class="profile-section-title">Badges</div>`;
+    const badgesByCategory = {};
+    child.badges.forEach(badge => {
+        const badgeData = appState.badges.find(b => b.id === badge.badgeId);
+        if (badgeData) {
+            if (!badgesByCategory[badgeData.category]) badgesByCategory[badgeData.category] = [];
+            badgesByCategory[badgeData.category].push({...badge, ...badgeData});
+        }
+    });
+    
+    html += '<div class="badge-grid">';
+    Object.values(badgesByCategory).flat().forEach(badge => {
+        const icons = {
+            'Coal': '⬛',
+            'Copper': '🟧',
+            'Iron': '⬜',
+            'Gold': '🟨',
+            'Redstone': '🔴',
+            'Diamond': '🔷',
+            'Emerald': '🟢',
+            'Ancient Debris': '🟫'
+        };
+        html += `
+            <div class="badge-item" style="opacity: ${badge.earned ? '1' : '0.5'};">
+                <div class="badge-icon">${icons[badge.category] || '?'}</div>
+                <div class="badge-name">${badge.name}</div>
+                <div class="badge-progress">${badge.progress}/${badge.targetValue}</div>
+            </div>
+        `;
+    });
+    html += '</div></div>';
+    
+    // Quest History
+    html += `<div class="profile-section"><div class="profile-section-title">Quest History (Last 5)</div>`;
+    if (child.questHistory.length === 0) {
+        html += '<div class="empty-state">No quest history</div>';
+    } else {
+        child.questHistory.slice(-5).reverse().forEach(q => {
+            html += `
+                <div class="history-item">
+                    <div class="history-item-title">${q.questName}</div>
+                    <div class="history-item-detail">Type: ${q.questType}</div>
+                    <div class="history-item-detail">Tokens Earned: ${q.tokensEarned}</div>
+                    <div class="history-item-detail">Completed: ${q.completedDate}</div>
+                </div>
+            `;
+        });
+    }
+    html += '</div>';
+    
+    // Stats
+    html += `
+        <div class="profile-section">
+            <div class="profile-section-title">Summary Statistics</div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">${child.questHistory.length}</div>
+                    <div class="stat-label">Quests Completed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${child.treasureHistory.length}</div>
+                    <div class="stat-label">Treasures Claimed</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Delete Child
+    html += `<button class="btn btn-danger" onclick="deleteChild('${child.id}')" style="width: 100%; margin-top: 15px;">Delete Child</button>`;
+    
+    container.innerHTML = html;
+}
+
+// ============================================
+// AVATAR SELECTION
+// ============================================
+
+function renderAvatarGrid() {
+    const grid = document.getElementById('avatarGrid');
+    grid.innerHTML = AVATAR_LIST.map(avatar => `
+        <div class="avatar-option ${selectedAvatarId === avatar.id ? 'selected' : ''}" onclick="selectAvatar('${avatar.id}')">
+            <img src="${avatar.path}" alt="Avatar">
+        </div>
+    `).join('');
+}
+
+function selectAvatar(avatarId) {
+    selectedAvatarId = avatarId;
+    renderAvatarGrid();
+}
+
+// ============================================
+// SETTINGS FUNCTIONS
+// ============================================
+
+function updateAgeGroupMultiplier(groupId, value) {
+    const group = appState.ageGroups.find(g => g.id === groupId);
+    if (group) {
+        group.currentMultiplier = parseFloat(value);
+        saveData();
+    }
+}
+
+function deleteAgeGroup(groupId) {
+    if (appState.ageGroups.length <= 1) {
+        alert('Must have at least one age group');
+        return;
+    }
+    if (confirm('Delete this age group?')) {
+        appState.ageGroups = appState.ageGroups.filter(g => g.id !== groupId);
+        saveData();
+        renderSettings();
+    }
+}
+
+function deleteQMLTier(category, tierId) {
+    if (appState.qmlTiers[category].length <= 1) {
+        alert('Must have at least one tier per category');
+        return;
+    }
+    if (confirm('Delete this QML tier?')) {
+        appState.qmlTiers[category] = appState.qmlTiers[category].filter(t => t.id !== tierId);
+        saveData();
+        renderSettings();
+    }
+}
+
+function updateBirthdayReward(value) {
+    appState.birthdayTokenReward = parseInt(value);
+    saveData();
+}
+
+function masterReset() {
+    if (confirm('Reset ALL data to defaults? This cannot be undone!')) {
+        localStorage.removeItem('epic-rpg-data');
+        location.reload();
+    }
+}
+
+// ============================================
+// NFC CARD SCANNING
+// ============================================
+
+function processNFCCard() {
+    const nfcInput = document.getElementById('nfcCardInput');
+    const nfcCardId = nfcInput.value.trim();
+    const statusDiv = document.getElementById('nfc-status');
+    const resultDiv = document.getElementById('nfc-result');
+    
+    if (!nfcCardId) {
+        statusDiv.textContent = 'Please enter or scan an NFC card ID';
+        statusDiv.classList.remove('success', 'error');
+        return;
+    }
+    
+    statusDiv.classList.add('scanning');
+    statusDiv.textContent = 'Scanning card...';
+    resultDiv.innerHTML = '';
+    
+    // Simulate NFC scanning delay
+    setTimeout(() => {
+        const matchedChild = appState.children.find(child => child.nfcCardId === nfcCardId);
+        
+        if (matchedChild) {
+            // Success: Found matching child
+            statusDiv.classList.remove('scanning', 'error');
+            statusDiv.classList.add('success');
+            statusDiv.textContent = '✓ Card recognized!';
+            
+            resultDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">👤 ${matchedChild.name}</div>
+                    <div style="margin-bottom: 15px;">Age: ${calculateAge(matchedChild.dateOfBirth)}</div>
+                    <button class="btn" onclick="openChildProfileFromNFC('${matchedChild.id}')">Open Profile</button>
+                </div>
+            `;
+            resultDiv.classList.add('success');
+        } else {
+            // Check if this NFC ID is already assigned to someone
+            statusDiv.classList.remove('scanning', 'success');
+            statusDiv.classList.add('error');
+            statusDiv.textContent = '✗ Card not recognized';
+            
+            resultDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="margin-bottom: 10px;">Card ID: ${nfcCardId}</div>
+                    <div style="margin-bottom: 15px; font-size: 12px;">This card is not assigned to any child.</div>
+                    <button class="btn" onclick="assignNFCCardToChild('${nfcCardId}')">Assign to Child</button>
+                </div>
+            `;
+            resultDiv.classList.add('error');
+        }
+        
+        statusDiv.classList.remove('scanning');
+    }, 1000);
+}
+
+function assignNFCCardToChild(nfcCardId) {
+    const childSelect = document.createElement('select');
+    childSelect.innerHTML = '<option value="">Select a child...</option>' + 
+        appState.children.map(child => `<option value="${child.id}">${child.name}</option>`).join('');
+    
+    const modal = document.getElementById('nfcScanModal');
+    const resultDiv = document.getElementById('nfc-result');
+    
+    resultDiv.innerHTML = `
+        <div style="text-align: center;">
+            <div style="margin-bottom: 10px;">Assign Card to Child:</div>
+            <select id="childSelectForNFC" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <option value="">Select a child...</option>
+                ${appState.children.map(child => `<option value="${child.id}">${child.name}</option>`).join('')}
+            </select>
+            <button class="btn" onclick="confirmNFCAssignment('${nfcCardId}')">Confirm</button>
+        </div>
+    `;
+}
+
+function confirmNFCAssignment(nfcCardId) {
+    const childId = document.getElementById('childSelectForNFC').value;
+    
+    if (!childId) {
+        alert('Please select a child');
+        return;
+    }
+    
+    const child = appState.children.find(c => c.id === childId);
+    if (child) {
+        child.nfcCardId = nfcCardId;
+        saveData();
+        
+        const resultDiv = document.getElementById('nfc-result');
+        resultDiv.innerHTML = `
+            <div style="text-align: center; color: #2E7D32;">
+                <div style="font-size: 16px; margin-bottom: 10px;">✓ Success!</div>
+                <div>Card assigned to ${child.name}</div>
+            </div>
+        `;
+        
+        setTimeout(() => {
+            closeModal('nfcScanModal');
+            document.getElementById('nfcCardInput').value = '';
+            document.getElementById('nfc-result').innerHTML = '';
+            document.getElementById('nfc-status').textContent = 'Ready to scan...';
+            document.getElementById('nfc-status').classList.remove('success', 'error', 'scanning');
+        }, 2000);
+    }
+}
+
+function openChildProfileFromNFC(childId) {
+    closeModal('nfcScanModal');
+    document.getElementById('nfcCardInput').value = '';
+    document.getElementById('nfc-result').innerHTML = '';
+    document.getElementById('nfc-status').textContent = 'Ready to scan...';
+    document.getElementById('nfc-status').classList.remove('success', 'error', 'scanning');
+    
+    // Open the child profile
+    openChildProfile(childId);
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+function init() {
+    loadData();
+    renderDashboard();
+    renderAvatarGrid();
+    startTimerUpdates();
+}
+
+// Start the app
+window.addEventListener('DOMContentLoaded', init);
