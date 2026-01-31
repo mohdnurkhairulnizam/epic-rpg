@@ -788,8 +788,9 @@ body {
 /* NFC Button in Header */
 .nfc-button {
     position: fixed;
-    bottom: 75px;
-    right: 15px;
+    bottom: 80px;
+    right: 20px;
+    z-index: 50;
     padding: 8px 12px;
     background: #FFD700;
     border: 2px solid #1a1a1a;

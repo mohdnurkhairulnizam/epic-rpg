@@ -1092,9 +1092,9 @@ function renderChildProfile() {
                         <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
                         <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
                             <div style="flex: 1; height: 20px; background: #1a1a1a; border: 2px solid #1a1a1a; position: relative; overflow: hidden;">
-                                <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${(child.currentQMLProgress / 30) * 100}%; transition: width 0.2s;"></div>
+                                <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${(child.currentQMLProgress / (child.qmlType === 'Juz Amma' ? 37 : 30)) * 100}%; transition: width 0.2s;"></div>
                             </div>
-                            <span style="font-weight: bold; min-width: 40px; text-align: center;">${child.currentQMLProgress}/30</span>
+                            <span style="font-weight: bold; min-width: 40px; text-align: center;">${child.currentQMLProgress}/${child.qmlType === 'Juz Amma' ? 37 : 30}</span>
                         </div>
                         <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} + 1)">+</button>
                     </div>
@@ -1160,8 +1160,8 @@ function renderChildProfile() {
     child.badges.forEach(badge => {
         const badgeData = appState.badges.find(b => b.id === badge.badgeId);
         if (badgeData) {
-            const icons = {'Coal': '⬛', 'Copper': '🟧', 'Iron': '⬜', 'Gold': '🟨', 'Redstone': '🔴', 'Diamond': '🔷', 'Emerald': '🟢', 'Ancient Debris': '🟫'};
-            html += `<div class="badge-item" style="opacity: ${badge.earned ? '1' : '0.5'};"><div class="badge-icon">${icons[badgeData.category] || '?'}</div><div class="badge-name">${badgeData.name}</div><div class="badge-progress">${badge.progress}/${badgeData.targetValue}</div></div>`;
+            const iconMap = {'Coal': 'coal-ore', 'Copper': 'copper-ore', 'Iron': 'iron-ore', 'Gold': 'gold-ore', 'Redstone': 'redstone-ore', 'Diamond': 'diamond-ore', 'Emerald': 'emerald-ore', 'Ancient Debris': 'ancient-debris'};
+            html += `<div class="badge-item" style="opacity: ${badge.earned ? '1' : '0.5'};"><div class="badge-icon"><img src="/badges/${iconMap[badgeData.category]}.png" alt="${badgeData.category}" style="width: 32px; height: 32px;"></div><div class="badge-name">${badgeData.name}</div><div class="badge-progress">${badge.progress}/${badgeData.targetValue}</div></div>`;
         }
     });
     html += '</div></div>';
