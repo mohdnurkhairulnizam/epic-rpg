@@ -454,12 +454,18 @@ function updateQMLProgress(childId, value) {
     const child = appState.children.find(c => c.id === childId);
     if (!child) return;
     
+    const oldTier = child.currentQMLTier;
     child.currentQMLProgress = value;
     
     // Auto-update tier
     const tiers = appState.qmlTiers[child.qmlType];
     const newTier = tiers.find(t => value >= t.minRequirement && value <= t.maxRequirement);
     if (newTier) child.currentQMLTier = newTier.tierName;
+    
+    // Show tier milestone celebration if tier changed
+    if (newTier && oldTier !== newTier.tierName) {
+        showTierMilestonePopup(child.name, newTier.tierName);
+    }
     
     saveData();
     renderChildProfile();
@@ -918,21 +924,26 @@ function renderLeaderboard() {
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     
     statsContainer.innerHTML = '<h3 style="margin-top: 20px; margin-bottom: 10px; color: #FFD700;">📊 Weekly Performance</h3>' +
-        sorted.map(child => {
+        sorted.map((child, index) => {
             const weeklyQuests = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).length;
             const weeklyTokens = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).reduce((sum, q) => sum + q.tokensEarned, 0);
             const weeklyTreasures = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).length;
             const weeklyBadges = child.badges.filter(b => b.earned && new Date(b.earnedDate) >= weekAgo).length;
             const weeklyTime = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).reduce((sum, t) => sum + (t.finalTimerSeconds || 0), 0);
             
+            const medalEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "⭐";
+            const totalActivity = weeklyQuests + weeklyTokens + weeklyTreasures + weeklyBadges;
+            const activityBar = "█".repeat(Math.min(totalActivity, 10)) + "░".repeat(Math.max(0, 10 - totalActivity));
+            
             return `
                 <div class="weekly-stat-item">
-                    <div class="weekly-stat-title">${child.name}</div>
-                    <div class="stat-row">Quests Completed: ${weeklyQuests}</div>
-                    <div class="stat-row">Tokens Earned: ${weeklyTokens}</div>
-                    <div class="stat-row">Treasures Claimed: ${weeklyTreasures}</div>
-                    <div class="stat-row">Total Treasure Time: ${Math.floor(weeklyTime / 60)} mins</div>
-                    <div class="stat-row">Badges Earned: ${weeklyBadges}</div>
+                    <div class="weekly-stat-title">${medalEmoji} ${child.name}</div>
+                    <div class="weekly-activity-bar">${activityBar}</div>
+                    <div class="stat-row">⚔️ Quests: ${weeklyQuests}</div>
+                    <div class="stat-row">💰 Tokens: ${weeklyTokens}</div>
+                    <div class="stat-row">🎁 Treasures: ${weeklyTreasures}</div>
+                    <div class="stat-row">⏱️ Time: ${Math.floor(weeklyTime / 60)} mins</div>
+                    <div class="stat-row">🏅 Badges: ${weeklyBadges}</div>
                 </div>
             `;
         }).join('');
@@ -1222,6 +1233,35 @@ function editQMLTier(category, tierId) {
     const newBonus = prompt('Enter bonus percentage:', tier.bonusPercentage);
     if (newBonus !== null) tier.bonusPercentage = parseInt(newBonus);
     saveData(); renderSettings();
+}
+
+// ============================================
+// TIER MILESTONE CELEBRATIONS
+// ============================================
+
+function showTierMilestonePopup(childName, tierName) {
+    // Create popup container
+    const popup = document.createElement('div');
+    popup.className = 'tier-milestone-popup';
+    popup.innerHTML = `
+        <div class="tier-milestone-content">
+            <div class="tier-milestone-animation">
+                <img src="/animations/ore-celebration-1.png" class="ore-animation" alt="Celebration">
+            </div>
+            <div class="tier-milestone-text">
+                <div class="tier-milestone-title">🎉 Tier Unlocked! 🎉</div>
+                <div class="tier-milestone-child">${childName}</div>
+                <div class="tier-milestone-tier">Reached: ${tierName}</div>
+                <button class="tier-milestone-btn" onclick="this.closest('.tier-milestone-popup').remove()">Celebrate!</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (popup.parentNode) popup.remove();
+    }, 5000);
 }
 
 function init() { loadData(); renderDashboard(); renderAvatarGrid(); startTimerUpdates(); }
