@@ -1,0 +1,571 @@
+{
+  "metadata": {
+    "description": "Complete EPIC RPG data schema and state management structure",
+    "version": "2.0",
+    "lastUpdated": "2026-01-31",
+    "storageMethod": "localStorage",
+    "storageKey": "epicRpgData",
+    "dataFormat": "JSON"
+  },
+  "appState": {
+    "children": [
+      {
+        "id": "string (unique identifier, format: child_N)",
+        "name": "string (child's full name)",
+        "dateOfBirth": "string (ISO date format: YYYY-MM-DD)",
+        "nfcCardId": "string or null (NFC card identifier, currently unused)",
+        "avatarId": "string (references avatar file, format: avatar_m_N or avatar_f_N)",
+        "tokens": "number (current token balance, integer >= 0)",
+        "qmlType": "string (enum: 'Juz Amma' or 'Al-Quran')",
+        "currentQMLTier": "string (enum: 'Beginner', 'Learner', 'Strong Reader', 'Young Hafiz', 'Advance Hafiz', 'Master Hafiz', 'Ultimate Hafiz')",
+        "currentQMLProgress": "number (current progress within tier, integer >= 0)",
+        "ongoingQuests": [
+          {
+            "id": "string (quest ID)",
+            "name": "string (quest name)",
+            "type": "string (quest type)",
+            "baseTokenReward": "number (base reward)",
+            "assignedDate": "string (ISO timestamp when assigned)",
+            "status": "string (enum: 'pending', 'approved', 'rejected')"
+          }
+        ],
+        "activeTreasures": [
+          {
+            "id": "string (treasure ID)",
+            "name": "string (treasure name)",
+            "costTokens": "number (tokens spent)",
+            "timerSecondsRemaining": "number (countdown in seconds)",
+            "claimDate": "string (ISO timestamp when claimed)",
+            "completionDate": "string or null (ISO timestamp when timer ended)"
+          }
+        ],
+        "badges": [
+          {
+            "id": "string (badge ID)",
+            "category": "string (ore type: Coal, Copper, Iron, Gold, Redstone, Diamond, Emerald, Ancient Debris)",
+            "name": "string (badge name)",
+            "description": "string (badge description)",
+            "type": "string (enum: 'quests_completed', 'tokens_earned', 'treasures_claimed')",
+            "targetValue": "number (target to achieve badge)",
+            "earnedDate": "string (ISO timestamp when earned)"
+          }
+        ],
+        "questHistory": [
+          {
+            "id": "string (quest ID)",
+            "name": "string (quest name)",
+            "type": "string (quest type)",
+            "baseTokenReward": "number (base reward)",
+            "tokensAwarded": "number (actual tokens given after multipliers)",
+            "approvedDate": "string (ISO timestamp when approved)",
+            "ageMultiplier": "number (age multiplier applied)",
+            "qmlBonus": "number (QML bonus percentage, 0-1)",
+            "status": "string (enum: 'approved', 'rejected')"
+          }
+        ],
+        "treasureHistory": [
+          {
+            "id": "string (treasure ID)",
+            "name": "string (treasure name)",
+            "costTokens": "number (tokens spent)",
+            "baseTimerSeconds": "number (duration in seconds)",
+            "claimDate": "string (ISO timestamp when claimed)",
+            "completionDate": "string (ISO timestamp when timer ended)"
+          }
+        ]
+      }
+    ],
+    "quests": [
+      {
+        "id": "string (unique identifier, format: quest_N)",
+        "name": "string (quest name)",
+        "type": "string (enum: 'Quick Quest', 'Standard Mission', 'Boss Fight', 'Team Raid')",
+        "baseTokenReward": "number (base tokens, range: 1-8)"
+      }
+    ],
+    "treasures": [
+      {
+        "id": "string (unique identifier, format: treasure_N)",
+        "name": "string (treasure name)",
+        "costTokens": "number (token cost to claim)",
+        "baseTimerSeconds": "number (duration in seconds)",
+        "cooldownSeconds": "number (cooldown after completion, currently 0)"
+      }
+    ],
+    "ageGroups": [
+      {
+        "id": "string (unique identifier, format: age_N)",
+        "name": "string (age group name)",
+        "ageRangeMin": "number (minimum age)",
+        "ageRangeMax": "number (maximum age)",
+        "ageRangeDescription": "string (human-readable range)",
+        "multiplierOptions": "array of numbers (available multiplier choices: 0.7-1.5)",
+        "currentMultiplier": "number (currently selected multiplier)"
+      }
+    ],
+    "qmlTiers": {
+      "Juz Amma": [
+        {
+          "id": "string (tier ID, format: ja_N)",
+          "tierName": "string (tier name)",
+          "minRequirement": "number (minimum progress to reach tier)",
+          "maxRequirement": "number (maximum progress in tier)",
+          "tierRangeDescription": "string (e.g., '0-2 surah')",
+          "bonusPercentage": "number (token bonus, 0-100)"
+        }
+      ],
+      "Al-Quran": [
+        {
+          "id": "string (tier ID, format: aq_N)",
+          "tierName": "string (tier name)",
+          "minRequirement": "number (minimum progress to reach tier)",
+          "maxRequirement": "number (maximum progress in tier)",
+          "tierRangeDescription": "string (e.g., '0-2 Juz')",
+          "bonusPercentage": "number (token bonus, 0-100)"
+        }
+      ]
+    },
+    "badges": [
+      {
+        "id": "string (unique identifier, format: badge_N)",
+        "category": "string (ore type: Coal, Copper, Iron, Gold, Redstone, Diamond, Emerald, Ancient Debris)",
+        "name": "string (badge name)",
+        "description": "string (achievement description)",
+        "type": "string (enum: 'quests_completed', 'tokens_earned', 'treasures_claimed')",
+        "targetValue": "number (target value to earn badge)"
+      }
+    ],
+    "birthdayTokenReward": "number (tokens awarded on birthday, default: 100)"
+  },
+  "preset_data": {
+    "description": "Initial data loaded on first app launch",
+    "children": {
+      "count": 4,
+      "preset": [
+        {
+          "id": "child_1",
+          "name": "Muhammad Darwish Ar-Rayyan",
+          "dateOfBirth": "2013-08-09",
+          "avatarId": "avatar_m_1",
+          "qmlType": "Juz Amma"
+        },
+        {
+          "id": "child_2",
+          "name": "Muhammad Daniyal Al-Fateh",
+          "dateOfBirth": "2015-07-05",
+          "avatarId": "avatar_m_2",
+          "qmlType": "Al-Quran"
+        },
+        {
+          "id": "child_3",
+          "name": "Muhammad Dawood Ariq",
+          "dateOfBirth": "2018-06-14",
+          "avatarId": "avatar_f_1",
+          "qmlType": "Juz Amma"
+        },
+        {
+          "id": "child_4",
+          "name": "Muhammad Danish Adeeb",
+          "dateOfBirth": "2021-04-17",
+          "avatarId": "avatar_m_3",
+          "qmlType": "Al-Quran"
+        }
+      ]
+    },
+    "quests": {
+      "count": 4,
+      "preset": [
+        {
+          "id": "quest_1",
+          "name": "Pick up toys",
+          "type": "Quick Quest",
+          "baseTokenReward": 1
+        },
+        {
+          "id": "quest_2",
+          "name": "Sweep the floor",
+          "type": "Standard Mission",
+          "baseTokenReward": 3
+        },
+        {
+          "id": "quest_3",
+          "name": "Clean the bathroom",
+          "type": "Boss Fight",
+          "baseTokenReward": 6
+        },
+        {
+          "id": "quest_4",
+          "name": "Wash the Car",
+          "type": "Team Raid",
+          "baseTokenReward": 8
+        }
+      ]
+    },
+    "treasures": {
+      "count": 4,
+      "preset": [
+        {
+          "id": "treasure_1",
+          "name": "TV (15min)",
+          "costTokens": 5,
+          "baseTimerSeconds": 900,
+          "cooldownSeconds": 0
+        },
+        {
+          "id": "treasure_2",
+          "name": "TV (30min)",
+          "costTokens": 9,
+          "baseTimerSeconds": 1800,
+          "cooldownSeconds": 0
+        },
+        {
+          "id": "treasure_3",
+          "name": "PS5 (15min)",
+          "costTokens": 6,
+          "baseTimerSeconds": 900,
+          "cooldownSeconds": 0
+        },
+        {
+          "id": "treasure_4",
+          "name": "PS5 (30min)",
+          "costTokens": 11,
+          "baseTimerSeconds": 1800,
+          "cooldownSeconds": 0
+        }
+      ]
+    },
+    "ageGroups": {
+      "count": 3,
+      "preset": [
+        {
+          "id": "age_1",
+          "name": "Age 5 and Below",
+          "ageRangeMin": 0,
+          "ageRangeMax": 5,
+          "ageRangeDescription": "5 and below",
+          "multiplierOptions": [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+          "currentMultiplier": 1.5
+        },
+        {
+          "id": "age_2",
+          "name": "Age 6-10",
+          "ageRangeMin": 6,
+          "ageRangeMax": 10,
+          "ageRangeDescription": "6-10",
+          "multiplierOptions": [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+          "currentMultiplier": 1.2
+        },
+        {
+          "id": "age_3",
+          "name": "Age 11-12",
+          "ageRangeMin": 11,
+          "ageRangeMax": 12,
+          "ageRangeDescription": "11-12",
+          "multiplierOptions": [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5],
+          "currentMultiplier": 1.0
+        }
+      ]
+    },
+    "badges": {
+      "count": 24,
+      "categories": 8,
+      "preset": [
+        {
+          "category": "Coal",
+          "badges": [
+            {
+              "id": "badge_1",
+              "name": "Quest Starter",
+              "description": "Complete 1 quest",
+              "type": "quests_completed",
+              "targetValue": 1
+            },
+            {
+              "id": "badge_2",
+              "name": "Token Collector",
+              "description": "Earn 10 tokens",
+              "type": "tokens_earned",
+              "targetValue": 10
+            },
+            {
+              "id": "badge_3",
+              "name": "First Treasure",
+              "description": "Claim 1 treasure",
+              "type": "treasures_claimed",
+              "targetValue": 1
+            }
+          ]
+        },
+        {
+          "category": "Copper",
+          "badges": [
+            {
+              "id": "badge_4",
+              "name": "Quest Runner",
+              "description": "Complete 5 quests",
+              "type": "quests_completed",
+              "targetValue": 5
+            },
+            {
+              "id": "badge_5",
+              "name": "Token Saver",
+              "description": "Earn 50 tokens",
+              "type": "tokens_earned",
+              "targetValue": 50
+            },
+            {
+              "id": "badge_6",
+              "name": "Treasure Hunter",
+              "description": "Claim 3 treasures",
+              "type": "treasures_claimed",
+              "targetValue": 3
+            }
+          ]
+        },
+        {
+          "category": "Iron",
+          "badges": [
+            {
+              "id": "badge_7",
+              "name": "Quest Warrior",
+              "description": "Complete 15 quests",
+              "type": "quests_completed",
+              "targetValue": 15
+            },
+            {
+              "id": "badge_8",
+              "name": "Token Master",
+              "description": "Earn 150 tokens",
+              "type": "tokens_earned",
+              "targetValue": 150
+            },
+            {
+              "id": "badge_9",
+              "name": "Treasure Seeker",
+              "description": "Claim 5 treasures",
+              "type": "treasures_claimed",
+              "targetValue": 5
+            }
+          ]
+        },
+        {
+          "category": "Gold",
+          "badges": [
+            {
+              "id": "badge_10",
+              "name": "Quest Legend",
+              "description": "Complete 30 quests",
+              "type": "quests_completed",
+              "targetValue": 30
+            },
+            {
+              "id": "badge_11",
+              "name": "Token Millionaire",
+              "description": "Earn 500 tokens",
+              "type": "tokens_earned",
+              "targetValue": 500
+            },
+            {
+              "id": "badge_12",
+              "name": "Treasure Collector",
+              "description": "Claim 10 treasures",
+              "type": "treasures_claimed",
+              "targetValue": 10
+            }
+          ]
+        },
+        {
+          "category": "Redstone",
+          "badges": [
+            {
+              "id": "badge_13",
+              "name": "Quest Master",
+              "description": "Complete 50 quests",
+              "type": "quests_completed",
+              "targetValue": 50
+            },
+            {
+              "id": "badge_14",
+              "name": "Token Billionaire",
+              "description": "Earn 1000 tokens",
+              "type": "tokens_earned",
+              "targetValue": 1000
+            },
+            {
+              "id": "badge_15",
+              "name": "Treasure Hoarder",
+              "description": "Claim 20 treasures",
+              "type": "treasures_claimed",
+              "targetValue": 20
+            }
+          ]
+        },
+        {
+          "category": "Diamond",
+          "badges": [
+            {
+              "id": "badge_16",
+              "name": "Quest Champion",
+              "description": "Complete 100 quests",
+              "type": "quests_completed",
+              "targetValue": 100
+            },
+            {
+              "id": "badge_17",
+              "name": "Token Trillionaire",
+              "description": "Earn 2000 tokens",
+              "type": "tokens_earned",
+              "targetValue": 2000
+            },
+            {
+              "id": "badge_18",
+              "name": "Treasure Emperor",
+              "description": "Claim 30 treasures",
+              "type": "treasures_claimed",
+              "targetValue": 30
+            }
+          ]
+        },
+        {
+          "category": "Emerald",
+          "badges": [
+            {
+              "id": "badge_19",
+              "name": "Quest Deity",
+              "description": "Complete 200 quests",
+              "type": "quests_completed",
+              "targetValue": 200
+            },
+            {
+              "id": "badge_20",
+              "name": "Token Infinite",
+              "description": "Earn 5000 tokens",
+              "type": "tokens_earned",
+              "targetValue": 5000
+            },
+            {
+              "id": "badge_21",
+              "name": "Treasure Immortal",
+              "description": "Claim 50 treasures",
+              "type": "treasures_claimed",
+              "targetValue": 50
+            }
+          ]
+        },
+        {
+          "category": "Ancient Debris",
+          "badges": [
+            {
+              "id": "badge_22",
+              "name": "Quest Eternal",
+              "description": "Complete 500 quests",
+              "type": "quests_completed",
+              "targetValue": 500
+            },
+            {
+              "id": "badge_23",
+              "name": "Token Eternal",
+              "description": "Earn 10000 tokens",
+              "type": "tokens_earned",
+              "targetValue": 10000
+            },
+            {
+              "id": "badge_24",
+              "name": "Treasure Eternal",
+              "description": "Claim 100 treasures",
+              "type": "treasures_claimed",
+              "targetValue": 100
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "state_management": {
+    "description": "How state is managed in the application",
+    "pattern": "Global state object (appState) with functions to modify",
+    "persistence": {
+      "method": "localStorage",
+      "key": "epicRpgData",
+      "format": "JSON.stringify(appState)",
+      "saveFunction": "saveData()",
+      "loadFunction": "loadData()",
+      "triggers": "After every state modification"
+    },
+    "initialization": {
+      "onAppStart": "Call loadData() to restore from localStorage",
+      "onFirstLaunch": "If localStorage empty, initialize with preset data",
+      "fallback": "If load fails, use PRESET_* constants"
+    },
+    "key_functions": {
+      "saveData": "Saves appState to localStorage['epicRpgData']",
+      "loadData": "Loads appState from localStorage['epicRpgData']",
+      "addChild": "Adds new child to appState.children",
+      "deleteChild": "Removes child from appState.children",
+      "assignQuest": "Adds quest to child's ongoingQuests",
+      "approveQuest": "Moves quest to questHistory, awards tokens",
+      "rejectQuest": "Removes quest from ongoingQuests",
+      "claimTreasure": "Adds treasure to activeTreasures, deducts tokens",
+      "updateQMLProgress": "Increments/decrements currentQMLProgress, checks tier change",
+      "changeQMLType": "Changes child's qmlType and recalculates tier",
+      "updateBadgeProgress": "Increments badge progress counters",
+      "checkBadgeCompletion": "Checks if badge targets met and adds to earned badges",
+      "masterReset": "Clears all data and reinitializes with presets"
+    }
+  },
+  "calculation_formulas": {
+    "token_award": {
+      "formula": "tokensAwarded = Math.round(baseTokenReward × ageMultiplier × (1 + qmlBonus))",
+      "example": "3 × 1.2 × (1 + 0.35) = 4.86 ≈ 5 tokens",
+      "components": {
+        "baseTokenReward": "Quest's base reward (1-8)",
+        "ageMultiplier": "Age group multiplier (0.7-1.5)",
+        "qmlBonus": "QML tier bonus (0-1.0, representing 0-100%)"
+      }
+    },
+    "age_calculation": {
+      "formula": "age = Math.floor((today - dateOfBirth) / 365.25)",
+      "method": "Calculate age from dateOfBirth and current date"
+    },
+    "tier_determination": {
+      "method": "Find tier where minRequirement <= currentQMLProgress <= maxRequirement",
+      "qmlType": "Determines which tier array to use (Juz Amma or Al-Quran)"
+    },
+    "activity_bar": {
+      "formula": "totalActivity = weeklyQuests + weeklyTokens + weeklyTreasures + weeklyBadges",
+      "display": "█ characters (max 10) + ░ characters (remaining)",
+      "calculation": "Count stats from last 7 days of history"
+    }
+  },
+  "data_validation": {
+    "child": {
+      "id": "Must be unique string",
+      "name": "Must be non-empty string",
+      "dateOfBirth": "Must be valid ISO date",
+      "avatarId": "Must reference existing avatar file",
+      "tokens": "Must be non-negative integer",
+      "qmlType": "Must be 'Juz Amma' or 'Al-Quran'",
+      "currentQMLTier": "Must be valid tier name",
+      "currentQMLProgress": "Must be non-negative integer"
+    },
+    "quest": {
+      "id": "Must be unique string",
+      "name": "Must be non-empty string",
+      "type": "Must be valid quest type",
+      "baseTokenReward": "Must be integer 1-8"
+    },
+    "treasure": {
+      "id": "Must be unique string",
+      "name": "Must be non-empty string",
+      "costTokens": "Must be positive integer",
+      "baseTimerSeconds": "Must be positive integer"
+    }
+  },
+  "notes": {
+    "no_randomization": "All calculations are deterministic - no random number generation used",
+    "no_backend": "All data stored locally in browser localStorage - no server/database",
+    "no_sync": "No cloud sync or multi-device synchronization",
+    "browser_dependent": "Data persists only in same browser on same device",
+    "export_limitation": "No built-in export/backup functionality"
+  }
+}

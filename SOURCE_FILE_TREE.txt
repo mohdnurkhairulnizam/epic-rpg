@@ -1,0 +1,83 @@
+EPIC RPG - Complete Source File Tree
+=====================================
+
+epic-rpg/
+├── client/
+│   ├── index.html                          (Main HTML entry point)
+│   ├── public/
+│   │   ├── epic-rpg-app.js                 (1268 lines - Main application logic)
+│   │   ├── epic-rpg-style.css              (1100+ lines - All styling)
+│   │   ├── avatars/                        (80 avatar PNG files)
+│   │   │   ├── avatar_m_1.png              (Male avatar 1 - 64x64px)
+│   │   │   ├── avatar_m_1_original.png     (Original version)
+│   │   │   ├── avatar_m_2.png through avatar_m_13.png
+│   │   │   ├── avatar_f_1.png through avatar_f_10.png
+│   │   │   ├── avatar_f_*_original.png     (Original versions)
+│   │   │   └── avatar_1.png through avatar_20.png (Generic avatars)
+│   │   ├── badges/                         (8 badge ore icons)
+│   │   │   ├── coal-ore.png                (64x64px - Dark gray ore)
+│   │   │   ├── copper-ore.png              (64x64px - Orange ore)
+│   │   │   ├── iron-ore.png                (64x64px - Light gray ore)
+│   │   │   ├── gold-ore.png                (64x64px - Golden ore)
+│   │   │   ├── redstone-ore.png            (64x64px - Red ore)
+│   │   │   ├── diamond-ore.png             (64x64px - Cyan ore)
+│   │   │   ├── emerald-ore.png             (64x64px - Green ore)
+│   │   │   └── ancient-debris.png          (64x64px - Brown/gold ore)
+│   │   ├── animations/                     (3 tier celebration animation frames)
+│   │   │   ├── ore-celebration-1.png       (64x64px - Glowing diamond ore)
+│   │   │   ├── ore-celebration-2.png       (64x64px - Intense glow with sparkles)
+│   │   │   └── ore-celebration-3.png       (64x64px - Maximum sparkle effect)
+│   │   └── __manus__/
+│   │       └── debug-collector.js          (Manus runtime debug utility)
+│   └── src/                                (React template files - NOT USED)
+│       ├── App.tsx
+│       ├── main.tsx
+│       ├── index.css
+│       └── ...
+├── package.json                            (Dependencies and scripts)
+├── vite.config.ts                          (Vite build configuration)
+├── tsconfig.json                           (TypeScript configuration)
+├── pnpm-lock.yaml                          (Exact dependency versions)
+└── Documentation Files (Generated):
+    ├── COMPLETE_DEVELOPMENT_LOG.md         (All user requests and changes)
+    ├── APPLICATION_SPECIFICATION.md        (Full UI and mechanics spec)
+    ├── DATA_SCHEMA.json                    (Complete data structure)
+    ├── PLATFORM_CONFIGURATION.md           (Build and deployment config)
+    ├── FUNCTIONAL_VALIDATION_WALKTHROUGH.md (Step-by-step test scenarios)
+    └── SOURCE_FILE_TREE.txt                (This file)
+
+KEY FILES FOR RECONSTRUCTION:
+
+1. CORE APPLICATION (REQUIRED):
+   - client/public/epic-rpg-app.js          (Main logic - 1268 lines)
+   - client/public/epic-rpg-style.css       (All styling - 1100+ lines)
+   - client/index.html                      (HTML structure)
+
+2. ASSETS (REQUIRED):
+   - client/public/avatars/                 (80 avatar images)
+   - client/public/badges/                  (8 badge ore icons)
+   - client/public/animations/              (3 tier celebration frames)
+
+3. CONFIGURATION (REQUIRED):
+   - package.json                           (Dependencies)
+   - vite.config.ts                         (Build config)
+   - pnpm-lock.yaml                         (Exact versions)
+
+4. DOCUMENTATION (REFERENCE):
+   - All .md files for reconstruction guide
+
+FILE SIZES:
+- epic-rpg-app.js: ~45 KB
+- epic-rpg-style.css: ~35 KB
+- All avatars: ~8 MB (80 x 64x64px PNG files)
+- All badges: ~200 KB (8 x 64x64px PNG files)
+- All animations: ~150 KB (3 x 64x64px PNG files)
+- Total source code: ~53 MB (with all assets)
+
+IMPORTANT NOTES:
+- React template files in client/src/ are NOT used - application is vanilla JavaScript
+- All game logic is in epic-rpg-app.js
+- All styling is in epic-rpg-style.css
+- No backend server is used - pure client-side application
+- Data persisted to localStorage under key 'epicRpgData'
+- Vite serves vanilla JavaScript app, not React
