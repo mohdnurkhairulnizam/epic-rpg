@@ -344,7 +344,7 @@ function closeModal(modalId) {
 // CHILD MANAGEMENT
 // ============================================
 
-function addChild() {
+function createChild() {
     const name = document.getElementById('childName').value;
     const dob = document.getElementById('childDOB').value;
     const nfc = document.getElementById('childNFC').value;
@@ -583,9 +583,8 @@ function confirmMultiQuestAssignment(questId) {
         requestQuest(cb.value, questId);
     });
     
-    const modal = document.querySelector('.modal');
-    if (modal) modal.remove();
-    alert(`Quest assigned to ${checkboxes.length} child(ren)!`);
+    closeModal('assignQuestModal');
+    renderPlay();
 }
 
 function requestQuest(childId, questId) {
@@ -594,11 +593,6 @@ function requestQuest(childId, questId) {
     
     if (!child || !quest) return;
     
-    if (child.ongoingQuests.find(q => q.questId === questId)) {
-        alert('This child already has this quest');
-        return;
-    }
-    
     child.ongoingQuests.push({
         questId,
         status: 'ongoing',
@@ -606,7 +600,6 @@ function requestQuest(childId, questId) {
     });
     
     saveData();
-    renderPlay();
 }
 
 function markQuestComplete(childId, questId) {
@@ -992,34 +985,18 @@ function renderSettings() {
     const container = document.getElementById('settings-content');
     let html = '<div>';
     
-    html += '<div class="profile-section"><div class="profile-section-title">Age Multiplier Groups</div>';
+    html += '<div class="profile-section"><div class="profile-section-title">Age Multiplier & QML Tiers</div>';
+    html += '<button class="btn btn-primary" onclick="openEditSettingsModal()" style="width: 100%; margin-bottom: 15px;">Edit All Settings</button>';
+    html += '<div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px;">';
+    html += '<strong style="display: block; margin-bottom: 10px;">Age Multiplier Groups:</strong>';
     appState.ageGroups.forEach(group => {
-        html += `
-            <div class="setting-item">
-                <div class="setting-label">${group.name} (${group.ageRangeMin}-${group.ageRangeMax})</div>
-                <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
-                    ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}</option>`).join('')}
-                </select>
-                <button class="btn btn-small" onclick="editAgeGroup('${group.id}')">Edit</button>
-            </div>
-        `;
+        html += `<div style="margin: 5px 0; font-size: 12px;">${group.name}: <strong>${group.currentMultiplier}x</strong></div>`;
     });
-    html += '</div>';
-    
-    html += '<div class="profile-section"><div class="profile-section-title">QML Tiers</div>';
+    html += '<br><strong style="display: block; margin-bottom: 10px; margin-top: 10px;">QML Tiers:</strong>';
     for (const category in appState.qmlTiers) {
-        html += `<div style="margin-bottom: 15px;"><strong>${category}</strong>`;
-        appState.qmlTiers[category].forEach(tier => {
-            html += `
-                <div class="qml-tier">
-                    <div class="qml-tier-name">${tier.tierName}</div>
-                    <div class="qml-tier-bonus">${tier.minRequirement}-${tier.maxRequirement} - ${tier.bonusPercentage}% bonus</div>
-                    <button class="btn btn-small" onclick="editQMLTier('${category}', '${tier.id}')">Edit</button>
-                </div>
-            `;
-        });
-        html += '</div>';
+        html += `<div style="margin: 5px 0; font-size: 12px;"><strong>${category}:</strong> ${appState.qmlTiers[category].length} tiers configured</div>`;
     }
+    html += '</div>';
     html += '</div>';
     
     html += `
@@ -1264,5 +1241,60 @@ function showTierMilestonePopup(childName, tierName) {
     }, 5000);
 }
 
+
+function openEditSettingsModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'editSettingsModal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+            <div class="modal-header">Edit Settings</div>
+            
+            <div class="form-group">
+                <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">Age Multiplier Groups</label>
+                ${appState.ageGroups.map(group => `
+                    <div style="background: rgba(0,0,0,0.1); padding: 12px; margin-bottom: 10px; border-radius: 6px;">
+                        <div style="margin-bottom: 8px;"><strong>${group.name} (Age ${group.ageRangeMin}-${group.ageRangeMax})</strong></div>
+                        <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
+                            ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}x</option>`).join('')}
+                        </select>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">QML Tiers</label>
+                ${Object.entries(appState.qmlTiers).map(([category, tiers]) => `
+                    <div style="margin-bottom: 15px;">
+                        <strong style="display: block; margin-bottom: 8px; color: #4CAF50;">${category}</strong>
+                        ${tiers.map(tier => `
+                            <div style="background: rgba(0,0,0,0.1); padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px;">
+                                <div><strong>${tier.tierName}</strong></div>
+                                <div>Min: <input type="number" value="${tier.minRequirement}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"></div>
+                                <div>Max: <input type="number" value="${tier.maxRequirement}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"></div>
+                                <div>Bonus: <input type="number" value="${tier.bonusPercentage}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)">%</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('editSettingsModal'); renderSettings();">Done</button>
+                <button class="btn" onclick="closeModal('editSettingsModal')">Cancel</button>
+            </div>
+        </div>
+    `;
+    modal.classList.add('active');
+    document.body.appendChild(modal);
+}
+
+function updateQMLTier(category, tierId, field, value) {
+    const tier = appState.qmlTiers[category].find(t => t.id === tierId);
+    if (tier) {
+        tier[field] = parseInt(value);
+        saveData();
+    }
+}
 function init() { loadData(); renderDashboard(); renderAvatarGrid(); startTimerUpdates(); }
 window.addEventListener('DOMContentLoaded', init);
