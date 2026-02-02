@@ -284,6 +284,14 @@ function getQMLBonus(tierName) {
     return 0;
 }
 
+function getQMLMaxValue(qmlType) {
+    const tiers = appState.qmlTiers[qmlType];
+    if (tiers && tiers.length > 0) {
+        return tiers[tiers.length - 1].maxRequirement;
+    }
+    return qmlType === 'Juz Amma' ? 37 : 30;
+}
+
 function calculateTokens(base, age, qmlTier, qmlType) {
     const ageMult = getAgeMultiplier(age);
     const qmlBonus = getQMLBonus(qmlTier);
@@ -373,8 +381,17 @@ function createChild() {
     
     appState.children.push(newChild);
     saveData();
+    clearChildForm();
     closeModal('addChildModal');
     renderDashboard();
+}
+
+function clearChildForm() {
+    document.getElementById('childName').value = '';
+    document.getElementById('childDOB').value = '';
+    document.getElementById('childNFC').value = '';
+    selectedAvatarId = null;
+    document.getElementById('childQMLType').value = 'Juz Amma';
 }
 
 function editChild(childId) {
@@ -548,6 +565,7 @@ function requestQuestFromPlay(questId) {
     }
     
     const modal = document.createElement('div');
+    modal.id = 'assignQuestModal';
     modal.className = 'modal active';
     modal.innerHTML = `
         <div class="modal-content">
@@ -564,8 +582,8 @@ function requestQuestFromPlay(questId) {
                 </div>
             </div>
             <div class="modal-buttons">
-                <button class="btn" onclick="confirmMultiQuestAssignment('${questId}')">Assign</button>
-                <button class="btn" onclick="this.closest('.modal').remove()">Cancel</button>
+                <button class="btn" onclick="confirmMultiQuestAssignment('${questId}'); closeModal('assignQuestModal');">Assign</button>
+                <button class="btn" onclick="closeModal('assignQuestModal')">Cancel</button>
             </div>
         </div>
     `;
@@ -583,7 +601,6 @@ function confirmMultiQuestAssignment(questId) {
         requestQuest(cb.value, questId);
     });
     
-    closeModal('assignQuestModal');
     renderPlay();
 }
 
@@ -594,6 +611,7 @@ function requestQuest(childId, questId) {
     if (!child || !quest) return;
     
     child.ongoingQuests.push({
+        instanceId: generateId(),
         questId,
         status: 'ongoing',
         startDate: new Date().toISOString().split('T')[0]
@@ -602,9 +620,9 @@ function requestQuest(childId, questId) {
     saveData();
 }
 
-function markQuestComplete(childId, questId) {
+function markQuestComplete(childId, questInstanceId) {
     const child = appState.children.find(c => c.id === childId);
-    const ongoingQuest = child.ongoingQuests.find(q => q.questId === questId);
+    const ongoingQuest = child.ongoingQuests.find(q => q.instanceId === questInstanceId);
     
     if (ongoingQuest) {
         ongoingQuest.status = 'pending_approval';
@@ -614,10 +632,12 @@ function markQuestComplete(childId, questId) {
     }
 }
 
-function approveQuest(childId, questId) {
+function approveQuest(childId, questInstanceId) {
+    const ongoingQuest = appState.children.find(c => c.id === childId)?.ongoingQuests.find(q => q.instanceId === questInstanceId);
+    if (!ongoingQuest) return;
+    
     const child = appState.children.find(c => c.id === childId);
-    const quest = appState.quests.find(q => q.id === questId);
-    const ongoingQuest = child.ongoingQuests.find(q => q.questId === questId);
+    const quest = appState.quests.find(q => q.id === ongoingQuest.questId);
     
     if (!child || !quest || !ongoingQuest) return;
     
@@ -626,7 +646,7 @@ function approveQuest(childId, questId) {
     
     child.tokens += tokensEarned;
     child.questHistory.push({
-        questId,
+        questId: ongoingQuest.questId,
         questName: quest.name,
         questType: quest.type,
         baseTokens: quest.baseTokenReward,
@@ -637,26 +657,12 @@ function approveQuest(childId, questId) {
         approvedDate: new Date().toISOString().split('T')[0]
     });
     
-    child.ongoingQuests = child.ongoingQuests.filter(q => q.questId !== questId);
+    child.ongoingQuests = child.ongoingQuests.filter(q => q.instanceId !== questInstanceId);
     updateBadgeProgress(child, 'quests_completed', 1);
     updateBadgeProgress(child, 'tokens_earned', tokensEarned);
     
     saveData();
-    alert(`Quest approved! ${tokensEarned} tokens awarded`);
-    renderChildProfile();
-}
-
-function rejectQuest(childId, questId) {
-    const child = appState.children.find(c => c.id === childId);
-    child.ongoingQuests = child.ongoingQuests.filter(q => q.questId !== questId);
-    saveData();
-    renderChildProfile();
-}
-
-function cancelQuest(childId, questId) {
-    const child = appState.children.find(c => c.id === childId);
-    child.ongoingQuests = child.ongoingQuests.filter(q => q.questId !== questId);
-    saveData();
+    alert(`Quest approved! ${tokensEarned} tokens`);
     renderChildProfile();
 }
 
@@ -1066,9 +1072,9 @@ function renderChildProfile() {
             <div class="profile-section-title">Status</div>
             <div style="font-size: 12px; margin-bottom: 10px;">
                 <div style="margin-bottom: 8px;"><strong>Tokens:</strong> 💰 ${child.tokens}</div>
-                <div style="margin-bottom: 8px;">
+                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
                     <strong>QML Type:</strong>
-                    <select onchange="changeQMLType('${child.id}', this.value)" style="margin-left: 10px; padding: 4px;">
+                    <select onchange="changeQMLType('${child.id}', this.value)" style="padding: 4px;">
                         <option value="Juz Amma" ${child.qmlType === 'Juz Amma' ? 'selected' : ''}>Juz Amma</option>
                         <option value="Al-Quran" ${child.qmlType === 'Al-Quran' ? 'selected' : ''}>Al-Quran</option>
                     </select>
@@ -1078,11 +1084,11 @@ function renderChildProfile() {
                     <strong>QML Progress:</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
-                        <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                        <div style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 0 10px;">
                             <div style="flex: 1; height: 20px; background: #1a1a1a; border: 2px solid #1a1a1a; position: relative; overflow: hidden;">
-                                <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${(child.currentQMLProgress / (child.qmlType === 'Juz Amma' ? 37 : 30)) * 100}%; transition: width 0.2s;"></div>
+                                <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${(child.currentQMLProgress / getQMLMaxValue(child.qmlType)) * 100}%; transition: width 0.2s;"></div>
                             </div>
-                            <span style="font-weight: bold; min-width: 40px; text-align: center;">${child.currentQMLProgress}/${child.qmlType === 'Juz Amma' ? 37 : 30}</span>
+                            <span style="font-weight: bold; min-width: 40px; text-align: center;">${child.currentQMLProgress}/${getQMLMaxValue(child.qmlType)}</span>
                         </div>
                         <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} + 1)">+</button>
                     </div>
@@ -1098,10 +1104,10 @@ function renderChildProfile() {
         child.ongoingQuests.forEach(oq => {
             const quest = appState.quests.find(q => q.id === oq.questId);
             html += `
-                <div class="ongoing-quest">
+                    <div class="ongoing-quest">
                     <div class="ongoing-quest-name">${quest.name}</div>
                     <div class="status-badge ${oq.status === 'pending_approval' ? 'pending' : ''}">${oq.status === 'ongoing' ? 'Ongoing' : 'Pending Approval'}</div>
-                    ${oq.status === 'ongoing' ? `<button class="btn btn-small" onclick="markQuestComplete('${child.id}', '${oq.questId}')">Mark Complete</button><button class="btn btn-small btn-danger" onclick="cancelQuest('${child.id}', '${oq.questId}')">Cancel</button>` : `<button class="btn btn-small" onclick="approveQuest('${child.id}', '${oq.questId}')">Approve</button><button class="btn btn-small btn-danger" onclick="rejectQuest('${child.id}', '${oq.questId}')">Reject</button>`}
+                    ${oq.status === 'ongoing' ? `<button class="btn btn-small" onclick="markQuestComplete('${child.id}', '${oq.instanceId}')">Mark Complete</button><button class="btn btn-small btn-danger" onclick="cancelQuest('${child.id}', '${oq.instanceId}')">Cancel</button>` : `<button class="btn btn-small" onclick="approveQuest('${child.id}', '${oq.instanceId}')">Approve</button><button class="btn btn-small btn-danger" onclick="rejectQuest('${child.id}', '${oq.instanceId}')">Reject</button>`}
                 </div>
             `;
         });
@@ -1243,6 +1249,10 @@ function showTierMilestonePopup(childName, tierName) {
 
 
 function openEditSettingsModal() {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('editSettingsModal');
+    if (existingModal) existingModal.remove();
+    
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.id = 'editSettingsModal';
