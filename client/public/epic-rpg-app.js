@@ -293,9 +293,10 @@ function getQMLMaxValue(qmlType) {
 }
 
 function calculateTokens(base, age, qmlTier, qmlType) {
+    // Age multiplier ONLY affects quest completion tokens, NOT treasure rewards
     const ageMult = getAgeMultiplier(age);
-    const qmlBonus = getQMLBonus(qmlTier);
-    return Math.round(base * ageMult * (1 + qmlBonus));
+    // QML bonus does NOT affect token calculation - only affects treasure timer
+    return Math.round(base * ageMult);
 }
 
 function formatTime(seconds) {
@@ -564,6 +565,10 @@ function requestQuestFromPlay(questId) {
         return;
     }
     
+    // Remove existing modal if it exists
+    const existingModal = document.getElementById('assignQuestModal');
+    if (existingModal) existingModal.remove();
+    
     const modal = document.createElement('div');
     modal.id = 'assignQuestModal';
     modal.className = 'modal active';
@@ -582,12 +587,17 @@ function requestQuestFromPlay(questId) {
                 </div>
             </div>
             <div class="modal-buttons">
-                <button class="btn" onclick="confirmMultiQuestAssignment('${questId}'); closeModal('assignQuestModal');">Assign</button>
+                <button class="btn" onclick="confirmMultiQuestAssignmentAndClose('${questId}')">Assign</button>
                 <button class="btn" onclick="closeModal('assignQuestModal')">Cancel</button>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
+}
+
+function confirmMultiQuestAssignmentAndClose(questId) {
+    confirmMultiQuestAssignment(questId);
+    closeModal('assignQuestModal');
 }
 
 function confirmMultiQuestAssignment(questId) {
@@ -1080,9 +1090,9 @@ function renderChildProfile() {
                     </select>
                 </div>
                 <div style="margin-bottom: 8px;"><strong>Current Tier:</strong> ${child.currentQMLTier}</div>
-                <div style="margin-bottom: 8px;">
-                    <strong>QML Progress:</strong>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                <div style="margin-bottom: 12px; background: #f0f0f0; border: 2px solid #1a1a1a; padding: 10px; margin-left: -10px; margin-right: -10px;">
+                    <strong style="display: block; margin-bottom: 8px;">QML Progress:</strong>
+                    <div style="display: flex; align-items: center; gap: 10px;">
                         <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
                         <div style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 0 10px;">
                             <div style="flex: 1; height: 20px; background: #1a1a1a; border: 2px solid #1a1a1a; position: relative; overflow: hidden;">
@@ -1122,7 +1132,7 @@ function renderChildProfile() {
             const treasureData = appState.treasures.find(t => t.id === treasure.treasureId);
             const percent = (treasure.timeRemaining / treasure.timerDuration) * 100;
             html += `
-                <div class="status-notification status-enjoying-treasure" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;">
+                <div style="background: #f0f0f0; border: 2px solid #1a1a1a; padding: 10px; margin-bottom: 10px; margin-left: -10px; margin-right: -10px;">
                     <div style="font-weight: bold; margin-bottom: 5px;">🎁 Enjoying: ${treasureData ? treasureData.name : 'Treasure'}</div>
                     <div class="dashboard-timer-bar">
                         <div class="dashboard-timer-fill" style="width: ${percent}%"></div>
