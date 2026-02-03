@@ -1090,7 +1090,7 @@ function renderChildProfile() {
                     </select>
                 </div>
                 <div style="margin-bottom: 8px;"><strong>Current Tier:</strong> ${child.currentQMLTier}</div>
-                <div style="background: #f0f0f0; border: 2px solid #1a1a1a; padding: 10px; margin-bottom: 10px; margin-left: -10px; margin-right: -10px; height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="margin-bottom: 12px; background: #f0f0f0; border: 2px solid #1a1a1a; padding: 10px; margin-left: -10px; margin-right: -10px;">
                     <strong style="display: block; margin-bottom: 8px;">QML Progress:</strong>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
@@ -1190,15 +1190,6 @@ function updateAgeGroupMultiplier(groupId, value) {
     if (group) { group.currentMultiplier = parseFloat(value); saveData(); }
 }
 
-function updateAgeGroupRange(groupId, minAge, maxAge) {
-    const group = appState.ageGroups.find(g => g.id === groupId);
-    if (group) {
-        group.ageRangeMin = parseInt(minAge);
-        group.ageRangeMax = parseInt(maxAge);
-        saveData();
-    }
-}
-
 function updateBirthdayReward(value) { appState.birthdayTokenReward = parseInt(value); saveData(); }
 
 function masterReset() {
@@ -1283,23 +1274,10 @@ function openEditSettingsModal() {
                 <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">Age Multiplier Groups</label>
                 ${appState.ageGroups.map(group => `
                     <div style="background: rgba(0,0,0,0.1); padding: 12px; margin-bottom: 10px; border-radius: 6px;">
-                        <div style="margin-bottom: 8px;"><strong>${group.name}</strong></div>
-                        <div style="margin-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                            <div>
-                                <label style="font-size: 11px; display: block; margin-bottom: 4px;">Min Age</label>
-                                <input type="number" value="${group.ageRangeMin}" style="width: 100%; padding: 6px;" onchange="updateAgeGroupRange('${group.id}', this.value, '${group.ageRangeMax}')">
-                            </div>
-                            <div>
-                                <label style="font-size: 11px; display: block; margin-bottom: 4px;">Max Age</label>
-                                <input type="number" value="${group.ageRangeMax}" style="width: 100%; padding: 6px;" onchange="updateAgeGroupRange('${group.id}', '${group.ageRangeMin}', this.value)">
-                            </div>
-                            <div>
-                                <label style="font-size: 11px; display: block; margin-bottom: 4px;">Multiplier</label>
-                                <select class="setting-input" style="width: 100%;" onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
-                                    ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}x</option>`).join('')}
-                                </select>
-                            </div>
-                        </div>
+                        <div style="margin-bottom: 8px;"><strong>${group.name} (Age ${group.ageRangeMin}-${group.ageRangeMax})</strong></div>
+                        <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
+                            ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}x</option>`).join('')}
+                        </select>
                     </div>
                 `).join('')}
             </div>
@@ -1310,22 +1288,11 @@ function openEditSettingsModal() {
                     <div style="margin-bottom: 15px;">
                         <strong style="display: block; margin-bottom: 8px; color: #4CAF50;">${category}</strong>
                         ${tiers.map(tier => `
-                            <div style="background: rgba(0,0,0,0.1); padding: 12px; margin-bottom: 10px; border-radius: 6px;">
-                                <div style="margin-bottom: 8px;"><strong>${tier.tierName}</strong></div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                                    <div>
-                                        <label style="font-size: 11px; display: block; margin-bottom: 4px;">Min</label>
-                                        <input type="number" value="${tier.minRequirement}" style="width: 100%; padding: 6px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)">
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 11px; display: block; margin-bottom: 4px;">Max</label>
-                                        <input type="number" value="${tier.maxRequirement}" style="width: 100%; padding: 6px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)">
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 11px; display: block; margin-bottom: 4px;">Bonus %</label>
-                                        <input type="number" value="${tier.bonusPercentage}" style="width: 100%; padding: 6px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)">
-                                    </div>
-                                </div>
+                            <div style="background: rgba(0,0,0,0.1); padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px;">
+                                <div><strong>${tier.tierName}</strong></div>
+                                <div>Min: <input type="number" value="${tier.minRequirement}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"></div>
+                                <div>Max: <input type="number" value="${tier.maxRequirement}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"></div>
+                                <div>Bonus: <input type="number" value="${tier.bonusPercentage}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)">%</div>
                             </div>
                         `).join('')}
                     </div>
