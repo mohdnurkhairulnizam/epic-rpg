@@ -1,6 +1,29 @@
 // Vanilla HTML5, CSS3, JavaScript (ES6+)
 
 // ============================================
+// CUSTOM NOTIFICATIONS
+// ============================================
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `custom-notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            if (notification.parentNode) notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// ============================================
 // PRESET DATA
 // ============================================
 
@@ -359,7 +382,7 @@ function createChild() {
     const nfc = document.getElementById('childNFC').value;
     
     if (!name || !dob) {
-        alert('Please fill in all fields');
+        showNotification('Please fill in all fields', 'error');
         return;
     }
     
@@ -425,7 +448,7 @@ function editChild(childId) {
                 </div>
                 <div class="form-group">
                     <label>Select Avatar</label>
-                    <div id="editAvatarGrid" class="avatar-grid"></div>
+                    <div id="editAvatarGrid" class="avatar-grid" style="margin-bottom: 20px;"></div>
                 </div>
                 <div class="modal-buttons">
                     <button class="btn" onclick="saveChildEdit()">Save Changes</button>
@@ -482,7 +505,7 @@ function updateQMLProgress(childId, value) {
     
     // Show tier milestone celebration if tier changed
     if (newTier && oldTier !== newTier.tierName) {
-        showTierMilestonePopup(child.name, newTier.tierName);
+        showTierMilestonePopup(child.name, newTier.tierName, child.qmlType);
     }
     
     saveData();
@@ -540,7 +563,7 @@ function createQuest() {
     const tokens = parseInt(document.getElementById('questTokens').value);
     
     if (!name || !type || !tokens) {
-        alert('Please fill in all fields');
+        showNotification('Please fill in all fields', 'error');
         return;
     }
     
@@ -561,7 +584,7 @@ function createQuest() {
 
 function requestQuestFromPlay(questId) {
     if (appState.children.length === 0) {
-        alert('Please add a child first');
+        showNotification('Please add a child first', 'error');
         return;
     }
     
@@ -603,7 +626,7 @@ function confirmMultiQuestAssignmentAndClose(questId) {
 function confirmMultiQuestAssignment(questId) {
     const checkboxes = document.querySelectorAll('.child-assign-checkbox:checked');
     if (checkboxes.length === 0) {
-        alert('Please select at least one child');
+        showNotification('Please select at least one child', 'error');
         return;
     }
     
@@ -672,7 +695,7 @@ function approveQuest(childId, questInstanceId) {
     updateBadgeProgress(child, 'tokens_earned', tokensEarned);
     
     saveData();
-    alert(`Quest approved! ${tokensEarned} tokens`);
+    showNotification(`Quest approved! ${tokensEarned} tokens`, 'success');
     renderChildProfile();
 }
 
@@ -714,7 +737,7 @@ function createTreasure() {
     const timer = parseInt(document.getElementById('treasureTimer').value);
     
     if (!name || !cost || !timer) {
-        alert('Please fill in all fields');
+        showNotification('Please fill in all fields', 'error');
         return;
     }
     
@@ -742,15 +765,22 @@ function claimTreasure(childId, treasureId) {
     if (!child || !treasure) return;
 
     if (child.tokens < treasure.costTokens) {
-        alert('Not enough tokens!');
+        showNotification('Not enough tokens!', 'error');
         return;
     }
     
     child.tokens -= treasure.costTokens;
+    
+    // Calculate timer with QML Bonus %
+    const tiers = appState.qmlTiers[child.qmlType];
+    const currentTier = tiers.find(t => child.currentQMLProgress >= t.minRequirement && child.currentQMLProgress <= t.maxRequirement);
+    const bonusPercentage = currentTier ? currentTier.bonusPercentage : 0;
+    const finalTimerSeconds = Math.round(treasure.baseTimerSeconds * (1 + bonusPercentage / 100));
+    
     child.activeTreasures.push({
         treasureId,
-        timeRemaining: treasure.baseTimerSeconds,
-        timerDuration: treasure.baseTimerSeconds,
+        timeRemaining: finalTimerSeconds,
+        timerDuration: finalTimerSeconds,
         isPaused: false
     });
     
@@ -759,7 +789,8 @@ function claimTreasure(childId, treasureId) {
         treasureName: treasure.name,
         costTokens: treasure.costTokens,
         claimDate: new Date().toISOString().split('T')[0],
-        claimFullDate: new Date().toISOString()
+        claimFullDate: new Date().toISOString(),
+        finalTimerSeconds: finalTimerSeconds
     });
     
     updateBadgeProgress(child, 'treasures_claimed', 1);
@@ -896,9 +927,9 @@ function renderDashboard() {
                     <div class="child-name">${child.name}</div>
                     <div class="child-details">Age: ${age} | ${child.currentQMLTier}</div>
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
-                    <div class="qml-progress">
-                        <div class="qml-progress-label">${child.currentQMLTier}</div>
-                        <div class="progress-bar">
+                    <div class="qml-progress" style="padding: 0 12px; margin-top: 8px;">
+                        <div class="qml-progress-label" style="font-size: 11px; margin-bottom: 4px;">${child.currentQMLTier}</div>
+                        <div class="progress-bar" style="height: 8px;">
                             <div class="progress-fill" style="width: ${(child.currentQMLProgress / 30) * 100}%"></div>
                         </div>
                     </div>
@@ -1090,12 +1121,12 @@ function renderChildProfile() {
                     </select>
                 </div>
                 <div style="margin-bottom: 8px;"><strong>Current Tier:</strong> ${child.currentQMLTier}</div>
-                <div style="margin-bottom: 12px; background: #f0f0f0; border: 2px solid #1a1a1a; padding: 10px; margin-left: -10px; margin-right: -10px;">
+                <div style="margin-bottom: 12px;">
                     <strong style="display: block; margin-bottom: 8px;">QML Progress:</strong>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
                         <div style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 0 10px;">
-                            <div style="flex: 1; height: 20px; background: #1a1a1a; border: 2px solid #1a1a1a; position: relative; overflow: hidden;">
+                            <div style="flex: 1; height: 16px; background: #1a1a1a; border: 2px solid #1a1a1a; position: relative; overflow: hidden;">
                                 <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${(child.currentQMLProgress / getQMLMaxValue(child.qmlType)) * 100}%; transition: width 0.2s;"></div>
                             </div>
                             <span style="font-weight: bold; min-width: 40px; text-align: center;">${child.currentQMLProgress}/${getQMLMaxValue(child.qmlType)}</span>
@@ -1223,7 +1254,7 @@ function masterReset() {
             child.tokens = 0; child.questHistory = []; child.treasureHistory = []; child.ongoingQuests = []; child.activeTreasures = [];
             child.badges = appState.badges.map(b => ({ badgeId: b.id, progress: 0, earned: false }));
         });
-        saveData(); renderDashboard(); if (appState.currentProfileChildId) renderChildProfile(); alert('Master reset complete!');
+        saveData(); renderDashboard(); if (appState.currentProfileChildId) renderChildProfile(); showNotification('Master reset complete!', 'success');
     }
 }
 
@@ -1257,14 +1288,27 @@ function editQMLTier(category, tierId) {
 // TIER MILESTONE CELEBRATIONS
 // ============================================
 
-function showTierMilestonePopup(childName, tierName) {
+function showTierMilestonePopup(childName, tierName, category = 'Juz Amma') {
+    // Map tier names to badge icon categories
+    const tierToBadgeMap = {
+        'Beginner': 'coal-ore',
+        'Learner': 'copper-ore',
+        'Strong Reader': 'iron-ore',
+        'Young Hafiz': 'gold-ore',
+        'Advance Hafiz': 'redstone-ore',
+        'Master Hafiz': 'diamond-ore',
+        'Ultimate Hafiz': 'emerald-ore'
+    };
+    
+    const badgeIcon = tierToBadgeMap[tierName] || 'coal-ore';
+    
     // Create popup container
     const popup = document.createElement('div');
     popup.className = 'tier-milestone-popup';
     popup.innerHTML = `
         <div class="tier-milestone-content">
             <div class="tier-milestone-animation">
-                <img src="/animations/ore-celebration-1.png" class="ore-animation" alt="Celebration">
+                <img src="/badges/${badgeIcon}.png" class="ore-animation" alt="${tierName}" style="width: 80px; height: 80px;">
             </div>
             <div class="tier-milestone-text">
                 <div class="tier-milestone-title">🎉 Tier Unlocked! 🎉</div>
@@ -1299,9 +1343,9 @@ function openEditSettingsModal() {
                 <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">Age Multiplier Groups</label>
                 ${appState.ageGroups.map(group => `
                     <div style="background: rgba(0,0,0,0.1); padding: 12px; margin-bottom: 10px; border-radius: 6px;">
-                        <div style="margin-bottom: 8px;"><strong>Group Name:</strong> <input type="text" value="${group.name}" style="width: 150px; padding: 4px;" onchange="updateAgeGroupName('${group.id}', this.value)"></div>
-                        <div style="margin-bottom: 8px;"><strong>Age Range:</strong> <input type="number" value="${group.ageRangeMin}" style="width: 50px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'min')"> - <input type="number" value="${group.ageRangeMax}" style="width: 50px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'max')"></div>
-                        <div style="margin-bottom: 8px;"><strong>Multiplier:</strong> <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
+                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Group Name:</strong> <input type="text" value="${group.name}" style="flex: 1; padding: 4px; max-width: 180px;" onchange="updateAgeGroupName('${group.id}', this.value)"></div>
+                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Age Range:</strong> <input type="number" value="${group.ageRangeMin}" style="width: 60px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'min')"> <span>-</span> <input type="number" value="${group.ageRangeMax}" style="width: 60px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'max')"></div>
+                        <div style="display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Multiplier:</strong> <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)" style="flex: 1; max-width: 180px;">
                             ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}x</option>`).join('')}
                         </select></div>
                     </div>
@@ -1315,10 +1359,8 @@ function openEditSettingsModal() {
                         <strong style="display: block; margin-bottom: 8px; color: #4CAF50;">${category}</strong>
                         ${tiers.map(tier => `
                             <div style="background: rgba(0,0,0,0.1); padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px;">
-                                <div style="margin-bottom: 6px;"><strong>Tier Name:</strong> <input type="text" value="${tier.tierName}" style="width: 120px; padding: 4px;" onchange="updateQMLTierName('${category}', '${tier.id}', this.value)"></div>
-                                <div style="margin-bottom: 6px;">Min: <input type="number" value="${tier.minRequirement}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"></div>
-                                <div style="margin-bottom: 6px;">Max: <input type="number" value="${tier.maxRequirement}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"></div>
-                                <div>Bonus: <input type="number" value="${tier.bonusPercentage}" style="width: 60px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)">%</div>
+                                <div style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 80px;">Tier Name:</strong> <input type="text" value="${tier.tierName}" style="flex: 1; padding: 4px; max-width: 150px;" onchange="updateQMLTierName('${category}', '${tier.id}', this.value)"></div>
+                                <div style="display: flex; align-items: center; gap: 8px;"><strong style="min-width: 80px;">Min:</strong> <input type="number" value="${tier.minRequirement}" style="width: 50px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"> <strong style="margin-left: 8px; min-width: 40px;">Max:</strong> <input type="number" value="${tier.maxRequirement}" style="width: 50px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"> <strong style="margin-left: 8px; min-width: 60px;">Bonus:</strong> <input type="number" value="${tier.bonusPercentage}" style="width: 50px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)"><span>%</span></div>
                             </div>
                         `).join('')}
                     </div>

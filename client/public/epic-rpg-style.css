@@ -161,8 +161,8 @@ body {
 
 .child-avatar {
     grid-area: avatar;
-    width: 60px;
-    height: 60px;
+    width: 75px;
+    height: 75px;
     border-radius: 4px;
     border: 2px solid #fff;
     object-fit: cover;
@@ -1178,4 +1178,77 @@ body {
     bottom: 0;
     background: rgba(0,0,0,0.5);
     z-index: -1;
+}
+
+
+/* ============================================
+   CUSTOM NOTIFICATIONS (Minecraft Theme)
+   ============================================ */
+
+.custom-notification {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    animation: notificationSlideDown 0.3s ease-out;
+}
+
+@keyframes notificationSlideDown {
+    0% {
+        transform: translateX(-50%) translateY(-50px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.custom-notification.fade-out {
+    animation: notificationFadeOut 0.3s ease-out forwards;
+}
+
+@keyframes notificationFadeOut {
+    0% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-50px);
+        opacity: 0;
+    }
+}
+
+.notification-content {
+    background: linear-gradient(135deg, #4CAF50 0%, #2D5016 100%);
+    border: 3px solid #1a1a1a;
+    padding: 15px 25px;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5), inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.3);
+    max-width: 350px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+}
+
+.notification-message {
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    word-wrap: break-word;
+}
+
+/* Notification Types */
+.notification-success .notification-content {
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    border-color: #1a1a1a;
+}
+
+.notification-error .notification-content {
+    background: linear-gradient(135deg, #FF6B6B 0%, #C92A2A 100%);
+    border-color: #1a1a1a;
+}
+
+.notification-info .notification-content {
+    background: linear-gradient(135deg, #4CAF50 0%, #2D5016 100%);
+    border-color: #1a1a1a;
 }
