@@ -758,6 +758,46 @@ function createTreasure() {
     renderShop();
 }
 
+function showClaimTreasureDialog(treasureId) {
+    const treasure = appState.treasures.find(t => t.id === treasureId);
+    if (!treasure) return;
+    
+    // Find children with enough tokens
+    const eligibleChildren = appState.children.filter(child => child.tokens >= treasure.costTokens);
+    
+    const modal = document.createElement('div');
+    modal.id = 'claimTreasureModal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">Claim Treasure: ${treasure.name}</div>
+            <div class="modal-body" style="padding: 20px;">
+                ${eligibleChildren.length === 0 ? `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        <p>No children have enough tokens to claim this treasure.</p>
+                        <p>Required: 💰 ${treasure.costTokens} tokens</p>
+                    </div>
+                ` : `
+                    <p style="margin-bottom: 15px; font-weight: bold;">Select a child to claim this treasure:</p>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        ${eligibleChildren.map(child => `
+                            <button class="btn" style="width: 100%; text-align: left; margin-bottom: 8px; padding: 12px; background: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;" onclick="claimTreasure('${child.id}', '${treasureId}'); closeModal('claimTreasureModal'); renderShop();">
+                                <div style="font-weight: bold;">${child.name}</div>
+                                <div style="font-size: 12px; opacity: 0.9;">💰 ${child.tokens} tokens (Cost: ${treasure.costTokens})</div>
+                            </button>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('claimTreasureModal')">Cancel</button>
+            </div>
+        </div>
+    `;
+    modal.classList.add('active');
+    document.body.appendChild(modal);
+}
+
 function claimTreasure(childId, treasureId) {
     const child = appState.children.find(c => c.id === childId);
     const treasure = appState.treasures.find(t => t.id === treasureId);
@@ -797,6 +837,7 @@ function claimTreasure(childId, treasureId) {
     saveData();
     renderChildProfile();
     renderDashboard();
+    showNotification(`${treasure.name} claimed by ${child.name}!`, 'success');
 }
 
 function pauseTreasure(childId, index) {
@@ -927,7 +968,7 @@ function renderDashboard() {
                     <div class="child-name">${child.name}</div>
                     <div class="child-details">Age: ${age} | ${child.currentQMLTier}</div>
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
-                    <div class="qml-progress" style="padding: 0 12px; margin-top: 8px;">
+                    <div class="qml-progress" style="padding: 8px 12px; margin: 8px -12px 0 -12px; background: rgba(0,0,0,0.1); border-radius: 0 0 4px 4px;">
                         <div class="qml-progress-label" style="font-size: 11px; margin-bottom: 4px;">${child.currentQMLTier}</div>
                         <div class="progress-bar" style="height: 8px;">
                             <div class="progress-fill" style="width: ${(child.currentQMLProgress / 30) * 100}%"></div>
@@ -1022,7 +1063,7 @@ function renderShop() {
                 <button class="btn btn-icon" onclick="deleteTreasure('${treasure.id}')" style="position: absolute; top: 0; right: 0; background: #FF6B6B; color: white; border: none; width: 24px; height: 24px; padding: 0; font-size: 16px; cursor: pointer;">✕</button>
             </div>
             <div class="treasure-cost">💰 ${treasure.costTokens} tokens | ⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} mins</div>
-            <button class="btn btn-small" onclick="claimTreasureFromShop('${treasure.id}')">Claim Treasure</button>
+            <button class="btn btn-small" onclick="showClaimTreasureDialog('${treasure.id}')">Claim Treasure</button>
             <button class="btn btn-small" onclick="editTreasure('${treasure.id}')">Edit</button>
         </div>
     `).join('');
@@ -1360,7 +1401,7 @@ function openEditSettingsModal() {
                         ${tiers.map(tier => `
                             <div style="background: rgba(0,0,0,0.1); padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px;">
                                 <div style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 80px;">Tier Name:</strong> <input type="text" value="${tier.tierName}" style="flex: 1; padding: 4px; max-width: 150px;" onchange="updateQMLTierName('${category}', '${tier.id}', this.value)"></div>
-                                <div style="display: flex; align-items: center; gap: 8px;"><strong style="min-width: 80px;">Min:</strong> <input type="number" value="${tier.minRequirement}" style="width: 50px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"> <strong style="margin-left: 8px; min-width: 40px;">Max:</strong> <input type="number" value="${tier.maxRequirement}" style="width: 50px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"> <strong style="margin-left: 8px; min-width: 60px;">Bonus:</strong> <input type="number" value="${tier.bonusPercentage}" style="width: 50px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)"><span>%</span></div>
+                                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;"><strong style="min-width: 35px;">Min:</strong> <input type="number" value="${tier.minRequirement}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"> <strong style="min-width: 35px;">Max:</strong> <input type="number" value="${tier.maxRequirement}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"> <strong style="min-width: 50px;">Bonus:</strong> <input type="number" value="${tier.bonusPercentage}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)"><span>%</span></div>
                             </div>
                         `).join('')}
                     </div>
