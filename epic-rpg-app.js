@@ -195,36 +195,36 @@ const PRESET_BADGES = [
 ];
 
 const AVATAR_LIST = [
-    { id: 'avatar_f_1', path: '/avatars/avatar_f_1.png' },
-    { id: 'avatar_f_2', path: '/avatars/avatar_f_2.png' },
-    { id: 'avatar_f_3', path: '/avatars/avatar_f_3.png' },
-    { id: 'avatar_f_4', path: '/avatars/avatar_f_4.png' },
-    { id: 'avatar_f_5', path: '/avatars/avatar_f_5.png' },
-    { id: 'avatar_f_6', path: '/avatars/avatar_f_6.png' },
-    { id: 'avatar_f_7', path: '/avatars/avatar_f_7.png' },
-    { id: 'avatar_f_8', path: '/avatars/avatar_f_8.png' },
-    { id: 'avatar_f_9', path: '/avatars/avatar_f_9.png' },
-    { id: 'avatar_f_10', path: '/avatars/avatar_f_10.png' },
-    { id: 'avatar_m_1', path: '/avatars/avatar_m_1.png' },
-    { id: 'avatar_m_2', path: '/avatars/avatar_m_2.png' },
-    { id: 'avatar_m_3', path: '/avatars/avatar_m_3.png' },
-    { id: 'avatar_m_4', path: '/avatars/avatar_m_4.png' },
-    { id: 'avatar_m_5', path: '/avatars/avatar_m_5.png' },
-    { id: 'avatar_m_6', path: '/avatars/avatar_m_6.png' },
-    { id: 'avatar_m_7', path: '/avatars/avatar_m_7.png' },
-    { id: 'avatar_m_8', path: '/avatars/avatar_m_8.png' },
-    { id: 'avatar_m_9', path: '/avatars/avatar_m_9.png' },
-    { id: 'avatar_m_10', path: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663322891832/FdHxcmdCOdCmBAAv.png' },
-    { id: 'avatar_m_11', path: '/avatars/avatar_m_11.png' },
-    { id: 'avatar_m_12', path: '/avatars/avatar_m_12.png' },
-    { id: 'avatar_m_13', path: '/avatars/avatar_m_13.png' },
-    { id: 'avatar_m_14', path: '/avatars/avatar_m_14.png' },
-    { id: 'avatar_m_15', path: '/avatars/avatar_m_15.png' },
-    { id: 'avatar_m_16', path: '/avatars/avatar_m_16.png' },
-    { id: 'avatar_m_17', path: '/avatars/avatar_m_17.png' },
-    { id: 'avatar_m_18', path: '/avatars/avatar_m_18.png' },
-    { id: 'avatar_m_19', path: '/avatars/avatar_m_19.png' },
-    { id: 'avatar_m_20', path: '/avatars/avatar_m_20.png' }
+    { id: 'avatar_f_1', path: '/avatars/avatar_f_1_original.png' },
+    { id: 'avatar_f_2', path: '/avatars/avatar_f_2_original.png' },
+    { id: 'avatar_f_3', path: '/avatars/avatar_f_3_original.png' },
+    { id: 'avatar_f_4', path: '/avatars/avatar_f_4_original.png' },
+    { id: 'avatar_f_5', path: '/avatars/avatar_f_5_original.png' },
+    { id: 'avatar_f_6', path: '/avatars/avatar_f_6_original.png' },
+    { id: 'avatar_f_7', path: '/avatars/avatar_f_7_original.png' },
+    { id: 'avatar_f_8', path: '/avatars/avatar_f_8_original.png' },
+    { id: 'avatar_f_9', path: '/avatars/avatar_f_9_original.png' },
+    { id: 'avatar_f_10', path: '/avatars/avatar_f_10_original.png' },
+    { id: 'avatar_m_1', path: '/avatars/avatar_m_1_original.png' },
+    { id: 'avatar_m_2', path: '/avatars/avatar_m_2_original.png' },
+    { id: 'avatar_m_3', path: '/avatars/avatar_m_3_original.png' },
+    { id: 'avatar_m_4', path: '/avatars/avatar_m_4_original.png' },
+    { id: 'avatar_m_5', path: '/avatars/avatar_m_5_original.png' },
+    { id: 'avatar_m_6', path: '/avatars/avatar_m_6_original.png' },
+    { id: 'avatar_m_7', path: '/avatars/avatar_m_7_original.png' },
+    { id: 'avatar_m_8', path: '/avatars/avatar_m_8_original.png' },
+    { id: 'avatar_m_9', path: '/avatars/avatar_m_9_original.png' },
+    { id: 'avatar_m_10', path: '/avatars/avatar_m_10_original.png' },
+    { id: 'avatar_m_11', path: '/avatars/avatar_m_11_original.png' },
+    { id: 'avatar_m_12', path: '/avatars/avatar_m_12_original.png' },
+    { id: 'avatar_m_13', path: '/avatars/avatar_m_13_original.png' },
+    { id: 'avatar_m_14', path: '/avatars/avatar_m_14_original.png' },
+    { id: 'avatar_m_15', path: '/avatars/avatar_m_15_original.png' },
+    { id: 'avatar_m_16', path: '/avatars/avatar_m_16_original.png' },
+    { id: 'avatar_m_17', path: '/avatars/avatar_m_17_original.png' },
+    { id: 'avatar_m_18', path: '/avatars/avatar_m_18_original.png' },
+    { id: 'avatar_m_19', path: '/avatars/avatar_m_19_original.png' },
+    { id: 'avatar_m_20', path: '/avatars/avatar_m_20_original.png' }
 ];
 
 // ============================================
@@ -1103,7 +1103,7 @@ function renderSettings() {
             <div class="badge-glossary">
                 ${['Coal', 'Copper', 'Iron', 'Gold', 'Redstone', 'Diamond', 'Emerald', 'Ancient Debris'].map(cat => {
                     const badges = appState.badges.filter(b => b.category === cat);
-                    const iconMap = {'Coal': 'coal-ore', 'Copper': 'copper-ore', 'Iron': 'iron-ore', 'Gold': 'gold-ore', 'Redstone': 'redstone-ore', 'Diamond': 'diamond-ore', 'Emerald': 'emerald-ore', 'Ancient Debris': 'ancient-debris'};
+                    const iconMap = {"Coal": "coal-ore.png", "Copper": "copper-ore.png", "Iron": "iron-ore.png", "Gold": "gold-ore.png", "Redstone": "redstone-ore.png", "Diamond": "diamond-ore.png", "Emerald": "emerald-ore.png", "Ancient Debris": "ancient-debris.png"};
                     return `
                         <div class="glossary-category" onclick="toggleGlossary('${cat}')">
                             <div class="glossary-header">
