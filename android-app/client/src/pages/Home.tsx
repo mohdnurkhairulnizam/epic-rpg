@@ -1,0 +1,196 @@
+// Stable v1.0 design: Minecraft-inspired pixel utility UI with forest green panels, yellow rules, squared controls, and direct family-task interactions.
+import { useEffect } from "react";
+import "../styles/epic-rpg-style.css";
+
+const invoke = (name: string, ...args: unknown[]) => {
+  const fn = (window as any)[name];
+  if (typeof fn === "function") fn(...args);
+};
+
+export default function Home() {
+  useEffect(() => {
+    const stableVersionKey = "epic_rpg_stable_checkpoint";
+    if (localStorage.getItem(stableVersionKey) !== "b4b32e8") {
+      localStorage.removeItem("epic_rpg_data");
+      localStorage.setItem(stableVersionKey, "b4b32e8");
+    }
+    const init = (window as any).init;
+    if (typeof init === "function") init();
+  }, []);
+
+  return (
+    <>
+      <div className="container">
+        <div className="header">
+          <h1>🎮 EPIC RPG</h1>
+          <p>Family Quest &amp; Treasure System</p>
+        </div>
+
+        <div id="dashboard" className="tab-content active">
+          <h2>👨‍👩‍👧‍👦 Dashboard</h2>
+          <div id="children-list" className="children-container" />
+          <button className="btn btn-add" onClick={() => invoke("openModal", "addChildModal")}>
+            + Add Child
+          </button>
+        </div>
+
+        <div id="leaderboard" className="tab-content">
+          <h2>🏆 Leaderboard</h2>
+          <div id="leaderboard-list" className="leaderboard-container" />
+          <div id="weekly-stats" className="weekly-stats-container" />
+        </div>
+
+        <div id="play" className="tab-content">
+          <h2>⚔️ Play/Quests</h2>
+          <div id="quests-list" className="quests-container" />
+          <button className="btn btn-add" onClick={() => invoke("openModal", "addQuestModal")}>
+            + Add Quest
+          </button>
+        </div>
+
+        <div id="shop" className="tab-content">
+          <h2>🎁 Shop/Treasures</h2>
+          <div id="treasures-list" className="treasures-container" />
+          <button className="btn btn-add" onClick={() => invoke("openModal", "addTreasureModal")}>
+            + Add Treasure
+          </button>
+        </div>
+
+        <div id="settings" className="tab-content">
+          <h2>⚙️ Settings</h2>
+          <div id="settings-content" />
+        </div>
+
+        <div id="profile-screen" className="tab-content">
+          <button className="back-button" onClick={() => invoke("backToDashboard")}>
+            ← Back to Dashboard
+          </button>
+          <div id="profile-content" />
+        </div>
+      </div>
+
+      <button className="nfc-button" onClick={() => invoke("openModal", "nfcScanModal")} title="Scan NFC Card">
+        📱 Scan Card
+      </button>
+
+      <div className="bottom-tabs">
+        <button className="tab-btn active" data-tab="dashboard" onClick={() => invoke("switchTab", "dashboard")}>
+          <span className="tab-icon">🏠</span>
+          <span>Dashboard</span>
+        </button>
+        <button className="tab-btn" data-tab="leaderboard" onClick={() => invoke("switchTab", "leaderboard")}>
+          <span className="tab-icon">🏆</span>
+          <span>Leaderboard</span>
+        </button>
+        <button className="tab-btn" data-tab="play" onClick={() => invoke("switchTab", "play")}>
+          <span className="tab-icon">⚔️</span>
+          <span>Play</span>
+        </button>
+        <button className="tab-btn" data-tab="shop" onClick={() => invoke("switchTab", "shop")}>
+          <span className="tab-icon">🎁</span>
+          <span>Shop</span>
+        </button>
+        <button className="tab-btn" data-tab="settings" onClick={() => invoke("switchTab", "settings")}>
+          <span className="tab-icon">⚙️</span>
+          <span>Settings</span>
+        </button>
+      </div>
+
+      <div id="addChildModal" className="modal">
+        <div className="modal-content">
+          <div className="modal-header">Add New Child</div>
+          <div className="form-group">
+            <label>Child Name</label>
+            <input type="text" id="childName" placeholder="Enter child's name" />
+          </div>
+          <div className="form-group">
+            <label>Date of Birth</label>
+            <input type="date" id="childDOB" />
+          </div>
+          <div className="form-group">
+            <label>NFC Card ID (Optional)</label>
+            <input type="text" id="childNFC" placeholder="NFC card ID" />
+          </div>
+          <div className="form-group">
+            <label>Select Avatar</label>
+            <div id="avatarGrid" className="avatar-grid" />
+          </div>
+          <div className="form-group" style={{ marginTop: "30px" }}>
+            <label style={{ marginTop: "20px", display: "block" }}>QML Type</label>
+            <select id="childQMLType" defaultValue="Juz Amma">
+              <option value="Juz Amma">Juz Amma</option>
+              <option value="Al-Quran">Al-Quran</option>
+            </select>
+          </div>
+          <div className="modal-buttons">
+            <button className="btn" onClick={() => invoke("createChild")}>Create</button>
+            <button className="btn" onClick={() => invoke("closeModal", "addChildModal")}>Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="addQuestModal" className="modal">
+        <div className="modal-content">
+          <div className="modal-header">Add New Quest</div>
+          <div className="form-group">
+            <label>Quest Name</label>
+            <input type="text" id="questName" placeholder="Enter quest name" />
+          </div>
+          <div className="form-group">
+            <label>Quest Type</label>
+            <select id="questType" defaultValue="Quick Quest">
+              <option value="Quick Quest">Quick Quest</option>
+              <option value="Standard Mission">Standard Mission</option>
+              <option value="Boss Fight">Boss Fight</option>
+              <option value="Team Raid">Team Raid</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Base Tokens</label>
+            <input type="number" id="questTokens" min="1" placeholder="Enter token reward" />
+          </div>
+          <div className="modal-buttons">
+            <button className="btn" onClick={() => invoke("createQuest")}>Create</button>
+            <button className="btn" onClick={() => invoke("closeModal", "addQuestModal")}>Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="addTreasureModal" className="modal">
+        <div className="modal-content">
+          <div className="modal-header">Add New Treasure</div>
+          <div className="form-group">
+            <label>Treasure Name</label>
+            <input type="text" id="treasureName" placeholder="Enter treasure name" />
+          </div>
+          <div className="form-group">
+            <label>Cost (Tokens)</label>
+            <input type="number" id="treasureCost" min="1" placeholder="Enter token cost" />
+          </div>
+          <div className="form-group">
+            <label>Timer (Minutes)</label>
+            <input type="number" id="treasureTimer" min="1" placeholder="Enter timer in minutes" />
+          </div>
+          <div className="modal-buttons">
+            <button className="btn" onClick={() => invoke("createTreasure")}>Create</button>
+            <button className="btn" onClick={() => invoke("closeModal", "addTreasureModal")}>Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="nfcScanModal" className="modal">
+        <div className="modal-content">
+          <span className="close" onClick={() => invoke("closeModal", "nfcScanModal")}>&times;</span>
+          <h3>📱 Scan NFC Card</h3>
+          <div id="nfc-status" className="nfc-status">Ready to scan...</div>
+          <div className="nfc-input-group">
+            <input type="text" id="nfcCardInput" placeholder="Tap NFC card or enter ID" autoFocus />
+            <button className="btn" onClick={() => invoke("processNFCCard")}>Scan</button>
+          </div>
+          <div id="nfc-result" className="nfc-result" />
+          <button className="btn" onClick={() => invoke("closeModal", "nfcScanModal")}>Close</button>
+        </div>
+      </div>
+    </>
+  );
+}

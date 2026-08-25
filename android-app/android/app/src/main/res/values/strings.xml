@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EPIC RPG Family Quest</string>
+    <string name="title_activity_main">EPIC RPG Family Quest</string>
+    <string name="package_name">com.epicrpg.familyquest</string>
+    <string name="custom_url_scheme">com.epicrpg.familyquest</string>
+</resources>
