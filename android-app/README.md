@@ -12,8 +12,8 @@ The first Android release is intentionally **local-only**. Data is stored inside
 
 - App name: `EPIC RPG Family Quest`
 - Android package: `com.epicrpg.familyquest`
-- Version: `1.0.0`
-- Version code: `1`
+- Version: `1.1.0`
+- Version code: `2`
 - Compile/target SDK: `36`
 - Minimum SDK: `24`
 
