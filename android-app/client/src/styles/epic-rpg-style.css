@@ -1290,3 +1290,215 @@ body {
     background: linear-gradient(135deg, #4CAF50 0%, #2D5016 100%);
     border-color: #1a1a1a;
 }
+
+
+/* Android responsive contract: preserve the stable pixel palette while adapting the shell to phone width, dynamic viewport height, orientation, and safe-area insets. */
+:root {
+    --phone-inline-pad: max(8px, env(safe-area-inset-left));
+    --phone-inline-pad-right: max(8px, env(safe-area-inset-right));
+    --phone-bottom-safe: env(safe-area-inset-bottom);
+}
+
+html {
+    min-height: 100%;
+    background: #2D5016;
+}
+
+body {
+    min-height: 100dvh;
+    padding: max(8px, env(safe-area-inset-top)) var(--phone-inline-pad) calc(88px + var(--phone-bottom-safe));
+    overflow-x: hidden;
+}
+
+.container {
+    width: min(100%, 560px);
+    max-width: 560px;
+    min-height: calc(100dvh - 104px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+}
+
+.tab-content {
+    min-height: 0;
+    max-height: calc(100dvh - 156px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+    padding: clamp(12px, 4vw, 20px);
+    overscroll-behavior: contain;
+}
+
+.bottom-tabs {
+    min-height: 64px;
+    padding-bottom: var(--phone-bottom-safe);
+}
+
+.tab-btn {
+    min-height: 64px;
+    padding: 9px 4px 7px;
+    touch-action: manipulation;
+}
+
+.tab-btn:focus-visible,
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #FFD700;
+    outline-offset: 2px;
+}
+
+.btn,
+.tab-btn,
+.nfc-button,
+.back-button {
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+.modal {
+    padding: max(10px, env(safe-area-inset-top)) var(--phone-inline-pad) max(10px, var(--phone-bottom-safe));
+}
+
+.modal-content {
+    width: min(100%, 440px);
+    max-height: min(86dvh, 720px);
+    overscroll-behavior: contain;
+}
+
+.modal-buttons {
+    flex-wrap: wrap;
+}
+
+.modal-buttons .btn {
+    min-width: min(140px, 100%);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.setting-input {
+    min-height: 44px;
+    font-size: 16px;
+}
+
+.setting-toggle,
+.setting-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin: 8px 0;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.setting-toggle input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+}
+
+.setting-range {
+    flex-wrap: wrap;
+}
+
+.setting-range input[type="range"] {
+    flex: 1 1 140px;
+    min-width: 140px;
+}
+
+.setting-help {
+    font-size: 11px;
+    line-height: 1.45;
+    color: #444;
+    margin: 4px 0 8px;
+}
+
+@media (max-width: 380px) {
+    .header {
+        padding: 14px 10px;
+    }
+
+    .header h1 {
+        font-size: 15px;
+    }
+
+    .header p {
+        font-size: 10px;
+    }
+
+    .tab-content h2 {
+        font-size: 12px;
+        margin-bottom: 14px;
+    }
+
+    .child-card {
+        grid-template-columns: minmax(0, 1fr) 54px;
+        padding: 11px;
+        gap: 7px;
+    }
+
+    .child-avatar {
+        width: 58px;
+        height: 58px;
+    }
+
+    .child-name {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .tokens-display {
+        font-size: 16px;
+    }
+
+    .tab-btn {
+        font-size: 9px;
+    }
+
+    .tab-icon {
+        font-size: 17px;
+    }
+
+    .modal-content {
+        padding: 14px;
+    }
+}
+
+@media (min-width: 700px) {
+    .container {
+        max-width: 680px;
+    }
+
+    .tab-content {
+        max-height: calc(100dvh - 160px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+    }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+    body {
+        padding-bottom: calc(72px + var(--phone-bottom-safe));
+    }
+
+    .header {
+        padding: 10px 16px;
+    }
+
+    .tab-content {
+        max-height: calc(100dvh - 112px - var(--phone-bottom-safe));
+    }
+
+    .bottom-tabs,
+    .tab-btn {
+        min-height: 58px;
+    }
+
+    .tab-btn {
+        flex-direction: row;
+        gap: 6px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}

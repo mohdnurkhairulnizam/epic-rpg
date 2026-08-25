@@ -13,6 +13,12 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: false,
   },
+  plugins: {
+    LocalNotifications: {
+      smallIcon: "ic_stat_epic_rpg",
+      sound: "epic_alarm.wav",
+    },
+  },
   loggingBehavior: "none",
 };
 

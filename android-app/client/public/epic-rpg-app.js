@@ -258,7 +258,10 @@ let appState = {
     badges: [],
     birthdayTokenReward: 25,
     currentTab: 'dashboard',
-    currentProfileChildId: null
+    currentProfileChildId: null,
+    soundEnabled: true,
+    soundVolume: 0.65,
+    notificationsEnabled: true
 };
 
 let selectedAvatarId = 'avatar_m_1';
@@ -266,7 +269,20 @@ let selectedAvatarId = 'avatar_m_1';
 function loadData() {
     const saved = localStorage.getItem('epic_rpg_data');
     if (saved) {
-        appState = JSON.parse(saved);
+        appState = { ...appState, ...JSON.parse(saved) };
+        appState.soundEnabled = appState.soundEnabled !== false;
+        appState.soundVolume = Number.isFinite(appState.soundVolume) ? Math.min(1, Math.max(0, appState.soundVolume)) : 0.65;
+        appState.notificationsEnabled = appState.notificationsEnabled !== false;
+        appState.children = Array.isArray(appState.children) ? appState.children : [];
+        appState.treasures = Array.isArray(appState.treasures) ? appState.treasures : [];
+        appState.children.forEach(child => {
+            child.activeTreasures = Array.isArray(child.activeTreasures) ? child.activeTreasures : [];
+            child.activeTreasures.forEach(treasure => {
+                if (!treasure.endAt) treasure.endAt = Date.now() + Math.max(0, treasure.timeRemaining || 0) * 1000;
+                if (!treasure.notificationKey) treasure.notificationKey = generateId();
+                if (!treasure.isPaused) treasure.timeRemaining = Math.max(0, Math.ceil((treasure.endAt - Date.now()) / 1000));
+            });
+        });
         // Ensure cooldowns are 0 for existing data
         appState.treasures.forEach(t => t.cooldownSeconds = 0);
     } else {
@@ -520,6 +536,8 @@ function deleteChild(childId) {
     if (confirm('Are you sure you want to delete this profile? All progress will be lost.')) {
         appState.children = appState.children.filter(c => c.id !== childId);
         saveData();
+        const cancelAll = window.cancelAllTreasureNotifications;
+        if (typeof cancelAll === 'function') cancelAll();
         backToDashboard();
     }
 }
@@ -539,6 +557,7 @@ function updateQMLProgress(childId, value) {
     // Show tier milestone celebration if tier changed
     if (newTier && oldTier !== newTier.tierName) {
         showTierMilestonePopup(child.name, newTier.tierName, child.qmlType);
+        window.dispatchEvent(new CustomEvent('epic-achievement-earned', { detail: { kind: 'qml-tier', childId, childName: child.name, label: newTier.tierName } }));
     }
     
     saveData();
@@ -729,6 +748,7 @@ function approveQuest(childId, questInstanceId) {
     
     saveData();
     showNotification(`Quest approved! ${tokensEarned} tokens`, 'success');
+    window.dispatchEvent(new CustomEvent('epic-task-completed', { detail: { childId, childName: child.name, questId: quest.id, questName: quest.name, tokensEarned } }));
     renderChildProfile();
 }
 
@@ -860,11 +880,16 @@ function claimTreasure(childId, treasureId) {
     const bonusPercentage = currentTier ? currentTier.bonusPercentage : 0;
     const finalTimerSeconds = Math.round(treasure.baseTimerSeconds * (1 + bonusPercentage / 100));
     
+    const endAt = Date.now() + finalTimerSeconds * 1000;
     child.activeTreasures.push({
         treasureId,
         timeRemaining: finalTimerSeconds,
         timerDuration: finalTimerSeconds,
-        isPaused: false
+        endAt,
+        notificationKey: generateId(),
+        isPaused: false,
+        endNotificationScheduled: false,
+        endedNotified: false
     });
     
     child.treasureHistory.push({
@@ -881,15 +906,26 @@ function claimTreasure(childId, treasureId) {
     renderChildProfile();
     renderDashboard();
     showNotification(`${treasure.name} claimed by ${child.name}!`, 'success');
+    const activeTreasure = child.activeTreasures[child.activeTreasures.length - 1];
+    window.dispatchEvent(new CustomEvent('epic-treasure-claimed', { detail: { childId, childName: child.name, treasureId, treasureName: treasure.name, endAt, notificationKey: activeTreasure.notificationKey } }));
 }
 
 function pauseTreasure(childId, index) {
     const child = appState.children.find(c => c.id === childId);
-    if (child && child.activeTreasures[index]) {
-        child.activeTreasures[index].isPaused = !child.activeTreasures[index].isPaused;
-        saveData();
-        renderChildProfile();
+    const treasure = child?.activeTreasures[index];
+    if (!child || !treasure) return;
+    treasure.timeRemaining = Math.max(0, Math.ceil(((treasure.endAt || Date.now()) - Date.now()) / 1000));
+    treasure.isPaused = !treasure.isPaused;
+    if (treasure.isPaused) {
+        window.dispatchEvent(new CustomEvent('epic-treasure-paused', { detail: { childId, treasureId: treasure.treasureId, notificationKey: treasure.notificationKey } }));
+    } else {
+        treasure.endAt = Date.now() + treasure.timeRemaining * 1000;
+        treasure.endedNotified = false;
+        const treasureData = appState.treasures.find(item => item.id === treasure.treasureId);
+        window.dispatchEvent(new CustomEvent('epic-treasure-resumed', { detail: { childId, childName: child.name, treasureId: treasure.treasureId, treasureName: treasureData?.name || 'Treasure', endAt: treasure.endAt, notificationKey: treasure.notificationKey } }));
     }
+    saveData();
+    renderChildProfile();
 }
 
 function deleteTreasure(treasureId) {
@@ -932,6 +968,7 @@ function updateBadgeProgress(child, type, amount) {
             if (badge.progress >= badgeData.targetValue) {
                 badge.earned = true;
                 badge.earnedDate = new Date().toISOString().split('T')[0];
+                window.dispatchEvent(new CustomEvent('epic-achievement-earned', { detail: { kind: 'badge', childId: child.id, childName: child.name, label: badgeData.name } }));
             }
         }
     });
@@ -947,15 +984,25 @@ function startTimerUpdates() {
         appState.children.forEach(child => {
             child.activeTreasures = child.activeTreasures.filter(treasure => {
                 if (!treasure.isPaused) {
-                    treasure.timeRemaining--;
+                    const remaining = Math.max(0, Math.ceil(((treasure.endAt || Date.now()) - Date.now()) / 1000));
+                    treasure.timeRemaining = remaining;
                     updated = true;
-                    return treasure.timeRemaining > 0;
+                    if (remaining <= 0) {
+                        if (!treasure.endedNotified) {
+                            treasure.endedNotified = true;
+                            const treasureData = appState.treasures.find(item => item.id === treasure.treasureId);
+                            window.dispatchEvent(new CustomEvent('epic-treasure-ended', { detail: { childId: child.id, childName: child.name, treasureId: treasure.treasureId, treasureName: treasureData?.name || 'Treasure' } }));
+                        }
+                        return false;
+                    }
+                    return true;
                 }
                 return true;
             });
         });
         
         if (updated) {
+            saveData();
             if (appState.currentProfileChildId) {
                 renderChildProfile();
             } else {
@@ -1140,6 +1187,18 @@ function renderSettings() {
         </div>
     `;
     
+    html += `
+        <div class="profile-section feedback-settings">
+            <div class="profile-section-title">Phone Alerts & Sound Feedback</div>
+            <label class="setting-toggle"><input type="checkbox" ${appState.notificationsEnabled !== false ? 'checked' : ''} onchange="updateNotificationPreference(this.checked)"> Treasure timer phone notifications</label>
+            <p class="setting-help">The phone can alert you when a treasure timer ends. Android may ask for notification permission.</p>
+            <button class="btn btn-small" onclick="window.prepareTreasureNotifications && window.prepareTreasureNotifications()">Enable / Check Phone Notifications</button>
+            <label class="setting-toggle"><input type="checkbox" ${appState.soundEnabled !== false ? 'checked' : ''} onchange="updateSoundEnabled(this.checked)"> Achievement and task-completion sounds</label>
+            <label class="setting-range">Sound volume <input type="range" min="0" max="1" step="0.05" value="${appState.soundVolume ?? 0.65}" oninput="updateSoundVolume(this.value)"></label>
+            <button class="btn btn-small" onclick="testFeedbackSound()">Test Achievement Sound</button>
+        </div>
+    `;
+
     html += `
         <div class="profile-section">
             <div class="profile-section-title">Badge Glossary & Requirements</div>
@@ -1332,13 +1391,42 @@ function updateQMLTierName(category, tierId, newName) {
 
 function updateBirthdayReward(value) { appState.birthdayTokenReward = parseInt(value); saveData(); }
 
+function updateSoundEnabled(value) {
+    appState.soundEnabled = Boolean(value);
+    saveData();
+    window.dispatchEvent(new CustomEvent('epic-sound-settings-changed', { detail: { enabled: appState.soundEnabled, volume: appState.soundVolume } }));
+}
+
+function updateSoundVolume(value) {
+    appState.soundVolume = Math.min(1, Math.max(0, parseFloat(value) || 0));
+    saveData();
+    window.dispatchEvent(new CustomEvent('epic-sound-settings-changed', { detail: { enabled: appState.soundEnabled, volume: appState.soundVolume } }));
+}
+
+function updateNotificationPreference(value) {
+    appState.notificationsEnabled = Boolean(value);
+    saveData();
+    window.dispatchEvent(new CustomEvent('epic-notification-preference-changed', { detail: { enabled: appState.notificationsEnabled } }));
+    if (appState.notificationsEnabled) {
+        const prepare = window.prepareTreasureNotifications;
+        if (typeof prepare === 'function') prepare();
+    }
+}
+
+function testFeedbackSound() {
+    window.dispatchEvent(new CustomEvent('epic-test-sound'));
+}
+
 function masterReset() {
     if (confirm('Master Reset: This will reset tokens, history, and ALL badge progress for all children. Continue?')) {
         appState.children.forEach(child => {
             child.tokens = 0; child.questHistory = []; child.treasureHistory = []; child.ongoingQuests = []; child.activeTreasures = [];
             child.badges = appState.badges.map(b => ({ badgeId: b.id, progress: 0, earned: false }));
         });
-        saveData(); renderDashboard(); if (appState.currentProfileChildId) renderChildProfile(); showNotification('Master reset complete!', 'success');
+        saveData();
+        const cancelAll = window.cancelAllTreasureNotifications;
+        if (typeof cancelAll === 'function') cancelAll();
+        renderDashboard(); if (appState.currentProfileChildId) renderChildProfile(); showNotification('Master reset complete!', 'success');
     }
 }
 
@@ -1468,5 +1556,18 @@ function updateQMLTier(category, tierId, field, value) {
         saveData();
     }
 }
-function init() { loadData(); renderDashboard(); renderAvatarGrid(); startTimerUpdates(); }
+function init() {
+    loadData();
+    renderDashboard();
+    renderAvatarGrid();
+    startTimerUpdates();
+    const activeTreasurePayloads = [];
+    appState.children.forEach(child => child.activeTreasures.forEach(treasure => {
+        if (!treasure.isPaused && treasure.timeRemaining > 0) {
+            const treasureData = appState.treasures.find(item => item.id === treasure.treasureId);
+            activeTreasurePayloads.push({ childId: child.id, childName: child.name, treasureId: treasure.treasureId, treasureName: treasureData?.name || 'Treasure', endAt: treasure.endAt, notificationKey: treasure.notificationKey });
+        }
+    }));
+    window.dispatchEvent(new CustomEvent('epic-app-ready', { detail: { activeTreasurePayloads, notificationsEnabled: appState.notificationsEnabled } }));
+}
 window.addEventListener('DOMContentLoaded', init);

@@ -41,3 +41,15 @@ The generated `app-release.aab` is intentionally unsigned because no owner keyst
 ## Touch-target check
 
 The visible bottom navigation controls measured 256×78 CSS pixels each in the preview. All five navigation controls exceeded the 44×44 minimum touch-size check; no undersized navigation target was reported.
+
+## Timer notification and sound feature validation
+
+- Installed `@capacitor/local-notifications@8.3.1` and synchronized the Android project.
+- Added `POST_NOTIFICATIONS` and `SCHEDULE_EXACT_ALARM` declarations to the Android manifest.
+- Added the dedicated `ic_stat_epic_rpg` status-bar icon and bundled `epic_alarm.wav` (16-bit mono PCM, 44.1 kHz, 2.4 seconds).
+- Active treasure timers now persist `endAt` and `notificationKey`, reconcile scheduled notifications on startup, schedule on claim/resume, cancel on pause/end/reset/delete, and navigate to the child profile when a notification is tapped.
+- Notification permission is requested through the in-app Settings action. Exact scheduling is used when available; otherwise the Local Notifications plugin is allowed to use its inexact fallback.
+- Task approval, badge achievement, and QML tier unlock events now emit distinct short Web Audio feedback patterns. The Settings screen includes a sound toggle, volume slider, test button, and treasure-notification preference.
+- Runtime viewport classification and CSS rules cover `small-phone`, `phone`, `large-phone`, and `tablet` widths, portrait/landscape changes, safe-area insets, dynamic viewport height, keyboard-visible forms, modals, and bottom navigation.
+- `pnpm check`, Vite production build, Capacitor sync, `assembleDebug`, and `bundleRelease` passed after the feature changes.
+- No emulator or physical Android device is attached, so notification permission dialogs, background delivery, exact-alarm settings, audible output, and hardware-specific rendering still require owner-side device testing.

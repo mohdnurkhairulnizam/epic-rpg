@@ -58,3 +58,15 @@ The build is prepared for API 36 because Google’s published target API require
 ## Architecture notes
 
 The Android application is a native Capacitor shell around the built web experience. It does not point at the live website at runtime. This keeps the packaged UI versioned with the Android build and prevents website cache changes from silently changing the app. The app still needs network access if any future external resources are added, but current avatar and badge assets are bundled locally.
+
+## Timer notifications and sound feedback
+
+Treasure timers now persist an absolute local end timestamp and schedule a device-local notification through `@capacitor/local-notifications`. The notification includes the child and treasure name, uses the bundled `epic_alarm.wav` sound, and is restored for active timers when the app starts. Pausing cancels the pending notification; resuming schedules a new one. Tapping the notification opens the associated child profile when the app can be brought forward.
+
+Android 13 and later require notification permission, so the Settings screen includes an enable/check action. Exact-alarm access is declared and used when available; if the user has not granted exact-alarm access, the plugin schedules an inexact fallback rather than blocking the timer feature. Users can manage notification permission and the timer-notification preference from Android Settings and the in-app Settings screen.
+
+Achievement unlocks, QML tier milestones, and approved task completions play short synthesized pixel-style tones through Web Audio. The Settings screen includes a master sound toggle, volume control, and test button. The existing local-only data model stores these preferences inside `epic_rpg_data`.
+
+The shell now classifies the runtime viewport as `small-phone`, `phone`, `large-phone`, or `tablet`, and exposes portrait/landscape state for CSS. Responsive rules cover dynamic viewport height, safe-area insets, keyboard-visible forms, bottom navigation touch targets, modal sizing, small-phone typography, and landscape phones.
+
+The feature is Android-native in the packaged app. The stable website checkpoint remains unchanged and does not receive the native notification bridge.
