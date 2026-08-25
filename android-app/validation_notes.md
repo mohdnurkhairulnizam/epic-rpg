@@ -53,3 +53,7 @@ The visible bottom navigation controls measured 256×78 CSS pixels each in the p
 - Runtime viewport classification and CSS rules cover `small-phone`, `phone`, `large-phone`, and `tablet` widths, portrait/landscape changes, safe-area insets, dynamic viewport height, keyboard-visible forms, modals, and bottom navigation.
 - `pnpm check`, Vite production build, Capacitor sync, `assembleDebug`, and `bundleRelease` passed after the feature changes.
 - No emulator or physical Android device is attached, so notification permission dialogs, background delivery, exact-alarm settings, audible output, and hardware-specific rendering still require owner-side device testing.
+
+## Final Android 1.1.0 artifacts
+
+The final build uses package `com.epicrpg.familyquest`, versionName `1.1`, versionCode `2`, compile/target SDK 36, and minimum SDK 24. The debug APK SHA-256 is `d270208d6d5a7bdfee97a495a4d2b2ad254d6f606023a1d8b0214d434ca26122`; the unsigned release AAB SHA-256 is `ac577a4e9ddc91dad54062ef2410dead319d2bd3609ab66eb3402cf8963ed295`.
