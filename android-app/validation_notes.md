@@ -57,3 +57,11 @@ The visible bottom navigation controls measured 256×78 CSS pixels each in the p
 ## Final Android 1.1.0 artifacts
 
 The final build uses package `com.epicrpg.familyquest`, versionName `1.1`, versionCode `2`, compile/target SDK 36, and minimum SDK 24. The debug APK SHA-256 is `d270208d6d5a7bdfee97a495a4d2b2ad254d6f606023a1d8b0214d434ca26122`; the unsigned release AAB SHA-256 is `ac577a4e9ddc91dad54062ef2410dead319d2bd3609ab66eb3402cf8963ed295`.
+
+## Android regression fixes
+
+The screen-off delivery issue was traced to the bridge explicitly setting `isExactNotification` to `false` whenever exact-alarm access was not already granted. That forced an inexact alarm and could delay delivery until the device woke. New claims and resumes now request exact scheduling through the plugin; Android opens the Alarms & reminders settings flow when needed, and a non-mandatory inexact fallback remains available if the user declines. The Settings screen also has an explicit “Allow Precise Screen-Off Alarms” action.
+
+Play and Shop card actions now use a labeled pixel-styled trash control with `Delete`, `aria-label`, and `title` instead of an ambiguous X. Ongoing quest actions now have working `cancelQuest` and `rejectQuest` functions. Cancel removes the active quest after confirmation; Reject changes a pending-approval quest back to ongoing, removes its completion date, saves the state, and refreshes the profile/dashboard.
+
+The corrected source passed `pnpm check`, Vite production build, Capacitor sync, `assembleDebug`, and `bundleRelease`. Physical screen-off notification delivery, exact-alarm settings, audio output, and Android OEM battery behavior still require testing on a real device.

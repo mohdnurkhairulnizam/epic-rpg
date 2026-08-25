@@ -70,3 +70,15 @@ Achievement unlocks, QML tier milestones, and approved task completions play sho
 The shell now classifies the runtime viewport as `small-phone`, `phone`, `large-phone`, or `tablet`, and exposes portrait/landscape state for CSS. Responsive rules cover dynamic viewport height, safe-area insets, keyboard-visible forms, bottom navigation touch targets, modal sizing, small-phone typography, and landscape phones.
 
 The feature is Android-native in the packaged app. The stable website checkpoint remains unchanged and does not receive the native notification bridge.
+
+
+## Android regression fixes
+
+For more dependable screen-off delivery, a newly claimed or resumed treasure timer requests exact-alarm scheduling through the Capacitor plugin. If Android has not granted the special **Alarms & reminders** access, the plugin opens that settings flow; if the owner declines, the timer remains usable through a non-mandatory inexact fallback. The in-app Settings screen includes the same **Allow Precise Screen-Off Alarms** action for later setup. Battery-saver, Do Not Disturb, lock-screen privacy, and manufacturer-specific background policies can still affect how an individual device presents alerts, so physical-device testing remains required.
+
+The Play and Shop destructive card controls are now labeled **Delete** with a trash icon, tooltip, accessible label, and a larger touch target. Ongoing quest **Cancel** now removes the selected active quest after confirmation. Ongoing quest **Reject** now returns a pending-approval quest to the ongoing state, clears its completion date, saves the change, and refreshes the profile.
+
+
+### If alerts appear only after waking the screen
+
+Open the app’s Settings screen and press **Allow Precise Screen-Off Alarms**. Android opens the EPIC RPG **Alarms & reminders** permission page. Turn the permission on, return to EPIC RPG, and resume or reclaim the treasure so it is scheduled again using exact timing. Also confirm that Android notifications are allowed for the app, that the **Treasure timers** channel is not silent, and that Do Not Disturb or a manufacturer battery-saving mode is not suppressing alerts. If exact-alarm access is declined, Android may delay an inexact alert until the device wakes.

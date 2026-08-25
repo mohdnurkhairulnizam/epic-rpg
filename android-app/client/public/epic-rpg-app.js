@@ -705,6 +705,37 @@ function requestQuest(childId, questId) {
     saveData();
 }
 
+function cancelQuest(childId, questInstanceId) {
+    const child = appState.children.find(c => c.id === childId);
+    if (!child) return;
+    const ongoingQuest = child.ongoingQuests.find(q => q.instanceId === questInstanceId);
+    if (!ongoingQuest) return;
+    const quest = appState.quests.find(q => q.id === ongoingQuest.questId);
+    if (confirm(`Cancel ${quest ? quest.name : 'this quest'}?`)) {
+        child.ongoingQuests = child.ongoingQuests.filter(q => q.instanceId !== questInstanceId);
+        saveData();
+        showNotification('Quest cancelled.', 'success');
+        renderChildProfile();
+        renderDashboard();
+    }
+}
+
+function rejectQuest(childId, questInstanceId) {
+    const child = appState.children.find(c => c.id === childId);
+    if (!child) return;
+    const ongoingQuest = child.ongoingQuests.find(q => q.instanceId === questInstanceId);
+    if (!ongoingQuest) return;
+    const quest = appState.quests.find(q => q.id === ongoingQuest.questId);
+    if (confirm(`Reject completion and return ${quest ? quest.name : 'this quest'} to ongoing?`)) {
+        ongoingQuest.status = 'ongoing';
+        delete ongoingQuest.completedDate;
+        saveData();
+        showNotification('Quest returned to ongoing.', 'success');
+        renderChildProfile();
+        renderDashboard();
+    }
+}
+
 function markQuestComplete(childId, questInstanceId) {
     const child = appState.children.find(c => c.id === childId);
     const ongoingQuest = child.ongoingQuests.find(q => q.instanceId === questInstanceId);
@@ -1130,7 +1161,7 @@ function renderPlay() {
         <div class="quest-card">
             <div class="quest-header" style="position: relative;">
                 <div class="quest-type">${quest.type}</div>
-                <button class="btn btn-icon" onclick="deleteQuest('${quest.id}')" style="position: absolute; top: 0; right: 0; background: #FF6B6B; color: white; border: none; width: 24px; height: 24px; padding: 0; font-size: 16px; cursor: pointer;">✕</button>
+                <button class="btn card-delete-btn" onclick="deleteQuest('${quest.id}')" aria-label="Delete quest" title="Delete quest">🗑 <span>Delete</span></button>
             </div>
             <div class="quest-name">${quest.name}</div>
             <div class="quest-tokens">💰 ${quest.baseTokenReward} tokens</div>
@@ -1150,7 +1181,7 @@ function renderShop() {
         <div class="treasure-card">
             <div class="treasure-header" style="position: relative;">
                 <div class="treasure-name">${treasure.name}</div>
-                <button class="btn btn-icon" onclick="deleteTreasure('${treasure.id}')" style="position: absolute; top: 0; right: 0; background: #FF6B6B; color: white; border: none; width: 24px; height: 24px; padding: 0; font-size: 16px; cursor: pointer;">✕</button>
+                <button class="btn card-delete-btn" onclick="deleteTreasure('${treasure.id}')" aria-label="Delete treasure" title="Delete treasure">🗑 <span>Delete</span></button>
             </div>
             <div class="treasure-cost">💰 ${treasure.costTokens} tokens | ⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} mins</div>
             <button class="btn btn-small" onclick="showClaimTreasureDialog('${treasure.id}')">Claim Treasure</button>
@@ -1193,6 +1224,8 @@ function renderSettings() {
             <label class="setting-toggle"><input type="checkbox" ${appState.notificationsEnabled !== false ? 'checked' : ''} onchange="updateNotificationPreference(this.checked)"> Treasure timer phone notifications</label>
             <p class="setting-help">The phone can alert you when a treasure timer ends. Android may ask for notification permission.</p>
             <button class="btn btn-small" onclick="window.prepareTreasureNotifications && window.prepareTreasureNotifications()">Enable / Check Phone Notifications</button>
+            <button class="btn btn-small" onclick="window.requestExactTreasureAlarms && window.requestExactTreasureAlarms()">Allow Precise Screen-Off Alarms</button>
+            <p class="setting-help">If alerts arrive only after waking the screen, allow EPIC RPG under Android Settings → Alarms & reminders. This gives Android permission to wake the phone at the timer end.</p>
             <label class="setting-toggle"><input type="checkbox" ${appState.soundEnabled !== false ? 'checked' : ''} onchange="updateSoundEnabled(this.checked)"> Achievement and task-completion sounds</label>
             <label class="setting-range">Sound volume <input type="range" min="0" max="1" step="0.05" value="${appState.soundVolume ?? 0.65}" oninput="updateSoundVolume(this.value)"></label>
             <button class="btn btn-small" onclick="testFeedbackSound()">Test Achievement Sound</button>
@@ -1287,9 +1320,10 @@ function renderChildProfile() {
     } else {
         child.ongoingQuests.forEach(oq => {
             const quest = appState.quests.find(q => q.id === oq.questId);
+            const questName = quest ? quest.name : 'Deleted quest';
             html += `
                     <div class="ongoing-quest">
-                    <div class="ongoing-quest-name">${quest.name}</div>
+                    <div class="ongoing-quest-name">${questName}</div>
                     <div class="status-badge ${oq.status === 'pending_approval' ? 'pending' : ''}">${oq.status === 'ongoing' ? 'Ongoing' : 'Pending Approval'}</div>
                     ${oq.status === 'ongoing' ? `<button class="btn btn-small" onclick="markQuestComplete('${child.id}', '${oq.instanceId}')">Mark Complete</button><button class="btn btn-small btn-danger" onclick="cancelQuest('${child.id}', '${oq.instanceId}')">Cancel</button>` : `<button class="btn btn-small" onclick="approveQuest('${child.id}', '${oq.instanceId}')">Approve</button><button class="btn btn-small btn-danger" onclick="rejectQuest('${child.id}', '${oq.instanceId}')">Reject</button>`}
                 </div>
@@ -1556,11 +1590,7 @@ function updateQMLTier(category, tierId, field, value) {
         saveData();
     }
 }
-function init() {
-    loadData();
-    renderDashboard();
-    renderAvatarGrid();
-    startTimerUpdates();
+function dispatchActiveTreasureNotificationSync() {
     const activeTreasurePayloads = [];
     appState.children.forEach(child => child.activeTreasures.forEach(treasure => {
         if (!treasure.isPaused && treasure.timeRemaining > 0) {
@@ -1569,5 +1599,15 @@ function init() {
         }
     }));
     window.dispatchEvent(new CustomEvent('epic-app-ready', { detail: { activeTreasurePayloads, notificationsEnabled: appState.notificationsEnabled } }));
+}
+
+window.syncActiveTreasureNotifications = dispatchActiveTreasureNotificationSync;
+
+function init() {
+    loadData();
+    renderDashboard();
+    renderAvatarGrid();
+    startTimerUpdates();
+    dispatchActiveTreasureNotificationSync();
 }
 window.addEventListener('DOMContentLoaded', init);

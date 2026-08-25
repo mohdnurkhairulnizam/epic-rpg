@@ -1502,3 +1502,52 @@ textarea:focus-visible {
         animation-duration: 0.01ms !important;
     }
 }
+
+
+/* Android regression fix: Play and Shop destructive actions use a recognizable labeled trash control instead of an ambiguous close X. */
+.card-delete-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 72px;
+    min-height: 38px;
+    padding: 5px 8px;
+    background: #b3261e;
+    color: #fff;
+    border: 2px solid #1a1a1a;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.card-delete-btn:hover,
+.card-delete-btn:focus-visible {
+    background: #8b0000;
+}
+
+.card-delete-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.card-delete-btn span {
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 380px) {
+    .card-delete-btn {
+        min-width: 44px;
+        width: 44px;
+        padding: 5px;
+    }
+
+    .card-delete-btn span {
+        display: none;
+    }
+}

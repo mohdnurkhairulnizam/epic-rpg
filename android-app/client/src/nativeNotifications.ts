@@ -17,6 +17,15 @@ type TreasureTimerPayload = {
 
 const isAndroid = () => Capacitor.getPlatform() === "android";
 
+function userNotificationsEnabled() {
+  try {
+    const data = JSON.parse(localStorage.getItem("epic_rpg_data") || "{}");
+    return data.notificationsEnabled !== false;
+  } catch {
+    return true;
+  }
+}
+
 function notificationId(payload: TreasureTimerPayload) {
   if (payload.notificationId) return payload.notificationId;
   const source = `${payload.childId}:${payload.treasureId}:${payload.notificationKey || payload.endAt}`;
@@ -59,8 +68,8 @@ async function prepareNotifications() {
   return { enabled, exact };
 }
 
-export async function scheduleTreasureNotification(payload: TreasureTimerPayload) {
-  if (!isAndroid() || payload.endAt <= Date.now()) return;
+export async function scheduleTreasureNotification(payload: TreasureTimerPayload, options: { requestExact?: boolean } = {}) {
+  if (!isAndroid() || !userNotificationsEnabled() || payload.endAt <= Date.now()) return;
   const { enabled, exact } = await prepareNotifications();
   if (!enabled) return;
 
@@ -86,10 +95,19 @@ export async function scheduleTreasureNotification(payload: TreasureTimerPayload
           childId: payload.childId,
           treasureId: payload.treasureId,
         },
-        isExactNotification: exact,
+        // New claims/resumes can request precise screen-off delivery. If the user declines Android’s special access, the plugin safely falls back to an inexact alarm.
+        isExactNotification: options.requestExact === true || exact,
+        isExactMandatory: false,
       },
     ],
   });
+}
+
+export async function requestExactTreasureAlarms() {
+  if (!isAndroid()) return;
+  const result = await LocalNotifications.changeExactNotificationSetting();
+  window.dispatchEvent(new CustomEvent("epic-notification-permission-changed", { detail: { exact: result.exact_alarm === "granted" } }));
+  window.dispatchEvent(new CustomEvent("epic-exact-alarm-updated", { detail: result }));
 }
 
 export async function cancelTreasureNotification(payload: Pick<TreasureTimerPayload, "childId" | "treasureId" | "notificationId" | "notificationKey">) {
@@ -143,6 +161,7 @@ export function registerNativeNotifications() {
   globalWindow.cancelTreasureNotification = (payload: Pick<TreasureTimerPayload, "childId" | "treasureId" | "notificationId" | "notificationKey">) => cancelTreasureNotification(payload);
   globalWindow.syncTreasureNotifications = (payloads: TreasureTimerPayload[]) => syncTreasureNotifications(payloads);
   globalWindow.prepareTreasureNotifications = () => prepareNotifications();
+  globalWindow.requestExactTreasureAlarms = () => requestExactTreasureAlarms();
   globalWindow.cancelAllTreasureNotifications = () => cancelAllTreasureNotifications();
 
   window.addEventListener("epic-app-ready", (event) => {
@@ -155,14 +174,18 @@ export function registerNativeNotifications() {
     const detail = (event as CustomEvent<{ enabled?: boolean }>).detail;
     if (detail?.enabled === false) void cancelAllTreasureNotifications();
   });
+  window.addEventListener("epic-exact-alarm-updated", () => {
+    const sync = (window as unknown as Record<string, unknown>).syncActiveTreasureNotifications;
+    if (typeof sync === "function") void (sync as () => void)();
+  });
   window.addEventListener("epic-treasure-claimed", (event) => {
-    void scheduleTreasureNotification((event as CustomEvent<TreasureTimerPayload>).detail);
+    void scheduleTreasureNotification((event as CustomEvent<TreasureTimerPayload>).detail, { requestExact: true });
   });
   window.addEventListener("epic-treasure-paused", (event) => {
     void cancelTreasureNotification((event as CustomEvent<TreasureTimerPayload>).detail);
   });
   window.addEventListener("epic-treasure-resumed", (event) => {
-    void scheduleTreasureNotification((event as CustomEvent<TreasureTimerPayload>).detail);
+    void scheduleTreasureNotification((event as CustomEvent<TreasureTimerPayload>).detail, { requestExact: true });
   });
   window.addEventListener("epic-treasure-ended", (event) => {
     void cancelTreasureNotification((event as CustomEvent<TreasureTimerPayload>).detail);
