@@ -195,37 +195,55 @@ const PRESET_BADGES = [
 ];
 
 const AVATAR_LIST = [
-    { id: 'avatar_f_1', path: '/avatars/avatar_f_1.png' },
-    { id: 'avatar_f_2', path: '/avatars/avatar_f_2.png' },
-    { id: 'avatar_f_3', path: '/avatars/avatar_f_3.png' },
-    { id: 'avatar_f_4', path: '/avatars/avatar_f_4.png' },
-    { id: 'avatar_f_5', path: '/avatars/avatar_f_5.png' },
-    { id: 'avatar_f_6', path: '/avatars/avatar_f_6.png' },
-    { id: 'avatar_f_7', path: '/avatars/avatar_f_7.png' },
-    { id: 'avatar_f_8', path: '/avatars/avatar_f_8.png' },
-    { id: 'avatar_f_9', path: '/avatars/avatar_f_9.png' },
-    { id: 'avatar_f_10', path: '/avatars/avatar_f_10.png' },
-    { id: 'avatar_m_1', path: '/avatars/avatar_m_1.png' },
-    { id: 'avatar_m_2', path: '/avatars/avatar_m_2.png' },
-    { id: 'avatar_m_3', path: '/avatars/avatar_m_3.png' },
-    { id: 'avatar_m_4', path: '/avatars/avatar_m_4.png' },
-    { id: 'avatar_m_5', path: '/avatars/avatar_m_5.png' },
-    { id: 'avatar_m_6', path: '/avatars/avatar_m_6.png' },
-    { id: 'avatar_m_7', path: '/avatars/avatar_m_7.png' },
-    { id: 'avatar_m_8', path: '/avatars/avatar_m_8.png' },
-    { id: 'avatar_m_9', path: '/avatars/avatar_m_9.png' },
-    { id: 'avatar_m_10', path: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663322891832/FdHxcmdCOdCmBAAv.png' },
-    { id: 'avatar_m_11', path: '/avatars/avatar_m_11.png' },
-    { id: 'avatar_m_12', path: '/avatars/avatar_m_12.png' },
-    { id: 'avatar_m_13', path: '/avatars/avatar_m_13.png' },
-    { id: 'avatar_m_14', path: '/avatars/avatar_m_14.png' },
-    { id: 'avatar_m_15', path: '/avatars/avatar_m_15.png' },
-    { id: 'avatar_m_16', path: '/avatars/avatar_m_16.png' },
-    { id: 'avatar_m_17', path: '/avatars/avatar_m_17.png' },
-    { id: 'avatar_m_18', path: '/avatars/avatar_m_18.png' },
-    { id: 'avatar_m_19', path: '/avatars/avatar_m_19.png' },
-    { id: 'avatar_m_20', path: '/avatars/avatar_m_20.png' }
+    { id: 'avatar_f_1', path: '/manus-storage/avatar_f_1_e6efd358.png' },
+    { id: 'avatar_f_2', path: '/manus-storage/avatar_f_2_ea400925.png' },
+    { id: 'avatar_f_3', path: '/manus-storage/avatar_f_3_e5232687.png' },
+    { id: 'avatar_f_4', path: '/manus-storage/avatar_f_4_b768629e.png' },
+    { id: 'avatar_f_5', path: '/manus-storage/avatar_f_5_9812cac8.png' },
+    { id: 'avatar_f_6', path: '/manus-storage/avatar_f_6_0ca0efec.png' },
+    { id: 'avatar_f_7', path: '/manus-storage/avatar_f_7_cbbdc6ac.png' },
+    { id: 'avatar_f_8', path: '/manus-storage/avatar_f_8_235ad6f7.png' },
+    { id: 'avatar_f_9', path: '/manus-storage/avatar_f_9_2209f8ae.png' },
+    { id: 'avatar_f_10', path: '/manus-storage/avatar_f_10_b3842813.png' },
+    { id: 'avatar_m_1', path: '/manus-storage/avatar_m_1_8138b2d3.png' },
+    { id: 'avatar_m_2', path: '/manus-storage/avatar_m_2_f2ae20bb.png' },
+    { id: 'avatar_m_3', path: '/manus-storage/avatar_m_3_1bdedea9.png' },
+    { id: 'avatar_m_4', path: '/manus-storage/avatar_m_4_c6f1cc70.png' },
+    { id: 'avatar_m_5', path: '/manus-storage/avatar_m_5_c7a8d093.png' },
+    { id: 'avatar_m_6', path: '/manus-storage/avatar_m_6_6ec061d1.png' },
+    { id: 'avatar_m_7', path: '/manus-storage/avatar_m_7_00a337a3.png' },
+    { id: 'avatar_m_8', path: '/manus-storage/avatar_m_8_1a8655a5.png' },
+    { id: 'avatar_m_9', path: '/manus-storage/avatar_m_9_af268e71.png' },
+    { id: 'avatar_m_10', path: '/manus-storage/avatar_m_10_64acce00.png' },
+    { id: 'avatar_m_11', path: '/manus-storage/avatar_m_11_14d7febe.png' },
+    { id: 'avatar_m_12', path: '/manus-storage/avatar_m_12_8837fc9f.png' },
+    { id: 'avatar_m_13', path: '/manus-storage/avatar_m_13_1e6aeaea.png' },
+    { id: 'avatar_m_14', path: '/manus-storage/avatar_m_14_19862b20.png' },
+    { id: 'avatar_m_15', path: '/manus-storage/avatar_m_15_123c379d.png' },
+    { id: 'avatar_m_16', path: '/manus-storage/avatar_m_16_a4a0f349.png' },
+    { id: 'avatar_m_17', path: '/manus-storage/avatar_m_17_6f4b4c2b.png' },
+    { id: 'avatar_m_18', path: '/manus-storage/avatar_m_18_343e83e1.png' },
+    { id: 'avatar_m_19', path: '/manus-storage/avatar_m_19_deb66bf7.png' },
+    { id: 'avatar_m_20', path: '/manus-storage/avatar_m_20_7ad306b2.png' }
 ];
+
+const BADGE_ASSETS = {
+    "ancient-debris": "/manus-storage/ancient-debris_fb9a7d47.png",
+    "coal-ore": "/manus-storage/coal-ore_607de9f7.png",
+    "copper-ore": "/manus-storage/copper-ore_81813b29.png",
+    "diamond-ore": "/manus-storage/diamond-ore_35412afc.png",
+    "emerald-ore": "/manus-storage/emerald-ore_d78e8696.png",
+    "gold-ore": "/manus-storage/gold-ore_6f249878.png",
+    "iron-ore": "/manus-storage/iron-ore_b1d611ca.png",
+    "redstone-ore": "/manus-storage/redstone-ore_053844d6.png"
+};
+function avatarPath(avatarId) {
+    const avatar = AVATAR_LIST.find(item => item.id === avatarId);
+    return avatar ? avatar.path : '';
+}
+function badgePath(badgeId) {
+    return BADGE_ASSETS[badgeId] || '';
+}
 
 // ============================================
 // STATE MANAGEMENT
@@ -340,7 +358,8 @@ function switchTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     
     document.getElementById(tabId).classList.add('active');
-    document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+    const activeTabButton = document.querySelector(`[data-tab="${tabId}"]`) || document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+    if (activeTabButton) activeTabButton.classList.add('active');
     
     if (tabId === 'dashboard') renderDashboard();
     if (tabId === 'leaderboard') renderLeaderboard();
@@ -368,8 +387,22 @@ function openModal(modalId) {
     }
 }
 
+function closeClaimTreasureDialog(modalElement) {
+    const dialogs = modalElement ? [modalElement] : Array.from(document.querySelectorAll('#claimTreasureModal'));
+    dialogs.forEach(dialog => {
+        dialog.classList.remove('active');
+        dialog.remove();
+    });
+}
+
 function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
+    if (modalId === 'claimTreasureModal') {
+        closeClaimTreasureDialog();
+        return;
+    }
+    document.querySelectorAll(`#${modalId}`).forEach(modal => {
+        modal.classList.remove('active');
+    });
 }
 
 // ============================================
@@ -759,6 +792,7 @@ function createTreasure() {
 }
 
 function showClaimTreasureDialog(treasureId) {
+    document.querySelectorAll('#claimTreasureModal').forEach(modal => modal.remove());
     const treasure = appState.treasures.find(t => t.id === treasureId);
     if (!treasure) return;
     
@@ -770,7 +804,10 @@ function showClaimTreasureDialog(treasureId) {
     modal.className = 'modal';
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">Claim Treasure: ${treasure.name}</div>
+            <div class="modal-header claim-treasure-header">
+                <span>Claim Treasure: ${treasure.name}</span>
+                <button type="button" class="claim-treasure-close" data-close-claim aria-label="Close Claim Treasure dialog">×</button>
+            </div>
             <div class="modal-body" style="padding: 20px;">
                 ${eligibleChildren.length === 0 ? `
                     <div style="text-align: center; padding: 20px; color: #666;">
@@ -790,14 +827,20 @@ function showClaimTreasureDialog(treasureId) {
                 `}
             </div>
             <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('claimTreasureModal')">Cancel</button>
+                <button type="button" class="btn" data-close-claim>Cancel</button>
             </div>
         </div>
     `;
+    modal.querySelectorAll('[data-close-claim]').forEach(button => {
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            closeClaimTreasureDialog(modal);
+        });
+    });
     modal.classList.add('active');
     document.body.appendChild(modal);
 }
-
 function claimTreasure(childId, treasureId) {
     const child = appState.children.find(c => c.id === childId);
     const treasure = appState.treasures.find(t => t.id === treasureId);
@@ -975,7 +1018,7 @@ function renderDashboard() {
                         </div>
                     </div>
                 </div>
-                <img src="/avatars/${child.avatarId}.png" class="child-avatar" alt="Avatar">
+                <img src="${avatarPath(child.avatarId)}" class="child-avatar" alt="Avatar">
                 ${statusHtml}
             </div>
         `;
@@ -1107,7 +1150,7 @@ function renderSettings() {
                     return `
                         <div class="glossary-category" onclick="toggleGlossary('${cat}')">
                             <div class="glossary-header">
-                                <img src="/badges/${iconMap[cat]}.png" alt="${cat}" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;">
+                                <img src="${badgePath(iconMap[cat])}" alt="${cat}" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;">
                                 <span>${cat} Badges</span>
                                 <span>▼</span>
                             </div>
@@ -1139,7 +1182,7 @@ function renderChildProfile() {
     let html = `
         <div class="profile-section">
             <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                <img src="/avatars/${child.avatarId}.png" alt="${child.name}" style="width: 80px; height: 80px; border: 2px solid #1a1a1a; border-radius: 4px;">
+                <img src="${avatarPath(child.avatarId)}" alt="${child.name}" style="width: 80px; height: 80px; border: 2px solid #1a1a1a; border-radius: 4px;">
                 <div>
                     <div class="profile-section-title" style="border: none; margin: 0; padding: 0;">${child.name}</div>
                     <div style="font-size: 12px; color: #666;">Age: ${age} | DOB: ${child.dateOfBirth}</div>
@@ -1237,7 +1280,7 @@ function renderChildProfile() {
         const badgeData = appState.badges.find(b => b.id === badge.badgeId);
         if (badgeData) {
             const iconMap = {'Coal': 'coal-ore', 'Copper': 'copper-ore', 'Iron': 'iron-ore', 'Gold': 'gold-ore', 'Redstone': 'redstone-ore', 'Diamond': 'diamond-ore', 'Emerald': 'emerald-ore', 'Ancient Debris': 'ancient-debris'};
-            html += `<div class="badge-item" style="opacity: ${badge.earned ? '1' : '0.5'};"><div class="badge-icon"><img src="/badges/${iconMap[badgeData.category]}.png" alt="${badgeData.category}" style="width: 32px; height: 32px;"></div><div class="badge-name">${badgeData.name}</div><div class="badge-progress">${badge.progress}/${badgeData.targetValue}</div></div>`;
+            html += `<div class="badge-item" style="opacity: ${badge.earned ? '1' : '0.5'};"><div class="badge-icon"><img src="${badgePath(iconMap[badgeData.category])}" alt="${badgeData.category}" style="width: 32px; height: 32px;"></div><div class="badge-name">${badgeData.name}</div><div class="badge-progress">${badge.progress}/${badgeData.targetValue}</div></div>`;
         }
     });
     html += '</div></div>';
@@ -1349,7 +1392,7 @@ function showTierMilestonePopup(childName, tierName, category = 'Juz Amma') {
     popup.innerHTML = `
         <div class="tier-milestone-content">
             <div class="tier-milestone-animation">
-                <img src="/badges/${badgeIcon}.png" class="ore-animation" alt="${tierName}" style="width: 80px; height: 80px;">
+                <img src="${badgePath(badgeIcon)}" class="ore-animation" alt="${tierName}" style="width: 80px; height: 80px;">
             </div>
             <div class="tier-milestone-text">
                 <div class="tier-milestone-title">🎉 Tier Unlocked! 🎉</div>
