@@ -65,3 +65,19 @@ The screen-off delivery issue was traced to the bridge explicitly setting `isExa
 Play and Shop card actions now use a labeled pixel-styled trash control with `Delete`, `aria-label`, and `title` instead of an ambiguous X. Ongoing quest actions now have working `cancelQuest` and `rejectQuest` functions. Cancel removes the active quest after confirmation; Reject changes a pending-approval quest back to ongoing, removes its completion date, saves the state, and refreshes the profile/dashboard.
 
 The corrected source passed `pnpm check`, Vite production build, Capacitor sync, `assembleDebug`, and `bundleRelease`. Physical screen-off notification delivery, exact-alarm settings, audio output, and Android OEM battery behavior still require testing on a real device.
+
+## NFC preview validation
+
+The Android Vite preview rendered the four preloaded children and the fixed bottom navigation. The Dashboard exposes the `📱 Scan Card` entry point, and the Android shell loads the bundled `mobile-assets` avatar paths. Native NFC hardware is not available in the browser preview, so manual NFC-ID fallback and physical tag detection remain device tests.
+
+A temporary browser-only NFC ID `04A1B2C3` was assigned to the first preset child for UI validation. This test change is confined to the temporary preview browser localStorage and is not part of the Android source or the stable website checkpoint.
+
+The Android preview opened the Scan NFC Card modal with clear `Start NFC Scan`, `Use ID`, and `Close` controls. Browser preview correctly exposes the manual ID fallback because native NFC is unavailable outside an Android device.
+
+The manual-ID fallback opened the NFC child action window successfully for `Muhammad Darwish Ar-Rayyan`. The modal showed the child name, token count, ongoing quest count, all available quest request buttons, and the token-based treasure section. With zero tokens, it correctly displayed that no treasure was affordable.
+
+The NFC child action window quest-request path worked in preview: selecting a quest closed the modal, saved the quest to the first child, and rendered the Dashboard with `On Quest: 1 active`. A temporary browser-only token balance was then set to 100 to exercise the eligible-treasure path.
+
+The NFC scan modal reopened successfully after the first quest request, while the temporary first-child balance remained at 100 tokens. This confirms repeated scan entry remains available after an NFC child action.
+
+With a temporary browser-only balance of 100 tokens, the NFC child action window displayed all four eligible preset treasures and their token costs. This confirms the eligibility filter is based on the scanned child’s current token count.

@@ -1551,3 +1551,68 @@ textarea:focus-visible {
         display: none;
     }
 }
+
+
+/* Android NFC child window: keep card actions readable and thumb-friendly on small screens. */
+.nfc-child-action-content {
+    max-width: 460px;
+}
+
+.nfc-child-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 14px;
+    margin: 4px 0 16px;
+    padding: 12px;
+    background: rgba(255, 215, 0, 0.18);
+    border: 2px solid #1a1a1a;
+    color: #1a1a1a;
+    font-size: 12px;
+}
+
+.nfc-action-section {
+    margin-top: 14px;
+}
+
+.nfc-action-list {
+    display: grid;
+    gap: 8px;
+    max-height: 190px;
+    overflow-y: auto;
+    padding: 4px;
+    border: 2px solid #1a1a1a;
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.nfc-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-height: 46px;
+    text-align: left;
+}
+
+.nfc-action-button strong {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.treasure-action-button {
+    background: #d6a21f;
+    color: #1a1a1a;
+}
+
+@media (max-width: 430px) {
+    .nfc-child-action-content {
+        width: min(100%, 380px);
+    }
+
+    .nfc-action-button {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}

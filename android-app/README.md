@@ -12,8 +12,8 @@ The first Android release is intentionally **local-only**. Data is stored inside
 
 - App name: `EPIC RPG Family Quest`
 - Android package: `com.epicrpg.familyquest`
-- Version: `1.1.0`
-- Version code: `2`
+- Version: `1.2.0`
+- Version code: `3`
 - Compile/target SDK: `36`
 - Minimum SDK: `24`
 
@@ -82,3 +82,12 @@ The Play and Shop destructive card controls are now labeled **Delete** with a tr
 ### If alerts appear only after waking the screen
 
 Open the app’s Settings screen and press **Allow Precise Screen-Off Alarms**. Android opens the EPIC RPG **Alarms & reminders** permission page. Turn the permission on, return to EPIC RPG, and resume or reclaim the treasure so it is scheduled again using exact timing. Also confirm that Android notifications are allowed for the app, that the **Treasure timers** channel is not silent, and that Do Not Disturb or a manufacturer battery-saving mode is not suppressing alerts. If exact-alarm access is declined, Android may delay an inexact alert until the device wakes.
+
+
+## NFC card-linked child access
+
+NFC is optional hardware in the Android app. Parents can enter a card identifier manually or use **Detect** while creating a child and while editing an existing child profile. Card identifiers are normalized before storage, and the app rejects a card that is already linked to another child.
+
+The fixed **Scan Card** action starts the native NFC reader on Android. When a tag is detected, the app reads its local tag identifier, matches it against the locally stored child profile, and opens a child action window. The window shows the child’s name, token count, ongoing quest count, all available quests, and only treasures whose token cost is affordable. The parent can request a quest or claim an eligible treasure from that window; both actions reuse the existing reward and persistence logic.
+
+NFC is not used as an online account identity. The tag identifier stays in the device’s local app data. Android devices generally require NFC to be enabled and the screen to be active/unlocked for tag discovery. The app shows a clear disabled/unsupported state and retains manual-ID entry as a fallback. NFC hardware is declared optional so the app can still be installed on phones without NFC.

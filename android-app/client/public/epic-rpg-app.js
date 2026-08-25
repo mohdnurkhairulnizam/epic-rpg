@@ -412,6 +412,9 @@ function closeClaimTreasureDialog(modalElement) {
 }
 
 function closeModal(modalId) {
+    if (modalId === 'nfcScanModal' && typeof window.stopNfcScan === 'function') {
+        window.stopNfcScan();
+    }
     if (modalId === 'claimTreasureModal') {
         closeClaimTreasureDialog();
         return;
@@ -425,13 +428,26 @@ function closeModal(modalId) {
 // CHILD MANAGEMENT
 // ============================================
 
+function normalizeNfcCardId(value) {
+    return String(value || '').trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+}
+
+function isNfcCardAlreadyAssigned(nfcCardId, exceptChildId = null) {
+    const normalized = normalizeNfcCardId(nfcCardId);
+    return normalized && appState.children.some(child => child.id !== exceptChildId && normalizeNfcCardId(child.nfcCardId) === normalized);
+}
+
 function createChild() {
-    const name = document.getElementById('childName').value;
+    const name = document.getElementById('childName').value.trim();
     const dob = document.getElementById('childDOB').value;
-    const nfc = document.getElementById('childNFC').value;
+    const nfc = normalizeNfcCardId(document.getElementById('childNFC').value);
     
     if (!name || !dob) {
         showNotification('Please fill in all fields', 'error');
+        return;
+    }
+    if (isNfcCardAlreadyAssigned(nfc)) {
+        showNotification('That NFC card is already linked to another child.', 'error');
         return;
     }
     
@@ -521,9 +537,14 @@ function saveChildEdit() {
     const child = appState.children.find(c => c.id === appState.editingChildId);
     if (!child) return;
     
-    child.name = document.getElementById('editChildName').value;
+    const nfc = normalizeNfcCardId(document.getElementById('editChildNFC').value);
+    if (isNfcCardAlreadyAssigned(nfc, child.id)) {
+        showNotification('That NFC card is already linked to another child.', 'error');
+        return;
+    }
+    child.name = document.getElementById('editChildName').value.trim();
     child.dateOfBirth = document.getElementById('editChildDOB').value;
-    child.nfcCardId = document.getElementById('editChildNFC').value || null;
+    child.nfcCardId = nfc || null;
     child.avatarId = selectedAvatarId;
     
     saveData();
@@ -577,33 +598,134 @@ function changeQMLType(childId, type) {
 // ============================================
 
 function detectNFCForAdd() {
-    const nfcId = prompt("Tap NFC Card (Enter ID):");
-    if (nfcId) {
-        document.getElementById('childNFC').value = nfcId;
+    const startScan = window.startNfcScan;
+    if (typeof startScan === 'function') {
+        openModal('nfcScanModal');
+        showNotification('Hold the NFC card near the back of the phone.', 'success');
+        startScan('add');
+        return;
     }
+    const nfcId = prompt("Enter NFC card ID:");
+    if (nfcId) document.getElementById('childNFC').value = normalizeNfcCardId(nfcId);
 }
 
 function detectNFCForEdit() {
-    const nfcId = prompt("Tap NFC Card (Enter ID):");
-    if (nfcId) {
-        document.getElementById('editChildNFC').value = nfcId;
+    const startScan = window.startNfcScan;
+    if (typeof startScan === 'function') {
+        openModal('nfcScanModal');
+        showNotification('Hold the NFC card near the back of the phone.', 'success');
+        startScan('edit');
+        return;
+    }
+    const nfcId = prompt("Enter NFC card ID:");
+    if (nfcId) document.getElementById('editChildNFC').value = normalizeNfcCardId(nfcId);
+}
+
+function handleNativeNfcDetected(event) {
+    const detail = event.detail || {};
+    const nfcId = normalizeNfcCardId(detail.nfcId);
+    if (!nfcId) return;
+    if (detail.purpose === 'add') {
+        const input = document.getElementById('childNFC');
+        if (input) input.value = nfcId;
+        closeModal('nfcScanModal');
+        showNotification('NFC card captured for this new child.', 'success');
+        return;
+    }
+    if (detail.purpose === 'edit') {
+        const input = document.getElementById('editChildNFC');
+        if (input) input.value = nfcId;
+        closeModal('nfcScanModal');
+        showNotification('NFC card captured for this child profile.', 'success');
+        return;
+    }
+    const input = document.getElementById('nfcCardInput');
+    if (input) input.value = nfcId;
+    processNFCCard(nfcId);
+}
+
+function processNFCCard(value) {
+    const input = document.getElementById('nfcCardInput');
+    const nfcId = normalizeNfcCardId(value || (input && input.value));
+    if (!nfcId) return;
+    const child = appState.children.find(c => normalizeNfcCardId(c.nfcCardId) === nfcId);
+    if (child) {
+        closeModal('nfcScanModal');
+        if (input) input.value = '';
+        openNfcChildActionWindow(child.id);
+    } else {
+        const result = document.getElementById('nfc-result');
+        if (result) result.innerHTML = `<div style="color: #FF6B6B; margin-top: 10px;">Card not recognized: ${nfcId}</div>`;
     }
 }
 
-function processNFCCard() {
-    const input = document.getElementById('nfcCardInput');
-    const nfcId = input.value.trim();
-    if (!nfcId) return;
-    
-    const child = appState.children.find(c => c.nfcCardId === nfcId);
-    if (child) {
-        closeModal('nfcScanModal');
-        openChildProfile(child.id);
-        input.value = '';
-    } else {
-        document.getElementById('nfc-result').innerHTML = `<div style="color: #FF6B6B; margin-top: 10px;">Card not recognized: ${nfcId}</div>`;
-    }
+function openNfcChildActionWindow(childId) {
+    const child = appState.children.find(c => c.id === childId);
+    if (!child) return;
+    document.querySelectorAll('#nfcChildActionModal').forEach(modal => modal.remove());
+    const availableTreasures = appState.treasures.filter(treasure => child.tokens >= treasure.costTokens);
+    const modal = document.createElement('div');
+    modal.id = 'nfcChildActionModal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content nfc-child-action-content">
+            <div class="modal-header claim-treasure-header">
+                <span>📱 ${child.name}</span>
+                <button type="button" class="claim-treasure-close" aria-label="Close child action window" onclick="closeModal('nfcChildActionModal')">×</button>
+            </div>
+            <div class="nfc-child-summary">
+                <strong>💰 ${child.tokens} Tokens</strong>
+                <span>⚔️ ${child.ongoingQuests.length} Ongoing Quest${child.ongoingQuests.length === 1 ? '' : 's'}</span>
+            </div>
+            <div class="nfc-action-section">
+                <div class="profile-section-title">Request a New Quest</div>
+                <div class="nfc-action-list">
+                    ${appState.quests.length === 0 ? '<div class="empty-state">No quests available.</div>' : appState.quests.map(quest => `
+                        <button class="btn btn-small nfc-action-button" onclick="requestQuestFromNfc('${child.id}', '${quest.id}')">
+                            <span>⚔️ ${quest.name}</span><strong>+${quest.baseTokenReward} tokens</strong>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="nfc-action-section">
+                <div class="profile-section-title">Claim an Eligible Treasure</div>
+                <div class="nfc-action-list">
+                    ${availableTreasures.length === 0 ? '<div class="empty-state">No treasure is affordable with the current token count.</div>' : availableTreasures.map(treasure => `
+                        <button class="btn btn-small nfc-action-button treasure-action-button" onclick="claimTreasureFromNfc('${child.id}', '${treasure.id}')">
+                            <span>🎁 ${treasure.name}</span><strong>${treasure.costTokens} tokens</strong>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="modal-buttons"><button class="btn" onclick="closeModal('nfcChildActionModal')">Close</button></div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.classList.add('active');
 }
+
+function requestQuestFromNfc(childId, questId) {
+    requestQuest(childId, questId);
+    closeModal('nfcChildActionModal');
+    showNotification('Quest requested for this child.', 'success');
+    renderDashboard();
+}
+
+function claimTreasureFromNfc(childId, treasureId) {
+    claimTreasure(childId, treasureId);
+    closeModal('nfcChildActionModal');
+    renderDashboard();
+} 
+
+window.addEventListener('epic-nfc-status', event => {
+    const detail = event.detail || {};
+    const status = document.getElementById('nfc-status');
+    if (status && detail.message) {
+        status.textContent = detail.message;
+        status.className = `nfc-status ${detail.tone === 'error' ? 'nfc-status-error' : 'nfc-status-active'}`;
+    }
+});
+window.addEventListener('epic-native-nfc-detected', handleNativeNfcDetected);
 
 // ============================================
 // QUEST MANAGEMENT

@@ -7,3 +7,6 @@ project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacito
 
 include ':capacitor-local-notifications'
 project(':capacitor-local-notifications').projectDir = new File('../node_modules/.pnpm/@capacitor+local-notifications@8.3.1_@capacitor+core@8.5.0/node_modules/@capacitor/local-notifications/android')
+
+include ':capgo-capacitor-nfc'
+project(':capgo-capacitor-nfc').projectDir = new File('../node_modules/.pnpm/@capgo+capacitor-nfc@8.2.5_@capacitor+core@8.5.0/node_modules/@capgo/capacitor-nfc/android')

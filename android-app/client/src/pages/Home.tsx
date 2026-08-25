@@ -69,7 +69,7 @@ export default function Home() {
         </div>
       </div>
 
-      <button className="nfc-button" onClick={() => invoke("openModal", "nfcScanModal")} title="Scan NFC Card">
+      <button className="nfc-button" onClick={() => { invoke("openModal", "nfcScanModal"); invoke("startNfcScan", "open"); }} title="Scan NFC Card">
         📱 Scan Card
       </button>
 
@@ -109,7 +109,10 @@ export default function Home() {
           </div>
           <div className="form-group">
             <label>NFC Card ID (Optional)</label>
-            <input type="text" id="childNFC" placeholder="NFC card ID" />
+            <div className="nfc-input-group">
+              <input type="text" id="childNFC" placeholder="Tap card or enter ID" />
+              <button className="btn btn-small" onClick={() => invoke("detectNFCForAdd")}>Detect</button>
+            </div>
           </div>
           <div className="form-group">
             <label>Select Avatar</label>
@@ -183,9 +186,10 @@ export default function Home() {
           <span className="close" onClick={() => invoke("closeModal", "nfcScanModal")}>&times;</span>
           <h3>📱 Scan NFC Card</h3>
           <div id="nfc-status" className="nfc-status">Ready to scan...</div>
+          <button className="btn btn-small" onClick={() => invoke("startNfcScan", "open")}>Start NFC Scan</button>
           <div className="nfc-input-group">
             <input type="text" id="nfcCardInput" placeholder="Tap NFC card or enter ID" autoFocus />
-            <button className="btn" onClick={() => invoke("processNFCCard")}>Scan</button>
+            <button className="btn" onClick={() => invoke("processNFCCard")}>Use ID</button>
           </div>
           <div id="nfc-result" className="nfc-result" />
           <button className="btn" onClick={() => invoke("closeModal", "nfcScanModal")}>Close</button>
