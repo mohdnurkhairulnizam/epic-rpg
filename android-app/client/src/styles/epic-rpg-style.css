@@ -26,9 +26,12 @@ body {
 /* Quest Arena visual reminder: use block-built dark headers, inset parchment boards, ore-accent achievements, and clear phone-first information layers. */
 .header {
     background: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 10px, transparent 10px 20px), linear-gradient(135deg, #1d4b24 0 50%, #2f7632 50% 100%);
-    text-align: center;
+    align-items: center;
     border-bottom: 4px solid #1a1a1a;
     box-shadow: inset 4px 4px 0 rgba(255,255,255,.10), inset -4px -4px 0 rgba(0,0,0,.26), 0 4px 0 #151b10;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) 108px;
     overflow: hidden;
     padding: 20px;
     position: relative;
@@ -50,7 +53,8 @@ body {
 
 .header-block-rivets { display: flex; justify-content: space-between; left: 10px; position: absolute; right: 10px; top: 8px; }
 .header-block-rivets i { background: #d7ac2d; box-shadow: 2px 2px 0 #51370a; display: block; height: 5px; width: 5px; }
-.header-brand-row { align-items: center; display: grid; grid-template-columns: 36px minmax(0, 1fr) 24px; gap: 10px; position: relative; text-align: left; }
+.header-brand-row { align-items: center; display: grid; grid-template-columns: 36px minmax(0, 1fr) 24px; gap: 10px; min-width: 0; position: relative; text-align: left; }
+.header-brand-row > div { min-width: 0; }
 .header-game-icon { font-size: 23px; filter: drop-shadow(2px 2px 0 rgba(0,0,0,.45)); }
 .header-kicker { color: #ffe16a; display: block; font-family: 'Press Start 2P', cursive; font-size: 7px; letter-spacing: .45px; margin-bottom: 7px; text-shadow: 1px 1px 0 #3b2c08; }
 .header .header-brand-row h1 { font-size: 18px; line-height: 1.25; margin: 0 0 5px; }
@@ -1449,15 +1453,15 @@ body {
 /* NFC Button in Header */
 .nfc-button {
     align-items: center;
-    position: absolute;
-    top: 116px;
-    right: 14px;
-    z-index: 3;
     display: flex;
-    gap: 8px;
-    min-height: 48px;
-    padding: 6px 9px 6px 6px;
-    background: linear-gradient(135deg, #203e24 0%, #3d6f31 100%);
+    gap: 5px;
+    justify-content: center;
+    min-height: 46px;
+    min-width: 108px;
+    padding: 5px 6px;
+    position: relative;
+    z-index: 2;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 4px, transparent 4px 8px), linear-gradient(135deg, #19391f 0%, #38692c 100%);
     border: 3px solid #1a1a1a;
     color: #fff;
     font-weight: bold;
@@ -1467,10 +1471,10 @@ body {
     box-shadow: inset 2px 2px 0 rgba(255,255,255,.18), inset -2px -2px 0 rgba(0,0,0,.28), 3px 3px 0 rgba(0,0,0,0.42);
     transition: all 0.1s;
 }
-.nfc-button-sigil { align-items: center; background: #d8b329; border: 2px solid #f6e67b; color: #1a1a1a; display: flex; font-size: 24px; height: 33px; justify-content: center; line-height: 1; width: 33px; }
+.nfc-button-sigil { align-items: center; background: #d8b329; border: 2px solid #f6e67b; color: #1a1a1a; display: flex; font-size: 19px; height: 29px; justify-content: center; line-height: 1; width: 29px; }
 .nfc-button-copy { display: grid; gap: 2px; text-align: left; }
-.nfc-button-copy small { color: #d9efb9; font-size: 7px; font-weight: 900; letter-spacing: .65px; }
-.nfc-button-copy strong { color: #fff; font-family: 'Press Start 2P', cursive; font-size: 9px; white-space: nowrap; }
+.nfc-button-copy small { color: #d9efb9; font-size: 6px; font-weight: 900; letter-spacing: .55px; }
+.nfc-button-copy strong { color: #fff; font-family: 'Press Start 2P', cursive; font-size: 8px; white-space: nowrap; }
 .nfc-button:hover {
     transform: translate(-1px, -1px);
     box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
@@ -2031,6 +2035,8 @@ textarea:focus-visible {
 
 @media (max-width: 380px) {
     .header {
+        gap: 8px;
+        grid-template-columns: minmax(0, 1fr) 108px;
         padding: 14px 10px;
     }
 
@@ -2041,6 +2047,15 @@ textarea:focus-visible {
     .header p {
         font-size: 10px;
     }
+
+    .header-brand-row { grid-template-columns: 28px minmax(0, 1fr) 16px; gap: 6px; }
+    .header-game-icon { font-size: 20px; }
+    .header-ore-badge { font-size: 16px; }
+    .header-kicker { font-size: 6px; }
+    .nfc-button { gap: 4px; min-height: 44px; min-width: 0; padding: 4px; width: 108px; }
+    .nfc-button-sigil { font-size: 17px; height: 27px; width: 27px; }
+    .nfc-button-copy small { font-size: 5px; }
+    .nfc-button-copy strong { font-size: 7px; }
 
 
     .tab-content h2 {
