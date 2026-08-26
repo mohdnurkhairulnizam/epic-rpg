@@ -1,15 +1,13 @@
-# EPIC RPG Android 1.4.2
+# EPIC RPG Android 1.4.2 — Corrected NFC Header Placement
 
-## NFC Checkpoint header placement
+## NFC Scan Card placement
 
-The NFC Scan Card action now sits in the open top-right area of the EPIC RPG header, matching the marked position in the requested layout reference. It remains a clear pixel-style action with the NFC sigil and `NFC CHECKPOINT / Scan Card` label.
+The NFC Scan Card is moved only to the open top-right location marked in the layout reference. It remains the same pixel-style action and is no longer displayed above the bottom navigation.
 
-The action is no longer positioned above the bottom navigation. The header reserves a dedicated top-right action zone so the card remains inside the green header and does not overlap the EPIC RPG title.
+## Restored 1.4.1 header design
 
-## Responsive behavior
-
-The top-right placement includes compact-phone rules and header safe-area spacing. The tab content continues using its bottom-navigation clearance only, so the previous bottom navigation layout correction remains intact.
+The EPIC RPG header has been restored exactly to its 1.4.1 visual baseline. Its original `20px` padding, title position, brand-row layout, icon placement, ore badge, dimensions, and material styling are unchanged. The NFC Scan Card is the only element newly placed in the open top-right header space.
 
 ## Validation
 
-TypeScript and production web builds passed. The local preview confirmed the NFC action remained within the header, did not overlap the title, stayed out of the bottom navigation area, and retained alignment during a compact-header simulation.
+TypeScript and production web builds passed. A fresh local preview confirmed the restored header has its original `104px` height and `20px` padding, while the NFC action remains fully inside the header and does not overlap the rendered EPIC RPG title.

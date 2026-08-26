@@ -30,7 +30,7 @@ body {
     border-bottom: 4px solid #1a1a1a;
     box-shadow: inset 4px 4px 0 rgba(255,255,255,.10), inset -4px -4px 0 rgba(0,0,0,.26), 0 4px 0 #151b10;
     overflow: hidden;
-    padding: 20px clamp(136px, 35vw, 170px) 20px 20px;
+    padding: 20px;
     position: relative;
 }
 
@@ -1450,13 +1450,13 @@ body {
 .nfc-button {
     align-items: center;
     position: absolute;
-    top: max(14px, env(safe-area-inset-top));
-    right: max(10px, env(safe-area-inset-right));
+    top: 20px;
+    right: 14px;
     z-index: 3;
     display: flex;
-    gap: 6px;
-    min-height: 44px;
-    padding: 5px 7px 5px 5px;
+    gap: 8px;
+    min-height: 48px;
+    padding: 6px 9px 6px 6px;
     background: linear-gradient(135deg, #203e24 0%, #3d6f31 100%);
     border: 3px solid #1a1a1a;
     color: #fff;
@@ -1467,10 +1467,10 @@ body {
     box-shadow: inset 2px 2px 0 rgba(255,255,255,.18), inset -2px -2px 0 rgba(0,0,0,.28), 3px 3px 0 rgba(0,0,0,0.42);
     transition: all 0.1s;
 }
-.nfc-button-sigil { align-items: center; background: #d8b329; border: 2px solid #f6e67b; color: #1a1a1a; display: flex; font-size: 21px; height: 30px; justify-content: center; line-height: 1; width: 30px; }
+.nfc-button-sigil { align-items: center; background: #d8b329; border: 2px solid #f6e67b; color: #1a1a1a; display: flex; font-size: 24px; height: 33px; justify-content: center; line-height: 1; width: 33px; }
 .nfc-button-copy { display: grid; gap: 2px; text-align: left; }
-.nfc-button-copy small { color: #d9efb9; font-size: 6px; font-weight: 900; letter-spacing: .55px; }
-.nfc-button-copy strong { color: #fff; font-family: 'Press Start 2P', cursive; font-size: 8px; white-space: nowrap; }
+.nfc-button-copy small { color: #d9efb9; font-size: 7px; font-weight: 900; letter-spacing: .65px; }
+.nfc-button-copy strong { color: #fff; font-family: 'Press Start 2P', cursive; font-size: 9px; white-space: nowrap; }
 .nfc-button:hover {
     transform: translate(-1px, -1px);
     box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
@@ -2030,7 +2030,7 @@ textarea:focus-visible {
 
 @media (max-width: 380px) {
     .header {
-        padding: 14px 126px 14px 10px;
+        padding: 14px 10px;
     }
 
     .header h1 {
@@ -2041,17 +2041,6 @@ textarea:focus-visible {
         font-size: 10px;
     }
 
-    .nfc-button {
-        top: 12px;
-        right: 8px;
-        min-height: 40px;
-        gap: 4px;
-        padding: 4px;
-    }
-
-    .nfc-button-sigil { font-size: 18px; height: 27px; width: 27px; }
-    .nfc-button-copy small { font-size: 5px; }
-    .nfc-button-copy strong { font-size: 7px; }
 
     .tab-content h2 {
         font-size: 12px;
