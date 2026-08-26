@@ -1450,7 +1450,7 @@ body {
 .nfc-button {
     align-items: center;
     position: fixed;
-    bottom: calc(96px + var(--phone-bottom-safe));
+    bottom: calc(var(--bottom-tabs-total-height) + 8px);
     right: 20px;
     z-index: 50;
     display: flex;
@@ -1897,39 +1897,57 @@ body {
     --phone-inline-pad: max(8px, env(safe-area-inset-left));
     --phone-inline-pad-right: max(8px, env(safe-area-inset-right));
     --phone-bottom-safe: env(safe-area-inset-bottom);
+    --bottom-tabs-core-height: 72px;
+    --bottom-tabs-total-height: calc(var(--bottom-tabs-core-height) + var(--phone-bottom-safe));
+    --nfc-checkpoint-clearance: 62px;
 }
 
 html {
+    height: 100%;
     min-height: 100%;
     background: #2D5016;
 }
 
 body {
+    height: 100dvh;
     min-height: 100dvh;
-    padding: max(8px, env(safe-area-inset-top)) var(--phone-inline-pad) calc(102px + var(--phone-bottom-safe));
+    padding: max(8px, env(safe-area-inset-top)) var(--phone-inline-pad) 0;
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .container {
     width: min(100%, 560px);
     max-width: 560px;
-    min-height: calc(100dvh - 104px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+    height: calc(100dvh - max(8px, env(safe-area-inset-top)));
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    flex: 0 0 auto;
 }
 
 .tab-content {
+    flex: 1 1 auto;
     min-height: 0;
-    max-height: calc(100dvh - 168px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+    max-height: none;
     padding: clamp(12px, 4vw, 20px);
+    padding-bottom: calc(clamp(12px, 4vw, 20px) + var(--nfc-checkpoint-clearance));
+    scroll-padding-bottom: var(--nfc-checkpoint-clearance);
     overscroll-behavior: contain;
 }
 
 .bottom-tabs {
-    min-height: 72px;
+    height: var(--bottom-tabs-total-height);
+    min-height: var(--bottom-tabs-total-height);
     padding-bottom: var(--phone-bottom-safe);
 }
 
 .tab-btn {
-    min-height: 72px;
+    min-height: var(--bottom-tabs-core-height);
     padding: 8px 4px 7px;
     touch-action: manipulation;
 }
@@ -2094,31 +2112,25 @@ textarea:focus-visible {
     .container {
         max-width: 680px;
     }
-
-    .tab-content {
-        max-height: calc(100dvh - 160px - env(safe-area-inset-top) - var(--phone-bottom-safe));
-    }
 }
 
 @media (orientation: landscape) and (max-height: 520px) {
-    body {
-        padding-bottom: calc(78px + var(--phone-bottom-safe));
+    :root {
+        --bottom-tabs-core-height: 58px;
+        --nfc-checkpoint-clearance: 54px;
     }
 
     .header {
         padding: 10px 16px;
     }
 
-    .tab-content {
-        max-height: calc(100dvh - 122px - var(--phone-bottom-safe));
-    }
-
-    .bottom-tabs,
-    .tab-btn {
-        min-height: 58px;
+    .bottom-tabs {
+        height: var(--bottom-tabs-total-height);
+        min-height: var(--bottom-tabs-total-height);
     }
 
     .tab-btn {
+        min-height: var(--bottom-tabs-core-height);
         flex-direction: row;
         gap: 6px;
     }
