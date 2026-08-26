@@ -258,7 +258,10 @@ let appState = {
     badges: [],
     birthdayTokenReward: 25,
     currentTab: 'dashboard',
-    currentProfileChildId: null
+    currentProfileChildId: null,
+    soundEnabled: true,
+    soundVolume: 0.65,
+    notificationsEnabled: true
 };
 
 let selectedAvatarId = 'avatar_m_1';
@@ -266,7 +269,20 @@ let selectedAvatarId = 'avatar_m_1';
 function loadData() {
     const saved = localStorage.getItem('epic_rpg_data');
     if (saved) {
-        appState = JSON.parse(saved);
+        appState = { ...appState, ...JSON.parse(saved) };
+        appState.soundEnabled = appState.soundEnabled !== false;
+        appState.soundVolume = Number.isFinite(appState.soundVolume) ? Math.min(1, Math.max(0, appState.soundVolume)) : 0.65;
+        appState.notificationsEnabled = appState.notificationsEnabled !== false;
+        appState.children = Array.isArray(appState.children) ? appState.children : [];
+        appState.treasures = Array.isArray(appState.treasures) ? appState.treasures : [];
+        appState.children.forEach(child => {
+            child.activeTreasures = Array.isArray(child.activeTreasures) ? child.activeTreasures : [];
+            child.activeTreasures.forEach(treasure => {
+                if (!treasure.endAt) treasure.endAt = Date.now() + Math.max(0, treasure.timeRemaining || 0) * 1000;
+                if (!treasure.notificationKey) treasure.notificationKey = generateId();
+                if (!treasure.isPaused) treasure.timeRemaining = Math.max(0, Math.ceil((treasure.endAt - Date.now()) / 1000));
+            });
+        });
         // Ensure cooldowns are 0 for existing data
         appState.treasures.forEach(t => t.cooldownSeconds = 0);
     } else {
@@ -381,7 +397,14 @@ function backToDashboard() {
 }
 
 function openModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    if (modalId === 'nfcScanModal') {
+        modal.classList.add('nfc-registration-modal');
+        modal.style.zIndex = '2200';
+        modal.classList.remove('nfc-scan-success');
+    }
+    modal.classList.add('active');
     if (modalId === 'addChildModal' || modalId === 'editChildModal') {
         renderAvatarGrid(modalId === 'addChildModal' ? 'avatarGrid' : 'editAvatarGrid');
     }
@@ -396,6 +419,9 @@ function closeClaimTreasureDialog(modalElement) {
 }
 
 function closeModal(modalId) {
+    if (modalId === 'nfcScanModal' && typeof window.stopNfcScan === 'function') {
+        window.stopNfcScan();
+    }
     if (modalId === 'claimTreasureModal') {
         closeClaimTreasureDialog();
         return;
@@ -409,13 +435,26 @@ function closeModal(modalId) {
 // CHILD MANAGEMENT
 // ============================================
 
+function normalizeNfcCardId(value) {
+    return String(value || '').trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+}
+
+function isNfcCardAlreadyAssigned(nfcCardId, exceptChildId = null) {
+    const normalized = normalizeNfcCardId(nfcCardId);
+    return normalized && appState.children.some(child => child.id !== exceptChildId && normalizeNfcCardId(child.nfcCardId) === normalized);
+}
+
 function createChild() {
-    const name = document.getElementById('childName').value;
+    const name = document.getElementById('childName').value.trim();
     const dob = document.getElementById('childDOB').value;
-    const nfc = document.getElementById('childNFC').value;
+    const nfc = normalizeNfcCardId(document.getElementById('childNFC').value);
     
     if (!name || !dob) {
         showNotification('Please fill in all fields', 'error');
+        return;
+    }
+    if (isNfcCardAlreadyAssigned(nfc)) {
+        showNotification('That NFC card is already linked to another child.', 'error');
         return;
     }
     
@@ -505,9 +544,14 @@ function saveChildEdit() {
     const child = appState.children.find(c => c.id === appState.editingChildId);
     if (!child) return;
     
-    child.name = document.getElementById('editChildName').value;
+    const nfc = normalizeNfcCardId(document.getElementById('editChildNFC').value);
+    if (isNfcCardAlreadyAssigned(nfc, child.id)) {
+        showNotification('That NFC card is already linked to another child.', 'error');
+        return;
+    }
+    child.name = document.getElementById('editChildName').value.trim();
     child.dateOfBirth = document.getElementById('editChildDOB').value;
-    child.nfcCardId = document.getElementById('editChildNFC').value || null;
+    child.nfcCardId = nfc || null;
     child.avatarId = selectedAvatarId;
     
     saveData();
@@ -520,6 +564,8 @@ function deleteChild(childId) {
     if (confirm('Are you sure you want to delete this profile? All progress will be lost.')) {
         appState.children = appState.children.filter(c => c.id !== childId);
         saveData();
+        const cancelAll = window.cancelAllTreasureNotifications;
+        if (typeof cancelAll === 'function') cancelAll();
         backToDashboard();
     }
 }
@@ -539,6 +585,7 @@ function updateQMLProgress(childId, value) {
     // Show tier milestone celebration if tier changed
     if (newTier && oldTier !== newTier.tierName) {
         showTierMilestonePopup(child.name, newTier.tierName, child.qmlType);
+        window.dispatchEvent(new CustomEvent('epic-achievement-earned', { detail: { kind: 'qml-tier', childId, childName: child.name, label: newTier.tierName } }));
     }
     
     saveData();
@@ -558,33 +605,235 @@ function changeQMLType(childId, type) {
 // ============================================
 
 function detectNFCForAdd() {
-    const nfcId = prompt("Tap NFC Card (Enter ID):");
-    if (nfcId) {
-        document.getElementById('childNFC').value = nfcId;
+    const startScan = window.startNfcScan;
+    if (typeof startScan === 'function') {
+        openModal('nfcScanModal');
+        showNfcScanReadyState('add');
+        startScan('add');
+        return;
     }
+    const nfcId = prompt("Enter NFC card ID:");
+    if (nfcId) document.getElementById('childNFC').value = normalizeNfcCardId(nfcId);
 }
 
 function detectNFCForEdit() {
-    const nfcId = prompt("Tap NFC Card (Enter ID):");
-    if (nfcId) {
-        document.getElementById('editChildNFC').value = nfcId;
+    const startScan = window.startNfcScan;
+    if (typeof startScan === 'function') {
+        openModal('nfcScanModal');
+        showNfcScanReadyState('edit');
+        startScan('edit');
+        return;
+    }
+    const nfcId = prompt("Enter NFC card ID:");
+    if (nfcId) document.getElementById('editChildNFC').value = normalizeNfcCardId(nfcId);
+}
+
+function showNfcScanReadyState(purpose) {
+    const status = document.getElementById('nfc-status');
+    const result = document.getElementById('nfc-result');
+    if (status) {
+        status.className = 'nfc-status scanning';
+        status.textContent = purpose === 'edit'
+            ? 'Hold the NFC card near the back of the phone to update this child.'
+            : 'Hold the NFC card near the back of the phone to register this child.';
+    }
+    if (result) result.innerHTML = '';
+}
+
+function showNfcScanSuccess(nfcId, purpose) {
+    const modal = document.getElementById('nfcScanModal');
+    const status = document.getElementById('nfc-status');
+    const result = document.getElementById('nfc-result');
+    if (modal) modal.classList.add('nfc-scan-success');
+    if (status) {
+        status.className = 'nfc-status success';
+        status.textContent = 'NFC card scanned successfully!';
+    }
+    if (result) {
+        result.className = 'nfc-result success nfc-success-card';
+        result.innerHTML = `<strong>✓ Card linked</strong><br><small>${purpose === 'edit' ? 'Child profile updated' : 'Ready to create child'} · ${nfcId}</small>`;
+    }
+    window.dispatchEvent(new CustomEvent('epic-nfc-success', { detail: { nfcId, purpose } }));
+}
+
+function handleNativeNfcDetected(event) {
+    const detail = event.detail || {};
+    const nfcId = normalizeNfcCardId(detail.nfcId);
+    if (!nfcId) return;
+    if (detail.purpose === 'add') {
+        const input = document.getElementById('childNFC');
+        if (input) input.value = nfcId;
+        showNfcScanSuccess(nfcId, 'add');
+        setTimeout(() => {
+            closeModal('nfcScanModal');
+            showNotification('NFC card captured for this new child.', 'success');
+        }, 850);
+        return;
+    }
+    if (detail.purpose === 'edit') {
+        const input = document.getElementById('editChildNFC');
+        if (input) input.value = nfcId;
+        showNfcScanSuccess(nfcId, 'edit');
+        setTimeout(() => {
+            closeModal('nfcScanModal');
+            showNotification('NFC card captured for this child profile.', 'success');
+        }, 850);
+        return;
+    }
+    const input = document.getElementById('nfcCardInput');
+    if (input) input.value = nfcId;
+    processNFCCard(nfcId);
+}
+
+function processNFCCard(value) {
+    const input = document.getElementById('nfcCardInput');
+    const nfcId = normalizeNfcCardId(value || (input && input.value));
+    if (!nfcId) return;
+    const child = appState.children.find(c => normalizeNfcCardId(c.nfcCardId) === nfcId);
+    if (child) {
+        closeModal('nfcScanModal');
+        if (input) input.value = '';
+        openNfcChildActionWindow(child.id);
+    } else {
+        const result = document.getElementById('nfc-result');
+        if (result) result.innerHTML = `<div style="color: #FF6B6B; margin-top: 10px;">Card not recognized: ${nfcId}</div>`;
     }
 }
 
-function processNFCCard() {
-    const input = document.getElementById('nfcCardInput');
-    const nfcId = input.value.trim();
-    if (!nfcId) return;
-    
-    const child = appState.children.find(c => c.nfcCardId === nfcId);
-    if (child) {
-        closeModal('nfcScanModal');
-        openChildProfile(child.id);
-        input.value = '';
-    } else {
-        document.getElementById('nfc-result').innerHTML = `<div style="color: #FF6B6B; margin-top: 10px;">Card not recognized: ${nfcId}</div>`;
-    }
+function renderNfcOngoingQuests(child) {
+    if (!child.ongoingQuests.length) return '<div class="empty-state">No ongoing quests.</div>';
+    return child.ongoingQuests.map(ongoingQuest => {
+        const quest = appState.quests.find(item => item.id === ongoingQuest.questId);
+        const questName = quest ? quest.name : 'Quest';
+        const isPending = ongoingQuest.status === 'pending_approval';
+        return `
+            <div class="nfc-quest-row ${isPending ? 'nfc-quest-pending' : ''}">
+                <div><strong>⚔️ ${questName}</strong><small>${isPending ? 'Waiting for parent approval' : 'In progress'}</small></div>
+                ${isPending ? '<span class="nfc-status-pill">Pending</span>' : `<button class="btn btn-small nfc-complete-button" onclick="markQuestCompleteFromNfc('${child.id}', '${ongoingQuest.instanceId}')">✓ Mark Complete</button>`}
+            </div>
+        `;
+    }).join('');
 }
+
+function renderNfcActiveRewards(child) {
+    if (!child.activeTreasures.length) return '<div class="empty-state">No active reward timers.</div>';
+    return child.activeTreasures.map(activeTreasure => {
+        const treasure = appState.treasures.find(item => item.id === activeTreasure.treasureId);
+        const remaining = activeTreasure.isPaused ? activeTreasure.timeRemaining : Math.max(0, Math.ceil(((activeTreasure.endAt || Date.now()) - Date.now()) / 1000));
+        const percent = activeTreasure.timerDuration ? Math.max(0, Math.min(100, (remaining / activeTreasure.timerDuration) * 100)) : 0;
+        return `
+            <div class="nfc-reward-timer-row">
+                <div class="nfc-reward-timer-heading"><strong>🎁 ${treasure ? treasure.name : 'Reward'}</strong><strong>⏱️ ${formatTime(remaining)}</strong></div>
+                <div class="nfc-reward-timer-bar"><div style="width: ${percent}%"></div></div>
+                <small>${activeTreasure.isPaused ? 'Paused' : 'Active reward timer'}</small>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderNfcQuestRequests(child) {
+    return appState.quests.length === 0 ? '<div class="empty-state">No quests available.</div>' : appState.quests.map(quest => `
+        <button class="btn btn-small nfc-action-button" onclick="requestQuestFromNfc('${child.id}', '${quest.id}')">
+            <span>⚔️ ${quest.name}</span><strong>+${quest.baseTokenReward} tokens</strong>
+        </button>
+    `).join('');
+}
+
+function renderNfcEligibleTreasures(child) {
+    const availableTreasures = appState.treasures.filter(treasure => child.tokens >= treasure.costTokens);
+    return availableTreasures.length === 0 ? '<div class="empty-state">No treasure is affordable with the current token count.</div>' : availableTreasures.map(treasure => `
+        <button class="btn btn-small nfc-action-button treasure-action-button" onclick="claimTreasureFromNfc('${child.id}', '${treasure.id}')">
+            <span>🎁 ${treasure.name}</span><strong>${treasure.costTokens} tokens</strong>
+        </button>
+    `).join('');
+}
+
+function refreshNfcChildActionWindow() {
+    const modal = document.getElementById('nfcChildActionModal');
+    if (!modal) return;
+    const child = appState.children.find(c => c.id === modal.dataset.childId);
+    if (!child) return closeModal('nfcChildActionModal');
+    const summary = modal.querySelector('[data-nfc-summary]');
+    if (summary) summary.innerHTML = `<strong>💰 ${child.tokens} Tokens</strong><span>⚔️ ${child.ongoingQuests.length} Ongoing Quest${child.ongoingQuests.length === 1 ? '' : 's'}</span>`;
+    const questRows = modal.querySelector('[data-nfc-ongoing-quests]');
+    if (questRows) questRows.innerHTML = renderNfcOngoingQuests(child);
+    const rewardRows = modal.querySelector('[data-nfc-rewards]');
+    if (rewardRows) rewardRows.innerHTML = renderNfcActiveRewards(child);
+    const requestRows = modal.querySelector('[data-nfc-quest-requests]');
+    if (requestRows) requestRows.innerHTML = renderNfcQuestRequests(child);
+    const treasureRows = modal.querySelector('[data-nfc-eligible-treasures]');
+    if (treasureRows) treasureRows.innerHTML = renderNfcEligibleTreasures(child);
+}
+
+function openNfcChildActionWindow(childId) {
+    const child = appState.children.find(c => c.id === childId);
+    if (!child) return;
+    document.querySelectorAll('#nfcChildActionModal').forEach(modal => modal.remove());
+    const modal = document.createElement('div');
+    modal.id = 'nfcChildActionModal';
+    modal.dataset.childId = child.id;
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content nfc-child-action-content arena-nfc-child-window">
+            <div class="modal-header claim-treasure-header arena-nfc-child-header">
+                <span><small>NFC HERO CHECKPOINT</small>📱 ${child.name}</span>
+                <button type="button" class="claim-treasure-close" aria-label="Close child action window" onclick="closeModal('nfcChildActionModal')">×</button>
+            </div>
+            <div class="nfc-child-summary arena-nfc-summary" data-nfc-summary>
+                <strong>💰 ${child.tokens} Tokens</strong>
+                <span>⚔️ ${child.ongoingQuests.length} Ongoing Quest${child.ongoingQuests.length === 1 ? '' : 's'}</span>
+            </div>
+            <div class="nfc-action-section arena-nfc-section">
+                <div class="profile-section-title">Ongoing Quests</div>
+                <div class="nfc-ongoing-quest-list" data-nfc-ongoing-quests>${renderNfcOngoingQuests(child)}</div>
+            </div>
+            <div class="nfc-action-section arena-nfc-section">
+                <div class="profile-section-title">Active Reward Timers</div>
+                <div class="nfc-reward-timer-list" data-nfc-rewards>${renderNfcActiveRewards(child)}</div>
+            </div>
+            <div class="nfc-action-section arena-nfc-section">
+                <div class="profile-section-title">Request a New Quest</div>
+                <div class="nfc-action-list" data-nfc-quest-requests>${renderNfcQuestRequests(child)}</div>
+            </div>
+            <div class="nfc-action-section arena-nfc-section">
+                <div class="profile-section-title">Claim an Eligible Treasure</div>
+                <div class="nfc-action-list" data-nfc-eligible-treasures>${renderNfcEligibleTreasures(child)}</div>
+            </div>
+            <div class="modal-buttons"><button class="btn" onclick="closeModal('nfcChildActionModal')">Close</button></div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.classList.add('active');
+}
+
+function markQuestCompleteFromNfc(childId, questInstanceId) {
+    markQuestComplete(childId, questInstanceId);
+    showNotification('Quest marked complete and sent for parent approval.', 'success');
+    refreshNfcChildActionWindow();
+}
+
+function requestQuestFromNfc(childId, questId) {
+    requestQuest(childId, questId);
+    closeModal('nfcChildActionModal');
+    showNotification('Quest requested for this child.', 'success');
+    renderDashboard();
+}
+
+function claimTreasureFromNfc(childId, treasureId) {
+    claimTreasure(childId, treasureId);
+    closeModal('nfcChildActionModal');
+    renderDashboard();
+}
+
+window.addEventListener('epic-nfc-status', event => {
+    const detail = event.detail || {};
+    const status = document.getElementById('nfc-status');
+    if (status && detail.message) {
+        status.textContent = detail.message;
+        status.className = `nfc-status ${detail.tone === 'error' ? 'nfc-status-error' : 'nfc-status-active'}`;
+    }
+});
+window.addEventListener('epic-native-nfc-detected', handleNativeNfcDetected);
 
 // ============================================
 // QUEST MANAGEMENT
@@ -613,6 +862,7 @@ function createQuest() {
     document.getElementById('questName').value = '';
     document.getElementById('questTokens').value = '';
     renderPlay();
+    window.dispatchEvent(new CustomEvent('epic-item-created', { detail: { type: 'quest', label: name } }));
 }
 
 function requestQuestFromPlay(questId) {
@@ -668,6 +918,7 @@ function confirmMultiQuestAssignment(questId) {
     });
     
     renderPlay();
+    window.dispatchEvent(new CustomEvent('epic-quest-assigned', { detail: { questId, count: checkboxes.length } }));
 }
 
 function requestQuest(childId, questId) {
@@ -686,6 +937,39 @@ function requestQuest(childId, questId) {
     saveData();
 }
 
+function cancelQuest(childId, questInstanceId) {
+    const child = appState.children.find(c => c.id === childId);
+    if (!child) return;
+    const ongoingQuest = child.ongoingQuests.find(q => q.instanceId === questInstanceId);
+    if (!ongoingQuest) return;
+    const quest = appState.quests.find(q => q.id === ongoingQuest.questId);
+    if (confirm(`Cancel ${quest ? quest.name : 'this quest'}?`)) {
+        child.ongoingQuests = child.ongoingQuests.filter(q => q.instanceId !== questInstanceId);
+        saveData();
+        showNotification('Quest cancelled.', 'success');
+        window.dispatchEvent(new CustomEvent('epic-action-reversed', { detail: { type: 'quest-cancelled' } }));
+        renderChildProfile();
+        renderDashboard();
+    }
+}
+
+function rejectQuest(childId, questInstanceId) {
+    const child = appState.children.find(c => c.id === childId);
+    if (!child) return;
+    const ongoingQuest = child.ongoingQuests.find(q => q.instanceId === questInstanceId);
+    if (!ongoingQuest) return;
+    const quest = appState.quests.find(q => q.id === ongoingQuest.questId);
+    if (confirm(`Reject completion and return ${quest ? quest.name : 'this quest'} to ongoing?`)) {
+        ongoingQuest.status = 'ongoing';
+        delete ongoingQuest.completedDate;
+        saveData();
+        showNotification('Quest returned to ongoing.', 'success');
+        window.dispatchEvent(new CustomEvent('epic-action-reversed', { detail: { type: 'quest-rejected' } }));
+        renderChildProfile();
+        renderDashboard();
+    }
+}
+
 function markQuestComplete(childId, questInstanceId) {
     const child = appState.children.find(c => c.id === childId);
     const ongoingQuest = child.ongoingQuests.find(q => q.instanceId === questInstanceId);
@@ -694,6 +978,7 @@ function markQuestComplete(childId, questInstanceId) {
         ongoingQuest.status = 'pending_approval';
         ongoingQuest.completedDate = new Date().toISOString().split('T')[0];
         saveData();
+        window.dispatchEvent(new CustomEvent('epic-quest-ready', { detail: { childId, questInstanceId } }));
         renderChildProfile();
     }
 }
@@ -729,6 +1014,7 @@ function approveQuest(childId, questInstanceId) {
     
     saveData();
     showNotification(`Quest approved! ${tokensEarned} tokens`, 'success');
+    window.dispatchEvent(new CustomEvent('epic-task-completed', { detail: { childId, childName: child.name, questId: quest.id, questName: quest.name, tokensEarned } }));
     renderChildProfile();
 }
 
@@ -789,6 +1075,7 @@ function createTreasure() {
     document.getElementById('treasureCost').value = '';
     document.getElementById('treasureTimer').value = '';
     renderShop();
+    window.dispatchEvent(new CustomEvent('epic-item-created', { detail: { type: 'treasure', label: name } }));
 }
 
 function showClaimTreasureDialog(treasureId) {
@@ -860,11 +1147,16 @@ function claimTreasure(childId, treasureId) {
     const bonusPercentage = currentTier ? currentTier.bonusPercentage : 0;
     const finalTimerSeconds = Math.round(treasure.baseTimerSeconds * (1 + bonusPercentage / 100));
     
+    const endAt = Date.now() + finalTimerSeconds * 1000;
     child.activeTreasures.push({
         treasureId,
         timeRemaining: finalTimerSeconds,
         timerDuration: finalTimerSeconds,
-        isPaused: false
+        endAt,
+        notificationKey: generateId(),
+        isPaused: false,
+        endNotificationScheduled: false,
+        endedNotified: false
     });
     
     child.treasureHistory.push({
@@ -881,15 +1173,26 @@ function claimTreasure(childId, treasureId) {
     renderChildProfile();
     renderDashboard();
     showNotification(`${treasure.name} claimed by ${child.name}!`, 'success');
+    const activeTreasure = child.activeTreasures[child.activeTreasures.length - 1];
+    window.dispatchEvent(new CustomEvent('epic-treasure-claimed', { detail: { childId, childName: child.name, treasureId, treasureName: treasure.name, endAt, notificationKey: activeTreasure.notificationKey } }));
 }
 
 function pauseTreasure(childId, index) {
     const child = appState.children.find(c => c.id === childId);
-    if (child && child.activeTreasures[index]) {
-        child.activeTreasures[index].isPaused = !child.activeTreasures[index].isPaused;
-        saveData();
-        renderChildProfile();
+    const treasure = child?.activeTreasures[index];
+    if (!child || !treasure) return;
+    treasure.timeRemaining = Math.max(0, Math.ceil(((treasure.endAt || Date.now()) - Date.now()) / 1000));
+    treasure.isPaused = !treasure.isPaused;
+    if (treasure.isPaused) {
+        window.dispatchEvent(new CustomEvent('epic-treasure-paused', { detail: { childId, treasureId: treasure.treasureId, notificationKey: treasure.notificationKey } }));
+    } else {
+        treasure.endAt = Date.now() + treasure.timeRemaining * 1000;
+        treasure.endedNotified = false;
+        const treasureData = appState.treasures.find(item => item.id === treasure.treasureId);
+        window.dispatchEvent(new CustomEvent('epic-treasure-resumed', { detail: { childId, childName: child.name, treasureId: treasure.treasureId, treasureName: treasureData?.name || 'Treasure', endAt: treasure.endAt, notificationKey: treasure.notificationKey } }));
     }
+    saveData();
+    renderChildProfile();
 }
 
 function deleteTreasure(treasureId) {
@@ -932,6 +1235,7 @@ function updateBadgeProgress(child, type, amount) {
             if (badge.progress >= badgeData.targetValue) {
                 badge.earned = true;
                 badge.earnedDate = new Date().toISOString().split('T')[0];
+                window.dispatchEvent(new CustomEvent('epic-achievement-earned', { detail: { kind: 'badge', childId: child.id, childName: child.name, label: badgeData.name } }));
             }
         }
     });
@@ -947,15 +1251,25 @@ function startTimerUpdates() {
         appState.children.forEach(child => {
             child.activeTreasures = child.activeTreasures.filter(treasure => {
                 if (!treasure.isPaused) {
-                    treasure.timeRemaining--;
+                    const remaining = Math.max(0, Math.ceil(((treasure.endAt || Date.now()) - Date.now()) / 1000));
+                    treasure.timeRemaining = remaining;
                     updated = true;
-                    return treasure.timeRemaining > 0;
+                    if (remaining <= 0) {
+                        if (!treasure.endedNotified) {
+                            treasure.endedNotified = true;
+                            const treasureData = appState.treasures.find(item => item.id === treasure.treasureId);
+                            window.dispatchEvent(new CustomEvent('epic-treasure-ended', { detail: { childId: child.id, childName: child.name, treasureId: treasure.treasureId, treasureName: treasureData?.name || 'Treasure' } }));
+                        }
+                        return false;
+                    }
+                    return true;
                 }
                 return true;
             });
         });
         
         if (updated) {
+            saveData();
             if (appState.currentProfileChildId) {
                 renderChildProfile();
             } else {
@@ -964,6 +1278,7 @@ function startTimerUpdates() {
                     renderDashboard();
                 }
             }
+            refreshNfcChildActionWindow();
         }
     }, 1000);
 }
@@ -1006,14 +1321,15 @@ function renderDashboard() {
         statusHtml += '</div>';
 
         return `
-            <div class="child-card" onclick="openChildProfile('${child.id}')">
+            <div class="child-card arena-hero-card" onclick="openChildProfile('${child.id}')">
                 <div class="child-info">
+                    <div class="arena-card-kicker">ACTIVE HERO</div>
                     <div class="child-name">${child.name}</div>
                     <div class="child-details">Age: ${age} | ${child.currentQMLTier}</div>
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
-                    <div class="qml-progress" style="padding: 8px 12px; margin: 8px -12px 0 -12px; background: rgba(0,0,0,0.1); border-radius: 0 0 4px 4px;">
-                        <div class="qml-progress-label" style="font-size: 11px; margin-bottom: 4px;">${child.currentQMLTier}</div>
-                        <div class="progress-bar" style="height: 8px;">
+                    <div class="dashboard-qml-panel">
+                        <div class="qml-progress-label">${child.currentQMLTier}</div>
+                        <div class="progress-bar">
                             <div class="progress-fill" style="width: ${(child.currentQMLProgress / 30) * 100}%"></div>
                         </div>
                     </div>
@@ -1026,51 +1342,69 @@ function renderDashboard() {
 }
 
 function renderLeaderboard() {
-    const container = document.getElementById('leaderboard-list');
     const statsContainer = document.getElementById('weekly-stats');
     
     if (appState.children.length === 0) {
-        container.innerHTML = '<div class="empty-state">No children yet.</div>';
-        statsContainer.innerHTML = '';
+        statsContainer.innerHTML = '<div class="arena-empty-state"><span>⚔️</span><strong>The Quest Arena is waiting.</strong><p>Add a child profile, then approve quests to begin the weekly race.</p></div>';
         return;
     }
     
-    const sorted = [...appState.children].sort((a, b) => b.tokens - a.tokens);
-    container.innerHTML = sorted.map((child, index) => `
-        <div class="leaderboard-row">
-            <div class="rank rank-${index + 1}">${index + 1}</div>
-            <div class="name" onclick="openChildProfile('${child.id}')">${child.name}</div>
-            <div class="score">💰 ${child.tokens}</div>
-        </div>
-    `).join('');
-    
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
-    statsContainer.innerHTML = '<h3 style="margin-top: 20px; margin-bottom: 10px; color: #FFD700;">📊 Weekly Performance</h3>' +
-        sorted.map((child, index) => {
-            const weeklyQuests = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).length;
-            const weeklyTokens = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).reduce((sum, q) => sum + q.tokensEarned, 0);
-            const weeklyTreasures = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).length;
-            const weeklyBadges = child.badges.filter(b => b.earned && new Date(b.earnedDate) >= weekAgo).length;
-            const weeklyTime = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).reduce((sum, t) => sum + (t.finalTimerSeconds || 0), 0);
-            
-            const medalEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "⭐";
-            const totalActivity = weeklyQuests + weeklyTokens + weeklyTreasures + weeklyBadges;
-            const activityBar = "█".repeat(Math.min(totalActivity, 10)) + "░".repeat(Math.max(0, 10 - totalActivity));
-            
-            return `
-                <div class="weekly-stat-item">
-                    <div class="weekly-stat-title">${medalEmoji} ${child.name}</div>
-                    <div class="weekly-activity-bar">${activityBar}</div>
-                    <div class="stat-row">⚔️ Quests: ${weeklyQuests}</div>
-                    <div class="stat-row">💰 Tokens: ${weeklyTokens}</div>
-                    <div class="stat-row">🎁 Treasures: ${weeklyTreasures}</div>
-                    <div class="stat-row">⏱️ Time: ${Math.floor(weeklyTime / 60)} mins</div>
-                    <div class="stat-row">🏅 Badges: ${weeklyBadges}</div>
-                </div>
-            `;
-        }).join('');
+    const weeklyRanks = appState.children.map(child => {
+        const weeklyQuestHistory = child.questHistory.filter(q => q.approvedDate && new Date(q.approvedDate) >= weekAgo);
+        const weeklyTreasureHistory = child.treasureHistory.filter(t => t.claimDate && new Date(t.claimDate) >= weekAgo);
+        const weeklyQuests = weeklyQuestHistory.length;
+        const weeklyTokens = weeklyQuestHistory.reduce((sum, q) => sum + (q.tokensEarned || 0), 0);
+        const weeklyTreasures = weeklyTreasureHistory.length;
+        const weeklyBadges = child.badges.filter(b => b.earned && b.earnedDate && new Date(b.earnedDate) >= weekAgo).length;
+        const activeDays = new Set([
+            ...weeklyQuestHistory.map(q => new Date(q.approvedDate).toDateString()),
+            ...weeklyTreasureHistory.map(t => new Date(t.claimDate).toDateString())
+        ]).size;
+        // Quest Points reward varied, recent participation instead of relying on token balance alone.
+        const weeklyScore = (weeklyQuests * 10) + weeklyTokens + (weeklyTreasures * 6) + (weeklyBadges * 12) + (activeDays * 4);
+        return { child, weeklyQuests, weeklyTokens, weeklyTreasures, weeklyBadges, activeDays, weeklyScore };
+    }).sort((a, b) => b.weeklyScore - a.weeklyScore || b.weeklyTokens - a.weeklyTokens || a.child.name.localeCompare(b.child.name));
+
+    const leader = weeklyRanks[0];
+    const leaderScore = Math.max(leader?.weeklyScore || 0, 1);
+    const hasWeeklyActivity = weeklyRanks.some(entry => entry.weeklyScore > 0);
+    const rankLabel = index => !hasWeeklyActivity ? (index === 0 ? 'ARENA READY' : 'JOIN THE RACE') : (index === 0 ? 'CHAMPION' : index === 1 ? 'CHALLENGER' : index === 2 ? 'RISING HERO' : 'QUESTER');
+    const rankIcon = index => !hasWeeklyActivity ? '⚔️' : (index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '⭐');
+
+    statsContainer.innerHTML = `
+        <section class="weekly-arena" aria-label="Weekly Quest Arena">
+            <div class="weekly-arena-heading">
+                <div><span class="weekly-arena-kicker">LAST 7 DAYS</span><h3>⚔️ Weekly Quest Arena</h3></div>
+                <span class="weekly-reset-note">Fresh race • recent activity wins</span>
+            </div>
+            <p class="weekly-arena-rule">Quest Points: quests ×10, tokens earned, treasures ×6, badges ×12, and active days ×4.</p>
+            <div class="weekly-race-list">
+                ${weeklyRanks.map((entry, index) => {
+                    const pace = Math.round((entry.weeklyScore / leaderScore) * 100);
+                    const gapText = !hasWeeklyActivity
+                        ? 'Complete a quest to claim the first lead!'
+                        : index === 0
+                        ? (entry.weeklyScore > 0 ? 'Leading the arena this week!' : 'The arena is ready for the first quest!')
+                        : `${leader.weeklyScore - entry.weeklyScore} Quest Points behind ${leader.child.name}`;
+                    return `
+                        <article class="weekly-racer weekly-racer-${index + 1}">
+                            <div class="weekly-rank-badge"><span>${rankIcon(index)}</span><strong>${hasWeeklyActivity ? `#${index + 1}` : 'TIE'}</strong></div>
+                            <div class="weekly-racer-main">
+                                <div class="weekly-racer-topline"><button class="weekly-racer-name" onclick="openChildProfile('${entry.child.id}')">${entry.child.name}</button><span class="weekly-rank-label">${rankLabel(index)}</span></div>
+                                <div class="weekly-score-line"><strong>${entry.weeklyScore}</strong><span>Quest Points</span><em>${gapText}</em></div>
+                                <div class="weekly-pace-track" aria-label="${entry.child.name} weekly pace"><div class="weekly-pace-fill" style="width: ${pace}%"></div></div>
+                                <div class="weekly-stat-grid">
+                                    <span>⚔️ ${entry.weeklyQuests} quests</span><span>💰 ${entry.weeklyTokens} earned</span><span>🎁 ${entry.weeklyTreasures} rewards</span><span>🔥 ${entry.activeDays} active days</span>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join('')}
+            </div>
+        </section>
+    `;
 }
 
 function renderPlay() {
@@ -1080,16 +1414,15 @@ function renderPlay() {
         return;
     }
     container.innerHTML = appState.quests.map(quest => `
-        <div class="quest-card">
-            <div class="quest-header" style="position: relative;">
+        <article class="quest-card arena-item-card">
+            <div class="quest-header arena-item-topline" style="position: relative;">
                 <div class="quest-type">${quest.type}</div>
-                <button class="btn btn-icon" onclick="deleteQuest('${quest.id}')" style="position: absolute; top: 0; right: 0; background: #FF6B6B; color: white; border: none; width: 24px; height: 24px; padding: 0; font-size: 16px; cursor: pointer;">✕</button>
+                <button class="btn card-delete-btn" onclick="deleteQuest('${quest.id}')" aria-label="Delete quest" title="Delete quest">🗑 <span>Delete</span></button>
             </div>
             <div class="quest-name">${quest.name}</div>
-            <div class="quest-tokens">💰 ${quest.baseTokenReward} tokens</div>
-            <button class="btn btn-small" onclick="requestQuestFromPlay('${quest.id}')">Request Quest</button>
-            <button class="btn btn-small" onclick="editQuest('${quest.id}')">Edit</button>
-        </div>
+            <div class="arena-reward-strip"><span>QUEST REWARD</span><strong>💰 ${quest.baseTokenReward}</strong><em>tokens</em></div>
+            <div class="arena-card-actions"><button class="btn btn-small" onclick="requestQuestFromPlay('${quest.id}')">Request Quest</button><button class="btn btn-small arena-secondary-action" onclick="editQuest('${quest.id}')">Edit</button></div>
+        </article>
     `).join('');
 }
 
@@ -1100,15 +1433,14 @@ function renderShop() {
         return;
     }
     container.innerHTML = appState.treasures.map(treasure => `
-        <div class="treasure-card">
-            <div class="treasure-header" style="position: relative;">
+        <article class="treasure-card arena-item-card">
+            <div class="treasure-header arena-item-topline" style="position: relative;">
                 <div class="treasure-name">${treasure.name}</div>
-                <button class="btn btn-icon" onclick="deleteTreasure('${treasure.id}')" style="position: absolute; top: 0; right: 0; background: #FF6B6B; color: white; border: none; width: 24px; height: 24px; padding: 0; font-size: 16px; cursor: pointer;">✕</button>
+                <button class="btn card-delete-btn" onclick="deleteTreasure('${treasure.id}')" aria-label="Delete treasure" title="Delete treasure">🗑 <span>Delete</span></button>
             </div>
-            <div class="treasure-cost">💰 ${treasure.costTokens} tokens | ⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} mins</div>
-            <button class="btn btn-small" onclick="showClaimTreasureDialog('${treasure.id}')">Claim Treasure</button>
-            <button class="btn btn-small" onclick="editTreasure('${treasure.id}')">Edit</button>
-        </div>
+            <div class="arena-reward-strip"><span>VAULT COST</span><strong>💰 ${treasure.costTokens}</strong><em>tokens</em><b>⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} min</b></div>
+            <div class="arena-card-actions"><button class="btn btn-small" onclick="showClaimTreasureDialog('${treasure.id}')">Claim Treasure</button><button class="btn btn-small arena-secondary-action" onclick="editTreasure('${treasure.id}')">Edit</button></div>
+        </article>
     `).join('');
 }
 
@@ -1116,9 +1448,9 @@ function renderSettings() {
     const container = document.getElementById('settings-content');
     let html = '<div>';
     
-    html += '<div class="profile-section"><div class="profile-section-title">Age Multiplier & QML Tiers</div>';
-    html += '<button class="btn btn-primary" onclick="openEditSettingsModal()" style="width: 100%; margin-bottom: 15px;">Edit All Settings</button>';
-    html += '<div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px;">';
+    html += '<div class="profile-section arena-settings-panel"><div class="profile-section-title">Age Multiplier & QML Tiers</div>';
+    html += '<button class="btn btn-primary arena-wide-action" onclick="openEditSettingsModal()">Edit All Settings</button>';
+    html += '<div class="arena-settings-summary">';
     html += '<strong style="display: block; margin-bottom: 10px;">Age Multiplier Groups:</strong>';
     appState.ageGroups.forEach(group => {
         html += `<div style="margin: 5px 0; font-size: 12px;">${group.name}: <strong>${group.currentMultiplier}x</strong></div>`;
@@ -1131,7 +1463,7 @@ function renderSettings() {
     html += '</div>';
     
     html += `
-        <div class="profile-section">
+        <div class="profile-section arena-settings-panel">
             <div class="profile-section-title">Birthday Reward</div>
             <div class="setting-item">
                 <div class="setting-label">Tokens to Award on Birthday</div>
@@ -1141,7 +1473,24 @@ function renderSettings() {
     `;
     
     html += `
-        <div class="profile-section">
+        <div class="profile-section feedback-settings arena-settings-panel">
+            <div class="profile-section-title">Phone Alerts & Sound Feedback</div>
+            <label class="setting-toggle"><input type="checkbox" id="notificationPreferenceToggle" ${appState.notificationsEnabled !== false ? 'checked' : ''} onchange="updateNotificationPreference(this.checked)"> Treasure timer phone notifications</label>
+            <p class="setting-help">The phone can alert you when a treasure timer ends. Android may ask for notification permission.</p>
+            <div class="notification-action-grid">
+                <button class="btn btn-small" onclick="checkPhoneNotifications()">Enable / Check Phone Notifications</button>
+                <button class="btn btn-small" onclick="requestPrecisePhoneAlarms()">Allow Precise Screen-Off Alarms</button>
+            </div>
+            <div id="phoneNotificationStatus" class="phone-notification-status" role="status" aria-live="polite">Tap “Enable / Check” to confirm Android notification access.</div>
+            <p class="setting-help">For the most reliable screen-off timer, allow EPIC RPG under Android Settings → Alarms & reminders. The app will keep a safe fallback when precise alarms are not granted.</p>
+            <label class="setting-toggle"><input type="checkbox" ${appState.soundEnabled !== false ? 'checked' : ''} onchange="updateSoundEnabled(this.checked)"> Pixel adventure sounds for quests, rewards, badges, NFC, and timers</label>
+            <label class="setting-range">Sound volume <input type="range" min="0" max="1" step="0.05" value="${appState.soundVolume ?? 0.65}" oninput="updateSoundVolume(this.value)"></label>
+            <button class="btn btn-small" onclick="testFeedbackSound()">Test Adventure Sound</button>
+        </div>
+    `;
+
+    html += `
+        <div class="profile-section arena-settings-panel">
             <div class="profile-section-title">Badge Glossary & Requirements</div>
             <div class="badge-glossary">
                 ${['Coal', 'Copper', 'Iron', 'Gold', 'Redstone', 'Diamond', 'Emerald', 'Ancient Debris'].map(cat => {
@@ -1164,7 +1513,7 @@ function renderSettings() {
         </div>
     `;
     
-    html += `<div class="profile-section"><button class="btn btn-danger" onclick="masterReset()">Master Reset All Data</button></div>`;
+    html += `<div class="profile-section arena-settings-panel arena-danger-panel"><button class="btn btn-danger" onclick="masterReset()">Master Reset All Data</button></div>`;
     container.innerHTML = html;
 }
 
@@ -1180,20 +1529,21 @@ function renderChildProfile() {
     const age = calculateAge(child.dateOfBirth);
     
     let html = `
-        <div class="profile-section">
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+        <div class="profile-section child-profile-hero-panel">
+            <div class="child-profile-hero-row">
                 <img src="${avatarPath(child.avatarId)}" alt="${child.name}" style="width: 80px; height: 80px; border: 2px solid #1a1a1a; border-radius: 4px;">
                 <div>
-                    <div class="profile-section-title" style="border: none; margin: 0; padding: 0;">${child.name}</div>
-                    <div style="font-size: 12px; color: #666;">Age: ${age} | DOB: ${child.dateOfBirth}</div>
-                    ${child.nfcCardId ? `<div style="font-size: 12px; color: #666;">NFC: ${child.nfcCardId}</div>` : ''}
+                    <div class="arena-card-kicker">HERO PROFILE</div>
+                    <div class="profile-section-title child-profile-hero-name">${child.name}</div>
+                    <div class="child-profile-meta">Age: ${age} | DOB: ${child.dateOfBirth}</div>
+                    ${child.nfcCardId ? `<div class="child-profile-meta">NFC: ${child.nfcCardId}</div>` : ''}
                 </div>
             </div>
         </div>
     `;
     
     html += `
-        <div class="profile-section">
+        <div class="profile-section child-profile-status-panel">
             <div class="profile-section-title">Status</div>
             <div style="font-size: 12px; margin-bottom: 10px;">
                 <div style="margin-bottom: 8px;"><strong>Tokens:</strong> 💰 ${child.tokens}</div>
@@ -1222,15 +1572,16 @@ function renderChildProfile() {
         </div>
     `;
     
-    html += `<div class="profile-section"><div class="profile-section-title">Ongoing Quests</div>`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Ongoing Quests</div>`;
     if (child.ongoingQuests.length === 0) {
         html += '<div class="empty-state">No ongoing quests</div>';
     } else {
         child.ongoingQuests.forEach(oq => {
             const quest = appState.quests.find(q => q.id === oq.questId);
+            const questName = quest ? quest.name : 'Deleted quest';
             html += `
                     <div class="ongoing-quest">
-                    <div class="ongoing-quest-name">${quest.name}</div>
+                    <div class="ongoing-quest-name">${questName}</div>
                     <div class="status-badge ${oq.status === 'pending_approval' ? 'pending' : ''}">${oq.status === 'ongoing' ? 'Ongoing' : 'Pending Approval'}</div>
                     ${oq.status === 'ongoing' ? `<button class="btn btn-small" onclick="markQuestComplete('${child.id}', '${oq.instanceId}')">Mark Complete</button><button class="btn btn-small btn-danger" onclick="cancelQuest('${child.id}', '${oq.instanceId}')">Cancel</button>` : `<button class="btn btn-small" onclick="approveQuest('${child.id}', '${oq.instanceId}')">Approve</button><button class="btn btn-small btn-danger" onclick="rejectQuest('${child.id}', '${oq.instanceId}')">Reject</button>`}
                 </div>
@@ -1239,7 +1590,7 @@ function renderChildProfile() {
     }
     html += '</div>';
     
-    html += `<div class="profile-section"><div class="profile-section-title">Active Treasures</div>`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Active Treasures</div>`;
     if (child.activeTreasures.length === 0) {
         html += '<div class="empty-state">No active treasures</div>';
     } else {
@@ -1262,7 +1613,7 @@ function renderChildProfile() {
     }
     html += '</div>';
     
-    html += `<div class="profile-section"><div class="profile-section-title">Available Treasures</div>`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Available Treasures</div>`;
     appState.treasures.forEach(treasure => {
         const canClaim = child.tokens >= treasure.costTokens;
         html += `
@@ -1275,7 +1626,7 @@ function renderChildProfile() {
     });
     html += '</div>';
     
-    html += `<div class="profile-section"><div class="profile-section-title">Badges</div><div class="badge-grid">`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Badges</div><div class="badge-grid">`;
     child.badges.forEach(badge => {
         const badgeData = appState.badges.find(b => b.id === badge.badgeId);
         if (badgeData) {
@@ -1332,13 +1683,106 @@ function updateQMLTierName(category, tierId, newName) {
 
 function updateBirthdayReward(value) { appState.birthdayTokenReward = parseInt(value); saveData(); }
 
+function updateSoundEnabled(value) {
+    appState.soundEnabled = Boolean(value);
+    saveData();
+    window.dispatchEvent(new CustomEvent('epic-sound-settings-changed', { detail: { enabled: appState.soundEnabled, volume: appState.soundVolume } }));
+}
+
+function updateSoundVolume(value) {
+    appState.soundVolume = Math.min(1, Math.max(0, parseFloat(value) || 0));
+    saveData();
+    window.dispatchEvent(new CustomEvent('epic-sound-settings-changed', { detail: { enabled: appState.soundEnabled, volume: appState.soundVolume } }));
+}
+
+function updateNotificationPreference(value) {
+    appState.notificationsEnabled = Boolean(value);
+    saveData();
+    window.dispatchEvent(new CustomEvent('epic-notification-preference-changed', { detail: { enabled: appState.notificationsEnabled } }));
+    if (appState.notificationsEnabled) {
+        checkPhoneNotifications(false);
+    } else {
+        setPhoneNotificationStatus('Treasure timer phone notifications are turned off. Existing scheduled timer alerts were cleared.', 'muted');
+    }
+}
+
+function setPhoneNotificationStatus(message, state = 'info') {
+    const status = document.getElementById('phoneNotificationStatus');
+    if (!status) return;
+    status.className = `phone-notification-status is-${state}`;
+    status.textContent = message;
+}
+
+async function checkPhoneNotifications(enablePreference = true) {
+    const prepare = window.prepareTreasureNotifications;
+    if (typeof prepare !== 'function') {
+        setPhoneNotificationStatus('Phone notification checks are available after installing EPIC RPG on an Android device.', 'muted');
+        showNotification('Open the Android app to check phone notifications.', 'error');
+        return;
+    }
+
+    if (enablePreference && appState.notificationsEnabled === false) {
+        appState.notificationsEnabled = true;
+        saveData();
+        const toggle = document.getElementById('notificationPreferenceToggle');
+        if (toggle) toggle.checked = true;
+        window.dispatchEvent(new CustomEvent('epic-notification-preference-changed', { detail: { enabled: true } }));
+    }
+
+    setPhoneNotificationStatus('Checking Android notification access…', 'checking');
+    try {
+        const result = await prepare();
+        if (!result || result.enabled !== true) {
+            setPhoneNotificationStatus('Notifications are not allowed yet. Choose Allow in the Android permission prompt, then check again.', 'warning');
+            showNotification('Notification permission is still needed.', 'error');
+            return;
+        }
+        const exactNote = result.exact ? ' Precise screen-off alarms are also allowed.' : ' Precise screen-off alarms can be enabled with the button above.';
+        setPhoneNotificationStatus(`Phone notifications are enabled.${exactNote}`, result.exact ? 'ready' : 'warning');
+        dispatchActiveTreasureNotificationSync();
+        showNotification(result.exact ? 'Phone notifications and precise alarms are ready!' : 'Phone notifications are enabled!', 'success');
+    } catch (error) {
+        console.error('Unable to check phone notifications', error);
+        setPhoneNotificationStatus('Android could not complete the notification check. Please try again from the installed app.', 'warning');
+        showNotification('Unable to check phone notifications.', 'error');
+    }
+}
+
+async function requestPrecisePhoneAlarms() {
+    const requestExact = window.requestExactTreasureAlarms;
+    if (typeof requestExact !== 'function') {
+        setPhoneNotificationStatus('Precise alarm access can only be changed from the installed Android app.', 'muted');
+        return;
+    }
+    setPhoneNotificationStatus('Opening Android’s precise alarm setting…', 'checking');
+    try {
+        const result = await requestExact();
+        if (result?.exact_alarm === 'granted') {
+            setPhoneNotificationStatus('Precise screen-off alarms are enabled.', 'ready');
+            showNotification('Precise screen-off alarms are enabled!', 'success');
+        } else {
+            setPhoneNotificationStatus('Android’s precise alarm setting was opened. Return here and use Check Phone Notifications to confirm your choice.', 'warning');
+        }
+    } catch (error) {
+        console.error('Unable to request precise alarms', error);
+        setPhoneNotificationStatus('Android could not open the precise alarm setting. Please check Settings → Alarms & reminders.', 'warning');
+    }
+}
+
+function testFeedbackSound() {
+    window.dispatchEvent(new CustomEvent('epic-test-sound'));
+}
+
 function masterReset() {
     if (confirm('Master Reset: This will reset tokens, history, and ALL badge progress for all children. Continue?')) {
         appState.children.forEach(child => {
             child.tokens = 0; child.questHistory = []; child.treasureHistory = []; child.ongoingQuests = []; child.activeTreasures = [];
             child.badges = appState.badges.map(b => ({ badgeId: b.id, progress: 0, earned: false }));
         });
-        saveData(); renderDashboard(); if (appState.currentProfileChildId) renderChildProfile(); showNotification('Master reset complete!', 'success');
+        saveData();
+        const cancelAll = window.cancelAllTreasureNotifications;
+        if (typeof cancelAll === 'function') cancelAll();
+        renderDashboard(); if (appState.currentProfileChildId) renderChildProfile(); showNotification('Master reset complete!', 'success');
     }
 }
 
@@ -1420,31 +1864,33 @@ function openEditSettingsModal() {
     modal.className = 'modal';
     modal.id = 'editSettingsModal';
     modal.innerHTML = `
-        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+        <div class="modal-content settings-editor-modal">
             <div class="modal-header">Edit Settings</div>
-            
-            <div class="form-group">
-                <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">Age Multiplier Groups</label>
+            <p class="settings-editor-intro">Update the reward rules in compact rows. Changes are saved immediately to this device.</p>
+            <div class="settings-editor-section">
+                <div class="settings-editor-section-title">Age Multiplier Groups</div>
                 ${appState.ageGroups.map(group => `
-                    <div style="background: rgba(0,0,0,0.1); padding: 12px; margin-bottom: 10px; border-radius: 6px;">
-                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Group Name:</strong> <input type="text" value="${group.name}" style="flex: 1; padding: 4px; max-width: 180px;" onchange="updateAgeGroupName('${group.id}', this.value)"></div>
-                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Age Range:</strong> <input type="number" value="${group.ageRangeMin}" style="width: 60px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'min')"> <span>-</span> <input type="number" value="${group.ageRangeMax}" style="width: 60px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'max')"></div>
-                        <div style="display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Multiplier:</strong> <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)" style="flex: 1; max-width: 180px;">
+                    <div class="age-group-editor">
+                        <div class="compact-field compact-field-name"><label>Group name</label><input type="text" value="${group.name}" onchange="updateAgeGroupName('${group.id}', this.value)"></div>
+                        <div class="compact-field"><label>Min age</label><input type="number" value="${group.ageRangeMin}" onchange="updateAgeGroupRange('${group.id}', this.value, 'min')"></div>
+                        <div class="compact-field"><label>Max age</label><input type="number" value="${group.ageRangeMax}" onchange="updateAgeGroupRange('${group.id}', this.value, 'max')"></div>
+                        <div class="compact-field compact-field-multiplier"><label>Reward</label><select onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
                             ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}x</option>`).join('')}
                         </select></div>
                     </div>
                 `).join('')}
             </div>
-            
-            <div class="form-group">
-                <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">QML Tiers</label>
+            <div class="settings-editor-section">
+                <div class="settings-editor-section-title">QML Tiers</div>
                 ${Object.entries(appState.qmlTiers).map(([category, tiers]) => `
-                    <div style="margin-bottom: 15px;">
-                        <strong style="display: block; margin-bottom: 8px; color: #4CAF50;">${category}</strong>
+                    <div class="qml-editor-category">
+                        <strong class="qml-editor-category-title">${category}</strong>
                         ${tiers.map(tier => `
-                            <div style="background: rgba(0,0,0,0.1); padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px;">
-                                <div style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 80px;">Tier Name:</strong> <input type="text" value="${tier.tierName}" style="flex: 1; padding: 4px; max-width: 150px;" onchange="updateQMLTierName('${category}', '${tier.id}', this.value)"></div>
-                                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;"><strong style="min-width: 35px;">Min:</strong> <input type="number" value="${tier.minRequirement}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"> <strong style="min-width: 35px;">Max:</strong> <input type="number" value="${tier.maxRequirement}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"> <strong style="min-width: 50px;">Bonus:</strong> <input type="number" value="${tier.bonusPercentage}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)"><span>%</span></div>
+                            <div class="qml-tier-editor">
+                                <div class="compact-field compact-field-name"><label>Tier name</label><input type="text" value="${tier.tierName}" onchange="updateQMLTierName('${category}', '${tier.id}', this.value)"></div>
+                                <div class="compact-field"><label>Min</label><input type="number" value="${tier.minRequirement}" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"></div>
+                                <div class="compact-field"><label>Max</label><input type="number" value="${tier.maxRequirement}" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"></div>
+                                <div class="compact-field compact-field-bonus"><label>Bonus %</label><input type="number" value="${tier.bonusPercentage}" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)"></div>
                             </div>
                         `).join('')}
                     </div>
@@ -1468,5 +1914,24 @@ function updateQMLTier(category, tierId, field, value) {
         saveData();
     }
 }
-function init() { loadData(); renderDashboard(); renderAvatarGrid(); startTimerUpdates(); }
+function dispatchActiveTreasureNotificationSync() {
+    const activeTreasurePayloads = [];
+    appState.children.forEach(child => child.activeTreasures.forEach(treasure => {
+        if (!treasure.isPaused && treasure.timeRemaining > 0) {
+            const treasureData = appState.treasures.find(item => item.id === treasure.treasureId);
+            activeTreasurePayloads.push({ childId: child.id, childName: child.name, treasureId: treasure.treasureId, treasureName: treasureData?.name || 'Treasure', endAt: treasure.endAt, notificationKey: treasure.notificationKey });
+        }
+    }));
+    window.dispatchEvent(new CustomEvent('epic-app-ready', { detail: { activeTreasurePayloads, notificationsEnabled: appState.notificationsEnabled } }));
+}
+
+window.syncActiveTreasureNotifications = dispatchActiveTreasureNotificationSync;
+
+function init() {
+    loadData();
+    renderDashboard();
+    renderAvatarGrid();
+    startTimerUpdates();
+    dispatchActiveTreasureNotificationSync();
+}
 window.addEventListener('DOMContentLoaded', init);

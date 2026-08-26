@@ -28,6 +28,11 @@ export default function Home() {
 
         <div id="dashboard" className="tab-content active">
           <h2>👨‍👩‍👧‍👦 Dashboard</h2>
+          <div className="arena-screen-banner arena-dashboard-banner">
+            <span>FAMILY BASE</span>
+            <strong>Hero HQ</strong>
+            <p>Choose a hero to review progress, quests, and rewards.</p>
+          </div>
           <div id="children-list" className="children-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addChildModal")}>
             + Add Child
@@ -36,12 +41,21 @@ export default function Home() {
 
         <div id="leaderboard" className="tab-content">
           <h2>🏆 Leaderboard</h2>
-          <div id="leaderboard-list" className="leaderboard-container" />
+          <div className="arena-screen-banner arena-leaderboard-banner">
+            <span>WEEKLY RACE</span>
+            <strong>Quest Arena</strong>
+            <p>Recent activity decides this week’s champion.</p>
+          </div>
           <div id="weekly-stats" className="weekly-stats-container" />
         </div>
 
         <div id="play" className="tab-content">
-          <h2>⚔️ Play/Quests</h2>
+          <h2>⚔️ Quest</h2>
+          <div className="arena-screen-banner arena-quest-banner">
+            <span>MISSION BOARD</span>
+            <strong>Choose the next quest</strong>
+            <p>Assign a mission to one hero or build a family team.</p>
+          </div>
           <div id="quests-list" className="quests-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addQuestModal")}>
             + Add Quest
@@ -49,7 +63,12 @@ export default function Home() {
         </div>
 
         <div id="shop" className="tab-content">
-          <h2>🎁 Shop/Treasures</h2>
+          <h2>🎁 Shop</h2>
+          <div className="arena-screen-banner arena-shop-banner">
+            <span>TREASURE VAULT</span>
+            <strong>Trade tokens for rewards</strong>
+            <p>Every reward starts a timer and becomes part of the adventure.</p>
+          </div>
           <div id="treasures-list" className="treasures-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addTreasureModal")}>
             + Add Treasure
@@ -58,6 +77,11 @@ export default function Home() {
 
         <div id="settings" className="tab-content">
           <h2>⚙️ Settings</h2>
+          <div className="arena-screen-banner arena-settings-banner">
+            <span>GAME MASTER</span>
+            <strong>Shape the family rules</strong>
+            <p>Configure rewards, alerts, sound feedback, and learning tiers.</p>
+          </div>
           <div id="settings-content" />
         </div>
 
@@ -69,7 +93,7 @@ export default function Home() {
         </div>
       </div>
 
-      <button className="nfc-button" onClick={() => invoke("openModal", "nfcScanModal")} title="Scan NFC Card">
+      <button className="nfc-button" onClick={() => { invoke("openModal", "nfcScanModal"); invoke("startNfcScan", "open"); }} title="Scan NFC Card">
         📱 Scan Card
       </button>
 
@@ -82,13 +106,13 @@ export default function Home() {
           <span className="tab-icon">🏆</span>
           <span>Leaderboard</span>
         </button>
-        <button className="tab-btn" data-tab="play" onClick={() => invoke("switchTab", "play")}>
+        <button className="tab-btn" data-tab="play" onClick={() => invoke("switchTab", "play")} aria-label="Quest">
           <span className="tab-icon">⚔️</span>
-          <span>Play</span>
+          <span className="tab-label">Quest</span>
         </button>
-        <button className="tab-btn" data-tab="shop" onClick={() => invoke("switchTab", "shop")}>
+        <button className="tab-btn" data-tab="shop" onClick={() => invoke("switchTab", "shop")} aria-label="Shop">
           <span className="tab-icon">🎁</span>
-          <span>Shop</span>
+          <span className="tab-label">Shop</span>
         </button>
         <button className="tab-btn" data-tab="settings" onClick={() => invoke("switchTab", "settings")}>
           <span className="tab-icon">⚙️</span>
@@ -109,7 +133,10 @@ export default function Home() {
           </div>
           <div className="form-group">
             <label>NFC Card ID (Optional)</label>
-            <input type="text" id="childNFC" placeholder="NFC card ID" />
+            <div className="nfc-input-group">
+              <input type="text" id="childNFC" placeholder="Tap card or enter ID" />
+              <button className="btn btn-small" onClick={() => invoke("detectNFCForAdd")}>Detect</button>
+            </div>
           </div>
           <div className="form-group">
             <label>Select Avatar</label>
@@ -179,16 +206,18 @@ export default function Home() {
       </div>
 
       <div id="nfcScanModal" className="modal">
-        <div className="modal-content">
-          <span className="close" onClick={() => invoke("closeModal", "nfcScanModal")}>&times;</span>
-          <h3>📱 Scan NFC Card</h3>
+        <div className="modal-content nfc-scan-station">
+          <div className="modal-header nfc-scan-station-header">
+            <span><small>NFC CHECKPOINT</small>📱 Scan NFC Card</span>
+            <button className="claim-treasure-close" onClick={() => invoke("closeModal", "nfcScanModal")} aria-label="Close NFC scan window">×</button>
+          </div>
           <div id="nfc-status" className="nfc-status">Ready to scan...</div>
           <div className="nfc-input-group">
             <input type="text" id="nfcCardInput" placeholder="Tap NFC card or enter ID" autoFocus />
-            <button className="btn" onClick={() => invoke("processNFCCard")}>Scan</button>
+            <button className="btn" onClick={() => invoke("processNFCCard")}>Use ID</button>
           </div>
           <div id="nfc-result" className="nfc-result" />
-          <button className="btn" onClick={() => invoke("closeModal", "nfcScanModal")}>Close</button>
+          <div className="modal-buttons"><button className="btn" onClick={() => invoke("closeModal", "nfcScanModal")}>Close Scan Station</button></div>
         </div>
       </div>
     </>

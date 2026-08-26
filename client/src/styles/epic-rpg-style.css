@@ -11,7 +11,7 @@ body {
     background: linear-gradient(135deg, #2D5016 0%, #8B4513 100%);
     color: #1a1a1a;
     padding: 10px;
-    padding-bottom: 100px;
+    padding-bottom: 122px;
 }
 
 .container {
@@ -84,13 +84,16 @@ body {
 
 .tab-btn {
     flex: 1;
-    padding: 12px 8px;
+    min-height: 76px;
+    padding: 10px 5px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: bold;
+    justify-content: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.15px;
     color: #C0C0C0;
     cursor: pointer;
     transition: all 0.2s;
@@ -99,13 +102,25 @@ body {
 }
 
 .tab-icon {
-    font-size: 20px;
+    font-size: 25px;
+    line-height: 1;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.45));
+}
+
+.tab-label {
+    line-height: 1;
 }
 
 .tab-btn.active {
     background: #4CAF50;
     color: #1a1a1a;
     border-top: 3px solid #7CB342;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.45);
+}
+
+.tab-btn.active .tab-icon {
+    transform: translateY(-1px) scale(1.08);
+    filter: drop-shadow(2px 2px 0 rgba(255,255,255,0.55));
 }
 
 .tab-btn:hover:not(.active) {
@@ -329,6 +344,306 @@ body {
 .treasure-cost {
     font-size: 12px;
     margin-bottom: 8px;
+}
+
+/* Quest Arena visual system for the primary game screens. */
+.arena-screen-banner {
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.32), inset 2px 2px 0 rgba(255,255,255,0.18), 3px 3px 0 rgba(0,0,0,0.35);
+    color: #fff;
+    margin-bottom: 16px;
+    padding: 12px 13px;
+    position: relative;
+}
+
+.arena-screen-banner::after {
+    content: '';
+    background: rgba(255,255,255,0.18);
+    bottom: 0;
+    height: 3px;
+    left: 12px;
+    position: absolute;
+    right: 12px;
+}
+
+.arena-screen-banner span {
+    color: #FFD700;
+    display: block;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.25px;
+    margin-bottom: 5px;
+}
+
+.arena-screen-banner strong {
+    display: block;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.arena-screen-banner p {
+    color: #e1f6c6;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-top: 8px;
+}
+
+.arena-dashboard-banner { background: linear-gradient(135deg, #1d3d22 0%, #477b2e 100%); }
+.arena-leaderboard-banner { background: linear-gradient(135deg, #2a3d18 0%, #6b711d 100%); }
+.arena-quest-banner { background: linear-gradient(135deg, #31352b 0%, #58742b 100%); }
+.arena-shop-banner { background: linear-gradient(135deg, #5f3d11 0%, #a86a13 100%); }
+.arena-settings-banner { background: linear-gradient(135deg, #263a2a 0%, #38644b 100%); }
+
+.arena-hero-card {
+    background: linear-gradient(180deg, #284f23 0, #376f2d 56%, #e7eadf 56%, #f5f5f0 100%);
+    border-color: #1a1a1a;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.25), inset 3px 3px 0 rgba(255,255,255,0.14), 4px 4px 0 rgba(0,0,0,0.35);
+}
+
+.arena-hero-card .child-name,
+.arena-hero-card .child-details,
+.arena-hero-card .tokens-display,
+.arena-hero-card .qml-progress-label {
+    color: #fff;
+}
+
+.arena-card-kicker {
+    color: #FFD700;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+}
+
+.arena-hero-card .tokens-display {
+    border-top-color: rgba(255,255,255,0.25);
+}
+
+.arena-hero-card .qml-progress {
+    background: #e7eadf !important;
+    border-color: #1a1a1a !important;
+    box-shadow: inset -2px -2px 0 #c4c8bd, inset 2px 2px 0 #fff;
+}
+
+.arena-hero-card .qml-progress-label {
+    color: #2D5016;
+    font-weight: 900;
+}
+
+.arena-hero-card .progress-bar {
+    background: #1a1a1a;
+    border: 2px solid #1a1a1a;
+}
+
+.arena-item-card {
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -3px -3px 0 #c2c2c2, inset 3px 3px 0 #fff, 4px 4px 0 rgba(0,0,0,0.34);
+    margin-bottom: 13px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.arena-item-topline {
+    align-items: center;
+    display: flex;
+    min-height: 44px;
+    padding: 9px 11px;
+}
+
+.quest-card {
+    background: #f2f2ec;
+}
+
+.quest-card .arena-item-topline {
+    background: linear-gradient(135deg, #253c20 0%, #47742f 100%);
+}
+
+.quest-card .quest-type {
+    background: #f0c938;
+    border: 2px solid #1a1a1a;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.quest-card .quest-name,
+.treasure-card .treasure-name {
+    font-size: 15px;
+    padding: 12px 12px 6px;
+}
+
+.arena-reward-strip {
+    align-items: baseline;
+    background: #dfe6d7;
+    border-bottom: 2px solid #1a1a1a;
+    border-top: 2px solid #1a1a1a;
+    display: flex;
+    gap: 7px;
+    margin: 0 10px;
+    padding: 8px 9px;
+}
+
+.arena-reward-strip span {
+    color: #49602f;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.75px;
+}
+
+.arena-reward-strip strong {
+    color: #1a1a1a;
+    font-size: 17px;
+    margin-left: auto;
+}
+
+.arena-reward-strip em,
+.arena-reward-strip b {
+    color: #4c4c4c;
+    font-size: 10px;
+    font-style: normal;
+}
+
+.arena-reward-strip b {
+    border-left: 1px solid #78806e;
+    margin-left: 3px;
+    padding-left: 7px;
+}
+
+.arena-card-actions {
+    display: flex;
+    gap: 7px;
+    padding: 8px 10px 10px;
+}
+
+.arena-card-actions .btn {
+    flex: 1;
+    margin: 0;
+    min-height: 40px;
+}
+
+.arena-secondary-action {
+    background: #5b5b5b;
+}
+
+.treasure-card {
+    background: #f8e4a3;
+}
+
+.treasure-card .arena-item-topline {
+    background: linear-gradient(135deg, #6b4213 0%, #bd7b1c 100%);
+}
+
+.treasure-card .treasure-name {
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.treasure-card .arena-reward-strip {
+    background: #ffedb2;
+}
+
+.arena-empty-state {
+    align-items: center;
+    background: #e5e8df;
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c3c7bc, inset 2px 2px 0 #fff;
+    color: #2D5016;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 18px;
+    text-align: center;
+}
+
+.arena-empty-state span { font-size: 28px; margin-bottom: 8px; }
+.arena-empty-state strong { font-size: 13px; }
+.arena-empty-state p { color: #555; font-size: 11px; line-height: 1.45; margin-top: 8px; }
+
+.arena-settings-panel {
+    background: #eff2e9;
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -3px -3px 0 #c8cdc0, inset 3px 3px 0 #fff, 4px 4px 0 rgba(0,0,0,0.3);
+    padding: 0;
+    overflow: hidden;
+}
+
+.arena-settings-panel .profile-section-title {
+    background: linear-gradient(135deg, #243f26 0%, #467337 100%);
+    border: 0;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 11px 12px;
+}
+
+.arena-settings-panel > :not(.profile-section-title) {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.arena-wide-action {
+    margin-bottom: 11px !important;
+    margin-top: 11px !important;
+    width: calc(100% - 24px);
+}
+
+.arena-settings-summary {
+    background: #dfe5d6;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    margin-bottom: 12px !important;
+    padding: 11px;
+}
+
+.arena-settings-summary strong {
+    color: #2D5016;
+}
+
+.arena-settings-panel .setting-item {
+    background: #dfe5d6;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    margin-bottom: 12px;
+}
+
+.arena-settings-panel .setting-label {
+    color: #2D5016;
+    font-size: 11px;
+}
+
+.arena-settings-panel .setting-toggle {
+    background: #dfe5d6;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    margin: 12px;
+    padding: 9px;
+}
+
+.arena-settings-panel .setting-help {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.arena-settings-panel .notification-action-grid,
+.arena-settings-panel .phone-notification-status,
+.arena-settings-panel .setting-range {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.arena-settings-panel .badge-glossary {
+    margin-bottom: 12px;
+}
+
+.arena-danger-panel {
+    padding: 10px;
+}
+
+.arena-danger-panel .btn {
+    margin: 0;
+    width: 100%;
 }
 
 /* Leaderboard */
@@ -578,46 +893,163 @@ body {
     font-size: 12px;
 }
 
-/* Weekly Stats */
+/* Weekly Quest Arena — a 7-day, activity-based race for the whole family. */
 .weekly-stats-container {
-    margin-top: 20px;
+    margin-top: 22px;
 }
 
-.weekly-stat-item {
-    padding: 12px;
-    border: 2px solid #1a1a1a;
-    margin-bottom: 10px;
-    background: #f0f0f0;
+.weekly-arena {
+    border: 3px solid #1a1a1a;
+    background: linear-gradient(180deg, #273f17 0, #2D5016 108px, #d9d9d9 108px, #f3f3f3 100%);
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.3), inset 3px 3px 0 rgba(255,255,255,0.22), 4px 4px 0 rgba(0,0,0,0.38);
+    padding: 14px;
 }
 
-.weekly-stat-title {
-    font-weight: bold;
-    color: #2D5016;
-    margin-bottom: 8px;
+.weekly-arena-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    color: #fff;
 }
 
-.stat-row {
-    font-size: 11px;
-    color: #666;
-    margin-bottom: 4px;
-}
-
-.weekly-activity-bar {
-    font-size: 12px;
+.weekly-arena-kicker {
+    display: block;
     color: #FFD700;
-    margin-bottom: 8px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    animation: activityPulse 1.5s ease-in-out infinite;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    margin-bottom: 5px;
 }
 
-@keyframes activityPulse {
-    0%, 100% {
-        text-shadow: 0 0 0 rgba(255, 215, 0, 0.5);
-    }
-    50% {
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    }
+.weekly-arena h3 {
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.weekly-reset-note {
+    max-width: 148px;
+    color: #d6f4b3;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.3;
+    text-align: right;
+}
+
+.weekly-arena-rule {
+    color: #d6f4b3;
+    font-size: 10px;
+    line-height: 1.42;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.weekly-race-list {
+    display: grid;
+    gap: 9px;
+}
+
+.weekly-racer {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 10px;
+    background: #f7f7f7;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c6c6c6, inset 2px 2px 0 #fff;
+    padding: 10px;
+}
+
+.weekly-racer-1 {
+    background: linear-gradient(135deg, #fff9d4 0%, #ffeb77 100%);
+    border-color: #8b6d00;
+}
+
+.weekly-rank-badge {
+    min-height: 64px;
+    background: #2D5016;
+    border: 2px solid #1a1a1a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    line-height: 1.05;
+}
+
+.weekly-racer-1 .weekly-rank-badge {
+    background: #FFD700;
+    color: #1a1a1a;
+}
+
+.weekly-rank-badge strong {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.weekly-racer-main { min-width: 0; }
+
+.weekly-racer-topline,
+.weekly-score-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.weekly-racer-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    color: #2D5016;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 0;
+    text-align: left;
+}
+
+.weekly-rank-label {
+    color: #6b4e00;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+    white-space: nowrap;
+}
+
+.weekly-score-line { margin-top: 6px; }
+.weekly-score-line strong { color: #1a1a1a; font-size: 20px; line-height: 1; }
+.weekly-score-line span { color: #2D5016; font-size: 10px; font-weight: 900; margin-right: auto; }
+.weekly-score-line em { color: #5b5b5b; font-size: 9px; font-style: normal; line-height: 1.2; text-align: right; }
+
+.weekly-pace-track {
+    height: 11px;
+    background: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.weekly-pace-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A, #FFD700);
+    min-width: 4px;
+}
+
+.weekly-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 8px;
+    color: #4d4d4d;
+    font-size: 10px;
+    font-weight: 800;
+    margin-top: 8px;
 }
 
 /* Ongoing Quest */
@@ -815,6 +1247,112 @@ body {
     box-shadow: inset 0 0 0 2px #4CAF50;
 }
 
+/* Notification access feedback — the action now reports what Android returned. */
+.notification-action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.notification-action-grid .btn {
+    min-height: 44px;
+    padding: 7px 8px;
+    font-size: 11px;
+    line-height: 1.22;
+}
+
+.phone-notification-status {
+    border: 2px solid #1a1a1a;
+    background: #e8e8e8;
+    color: #3d3d3d;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 8px 0;
+    padding: 9px 10px;
+}
+
+.phone-notification-status.is-checking { background: #d9efff; border-color: #1769aa; color: #0c4f83; }
+.phone-notification-status.is-ready { background: #d9f2d5; border-color: #2D7D32; color: #1f5e25; }
+.phone-notification-status.is-warning { background: #fff2c6; border-color: #A66A00; color: #795000; }
+.phone-notification-status.is-muted { background: #e4e4e4; border-color: #666; color: #505050; }
+
+/* Settings editor — compact data rows prevent labels and inputs competing for space. */
+.settings-editor-modal {
+    max-width: 520px;
+    max-height: 86vh;
+    padding: 15px;
+}
+
+.settings-editor-intro {
+    color: #4f4f4f;
+    font-size: 11px;
+    line-height: 1.42;
+    margin-bottom: 13px;
+}
+
+.settings-editor-section {
+    border-top: 3px solid #2D5016;
+    margin-top: 15px;
+    padding-top: 10px;
+}
+
+.settings-editor-section-title {
+    color: #2D5016;
+    font-size: 13px;
+    font-weight: 900;
+    margin-bottom: 9px;
+}
+
+.age-group-editor,
+.qml-tier-editor {
+    display: grid;
+    grid-template-columns: minmax(124px, 1.8fr) minmax(54px, 0.65fr) minmax(54px, 0.65fr) minmax(70px, 0.8fr);
+    gap: 7px;
+    align-items: end;
+    background: rgba(0,0,0,0.08);
+    border: 2px solid #1a1a1a;
+    margin-bottom: 7px;
+    padding: 8px;
+}
+
+.compact-field {
+    min-width: 0;
+}
+
+.compact-field label {
+    display: block;
+    color: #2D5016;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.compact-field input,
+.compact-field select {
+    width: 100%;
+    min-height: 36px;
+    border: 2px solid #1a1a1a;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 6px;
+}
+
+.qml-editor-category {
+    margin-top: 12px;
+}
+
+.qml-editor-category-title {
+    display: block;
+    color: #4CAF50;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
 /* Checkbox List */
 .checkbox-list {
     max-height: 200px;
@@ -856,7 +1394,7 @@ body {
 /* NFC Button in Header */
 .nfc-button {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(96px + var(--phone-bottom-safe));
     right: 20px;
     z-index: 50;
     padding: 8px 12px;
@@ -1290,3 +1828,690 @@ body {
     background: linear-gradient(135deg, #4CAF50 0%, #2D5016 100%);
     border-color: #1a1a1a;
 }
+
+
+/* Android responsive contract: preserve the stable pixel palette while adapting the shell to phone width, dynamic viewport height, orientation, and safe-area insets. */
+:root {
+    --phone-inline-pad: max(8px, env(safe-area-inset-left));
+    --phone-inline-pad-right: max(8px, env(safe-area-inset-right));
+    --phone-bottom-safe: env(safe-area-inset-bottom);
+}
+
+html {
+    min-height: 100%;
+    background: #2D5016;
+}
+
+body {
+    min-height: 100dvh;
+    padding: max(8px, env(safe-area-inset-top)) var(--phone-inline-pad) calc(102px + var(--phone-bottom-safe));
+    overflow-x: hidden;
+}
+
+.container {
+    width: min(100%, 560px);
+    max-width: 560px;
+    min-height: calc(100dvh - 104px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+}
+
+.tab-content {
+    min-height: 0;
+    max-height: calc(100dvh - 168px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+    padding: clamp(12px, 4vw, 20px);
+    overscroll-behavior: contain;
+}
+
+.bottom-tabs {
+    min-height: 72px;
+    padding-bottom: var(--phone-bottom-safe);
+}
+
+.tab-btn {
+    min-height: 72px;
+    padding: 8px 4px 7px;
+    touch-action: manipulation;
+}
+
+.tab-btn:focus-visible,
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #FFD700;
+    outline-offset: 2px;
+}
+
+.btn,
+.tab-btn,
+.nfc-button,
+.back-button {
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+.modal {
+    padding: max(10px, env(safe-area-inset-top)) var(--phone-inline-pad) max(10px, var(--phone-bottom-safe));
+}
+
+.modal-content {
+    width: min(100%, 440px);
+    max-height: min(86dvh, 720px);
+    overscroll-behavior: contain;
+}
+
+.modal-buttons {
+    flex-wrap: wrap;
+}
+
+.modal-buttons .btn {
+    min-width: min(140px, 100%);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.setting-input {
+    min-height: 44px;
+    font-size: 16px;
+}
+
+.setting-toggle,
+.setting-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin: 8px 0;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.setting-toggle input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+}
+
+.setting-range {
+    flex-wrap: wrap;
+}
+
+.setting-range input[type="range"] {
+    flex: 1 1 140px;
+    min-width: 140px;
+}
+
+.setting-help {
+    font-size: 11px;
+    line-height: 1.45;
+    color: #444;
+    margin: 4px 0 8px;
+}
+
+@media (max-width: 380px) {
+    .header {
+        padding: 14px 10px;
+    }
+
+    .header h1 {
+        font-size: 15px;
+    }
+
+    .header p {
+        font-size: 10px;
+    }
+
+    .tab-content h2 {
+        font-size: 12px;
+        margin-bottom: 14px;
+    }
+
+    .child-card {
+        grid-template-columns: minmax(0, 1fr) 54px;
+        padding: 11px;
+        gap: 7px;
+    }
+
+    .child-avatar {
+        width: 58px;
+        height: 58px;
+    }
+
+    .child-name {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .tokens-display {
+        font-size: 16px;
+    }
+
+    .tab-btn {
+        font-size: 10.5px;
+    }
+
+    .tab-icon {
+        font-size: 21px;
+    }
+
+    .modal-content {
+        padding: 14px;
+    }
+
+    .notification-action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .age-group-editor,
+    .qml-tier-editor {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .weekly-arena {
+        padding: 10px;
+    }
+
+    .weekly-racer {
+        grid-template-columns: 44px 1fr;
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .weekly-rank-badge {
+        min-height: 58px;
+        font-size: 16px;
+    }
+
+    .weekly-score-line em {
+        display: none;
+    }
+}
+
+@media (min-width: 700px) {
+    .container {
+        max-width: 680px;
+    }
+
+    .tab-content {
+        max-height: calc(100dvh - 160px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+    }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+    body {
+        padding-bottom: calc(78px + var(--phone-bottom-safe));
+    }
+
+    .header {
+        padding: 10px 16px;
+    }
+
+    .tab-content {
+        max-height: calc(100dvh - 122px - var(--phone-bottom-safe));
+    }
+
+    .bottom-tabs,
+    .tab-btn {
+        min-height: 58px;
+    }
+
+    .tab-btn {
+        flex-direction: row;
+        gap: 6px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+
+/* Android regression fix: Play and Shop destructive actions use a recognizable labeled trash control instead of an ambiguous close X. */
+.card-delete-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 72px;
+    min-height: 38px;
+    padding: 5px 8px;
+    background: #b3261e;
+    color: #fff;
+    border: 2px solid #1a1a1a;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.card-delete-btn:hover,
+.card-delete-btn:focus-visible {
+    background: #8b0000;
+}
+
+.card-delete-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.card-delete-btn span {
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 380px) {
+    .card-delete-btn {
+        min-width: 44px;
+        width: 44px;
+        padding: 5px;
+    }
+
+    .card-delete-btn span {
+        display: none;
+    }
+}
+
+
+/* Android NFC child window: keep card actions readable and thumb-friendly on small screens. */
+.nfc-child-action-content {
+    max-width: 460px;
+}
+
+.nfc-child-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 14px;
+    margin: 4px 0 16px;
+    padding: 12px;
+    background: rgba(255, 215, 0, 0.18);
+    border: 2px solid #1a1a1a;
+    color: #1a1a1a;
+    font-size: 12px;
+}
+
+.nfc-action-section {
+    margin-top: 14px;
+}
+
+.nfc-action-list {
+    display: grid;
+    gap: 8px;
+    max-height: 190px;
+    overflow-y: auto;
+    padding: 4px;
+    border: 2px solid #1a1a1a;
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.nfc-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-height: 46px;
+    text-align: left;
+}
+
+.nfc-action-button strong {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.treasure-action-button {
+    background: #d6a21f;
+    color: #1a1a1a;
+}
+
+@media (max-width: 430px) {
+    .nfc-child-action-content {
+        width: min(100%, 380px);
+    }
+
+    .nfc-action-button {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+/* NFC child-focus extension: preserve the Minecraft/pixel visual language while making quest completion and reward timers readable on small phones. */
+.nfc-ongoing-quest-list,
+.nfc-reward-timer-list { display: grid; gap: 8px; }
+.nfc-quest-row,
+.nfc-reward-timer-row { border: 2px solid #263b22; background: rgba(255,255,255,.88); color: #1e2a17; padding: 9px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.45); }
+.nfc-quest-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.nfc-quest-row > div { min-width: 0; display: grid; gap: 3px; }
+.nfc-quest-row strong { overflow-wrap: anywhere; }
+.nfc-quest-row small,
+.nfc-reward-timer-row small { font-size: 10px; color: #4d5b42; }
+.nfc-quest-pending { background: #fff3bf; }
+.nfc-status-pill { border: 2px solid #6e5718; background: #ffd84d; color: #322400; padding: 4px 7px; font-size: 10px; white-space: nowrap; }
+.nfc-complete-button { min-height: 36px; padding: 7px 10px; background: #2f8c3d; color: #fff; border-color: #173d1b; white-space: nowrap; }
+.nfc-reward-timer-heading { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+.nfc-reward-timer-heading strong:last-child { color: #8a5b00; white-space: nowrap; }
+.nfc-reward-timer-bar { height: 10px; margin: 8px 0 4px; border: 2px solid #263b22; background: #d8ddcb; }
+.nfc-reward-timer-bar > div { height: 100%; background: #e0ad24; transition: width 180ms linear; }
+@media (max-width: 380px) {
+  .nfc-quest-row { align-items: stretch; flex-direction: column; }
+  .nfc-complete-button { width: 100%; }
+  .nfc-reward-timer-heading { font-size: 11px; }
+}
+
+/* NFC registration modal: it must sit above the dynamically-created child editor and celebrate a successful read before returning the ID. */
+#nfcScanModal.nfc-registration-modal { z-index: 2200; }
+#nfcScanModal.nfc-registration-modal .modal-content { position: relative; z-index: 2201; }
+#nfcScanModal.nfc-scan-success .modal-content { animation: nfcScanSuccessPop 420ms steps(3, end); }
+#nfcScanModal.nfc-scan-success .nfc-status { animation: nfcScanSuccessGlow 700ms steps(4, end); }
+.nfc-success-card { text-align: center; font-size: 12px; letter-spacing: .2px; animation: nfcCardLinked 650ms steps(4, end); }
+.nfc-success-card strong { color: #1c7d2a; font-size: 14px; }
+@keyframes nfcScanSuccessPop {
+  0% { transform: scale(.96); }
+  40% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes nfcScanSuccessGlow {
+  0%, 100% { box-shadow: inset 0 0 0 2px #4CAF50; }
+  50% { box-shadow: inset 0 0 0 4px #FFD700, 0 0 0 4px rgba(255,215,0,.3); }
+}
+@keyframes nfcCardLinked {
+  0% { opacity: .35; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #nfcScanModal.nfc-scan-success .modal-content,
+  #nfcScanModal.nfc-scan-success .nfc-status,
+  .nfc-success-card { animation: none; }
+}
+
+/* Profile and NFC Quest Arena refinement — consistent dark headers, inset boards, and aligned hero-card progress. */
+.arena-hero-card .child-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.arena-hero-card .tokens-display {
+    align-items: center;
+    display: flex;
+    margin-top: 8px;
+    min-height: 32px;
+    padding: 7px 0 0;
+}
+
+.dashboard-qml-panel {
+    background: #eef0e9;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c4c8bd, inset 2px 2px 0 #fff;
+    margin-top: 10px;
+    padding: 8px 9px 9px;
+    width: 100%;
+}
+
+.dashboard-qml-panel .qml-progress-label {
+    color: #2D5016;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 6px;
+}
+
+.dashboard-qml-panel .progress-bar {
+    height: 10px;
+    margin: 0;
+    width: 100%;
+}
+
+.child-profile-hero-panel,
+.child-profile-status-panel,
+.child-profile-arena-panel {
+    background: #eff2e9;
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -3px -3px 0 #c8cdc0, inset 3px 3px 0 #fff, 4px 4px 0 rgba(0,0,0,0.28);
+}
+
+.child-profile-hero-panel {
+    background: linear-gradient(180deg, #274b24 0, #386f31 100%);
+    color: #fff;
+}
+
+.child-profile-hero-row {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+    margin: 0;
+}
+
+.child-profile-hero-row img {
+    background: #edf0e6;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+    flex: 0 0 auto;
+}
+
+.child-profile-hero-panel .arena-card-kicker { margin-bottom: 6px; }
+
+.child-profile-hero-name {
+    border: 0;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 13px;
+    line-height: 1.45;
+    margin: 0 0 8px;
+    padding: 0;
+}
+
+.child-profile-meta {
+    color: #e1f6c6;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.child-profile-status-panel,
+.child-profile-arena-panel {
+    overflow: hidden;
+    padding: 0;
+}
+
+.child-profile-status-panel .profile-section-title,
+.child-profile-arena-panel .profile-section-title {
+    background: linear-gradient(135deg, #243f26 0%, #467337 100%);
+    border: 0;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 11px 12px;
+}
+
+.child-profile-status-panel > div:not(.profile-section-title),
+.child-profile-arena-panel > :not(.profile-section-title) {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.child-profile-status-panel select {
+    border: 2px solid #1a1a1a;
+    min-height: 34px;
+}
+
+.child-profile-arena-panel .ongoing-quest {
+    background: #dfe5d6;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    margin-top: 10px;
+}
+
+.nfc-scan-station,
+.arena-nfc-child-window {
+    background: #eff2e9;
+    border: 4px solid #1a1a1a;
+    box-shadow: inset -3px -3px 0 #c7cdbf, inset 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,0.38);
+}
+
+.nfc-scan-station-header,
+.arena-nfc-child-header {
+    align-items: center;
+    background: linear-gradient(135deg, #223e25 0%, #497a37 100%);
+    border-bottom: 3px solid #1a1a1a;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    margin: -20px -20px 16px;
+    padding: 11px 13px;
+}
+
+.nfc-scan-station-header span,
+.arena-nfc-child-header span {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.nfc-scan-station-header small,
+.arena-nfc-child-header small {
+    color: #FFD700;
+    display: block;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.nfc-scan-station .nfc-status {
+    background: #dfe5d6;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    color: #2D5016;
+    font-weight: 800;
+}
+
+.nfc-scan-station .nfc-input-group input {
+    border: 2px solid #1a1a1a;
+    box-shadow: inset 2px 2px 0 #d2d2d2;
+}
+
+.nfc-scan-station .nfc-result {
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+}
+
+.arena-nfc-child-window {
+    padding-top: 20px;
+}
+
+.arena-nfc-child-window .arena-nfc-child-header {
+    margin: -20px -20px 14px;
+}
+
+.arena-nfc-summary {
+    background: #ffedab;
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #d9b94e, inset 2px 2px 0 #fff7cf;
+    color: #1a1a1a;
+    margin: 0 0 14px;
+}
+
+.arena-nfc-summary strong { font-size: 17px; }
+
+.arena-nfc-section {
+    background: #e6eadf;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c4cabd, inset 2px 2px 0 #fff;
+    margin-top: 12px;
+    padding: 0 9px 9px;
+}
+
+.arena-nfc-section .profile-section-title {
+    background: #315526;
+    border: 0;
+    color: #fff;
+    font-size: 11px;
+    margin: 0 -9px 9px;
+    padding: 8px 9px;
+}
+
+.arena-nfc-section .nfc-action-list {
+    background: #dfe5d6;
+    border-color: #1a1a1a;
+}
+
+.arena-nfc-section .nfc-action-button {
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.28), inset 2px 2px 0 rgba(255,255,255,0.18), 2px 2px 0 rgba(0,0,0,0.28);
+}
+
+@media (max-width: 380px) {
+    .child-profile-hero-row { align-items: flex-start; gap: 10px; }
+    .child-profile-hero-row img { height: 62px !important; width: 62px !important; }
+    .child-profile-hero-name { font-size: 11px; }
+    .nfc-scan-station-header span,
+    .arena-nfc-child-header span { font-size: 10px; }
+}
+
+/* Stable web presentation: hard-edged block materials, ore accents, and stronger pixel hierarchy. */
+body {
+    background-color: #3d4b19;
+    background-image: linear-gradient(90deg, rgba(0,0,0,.14) 1px, transparent 1px), linear-gradient(0deg, rgba(0,0,0,.10) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+.container { box-shadow: 8px 8px 0 #1a1a1a, 14px 14px 0 rgba(0,0,0,.28); }
+
+.tab-content > h2,
+.arena-screen-banner strong,
+.profile-section-title,
+.arena-item-topline,
+.nfc-action-section .profile-section-title { text-shadow: 2px 2px 0 rgba(0,0,0,.42); }
+
+.arena-screen-banner,
+.arena-hero-card,
+.arena-item-card,
+.weekly-stats-container,
+.arena-settings-panel,
+.child-profile-hero-panel,
+.child-profile-status-panel,
+.child-profile-arena-panel { border-color: #181b12; border-image: linear-gradient(90deg, #181b12 0 34%, #7e9033 34% 38%, #181b12 38% 72%, #d2a515 72% 76%, #181b12 76%) 1; }
+
+.arena-screen-banner,
+.arena-dashboard-banner,
+.arena-leaderboard-banner,
+.arena-quest-banner,
+.arena-settings-banner { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 8px, transparent 8px 16px), linear-gradient(135deg, #294d21 0 50%, #213d1c 50% 100%); }
+
+.arena-shop-banner { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 8px, transparent 8px 16px), linear-gradient(135deg, #8a5a14 0 50%, #5d3a10 50% 100%); }
+.arena-hero-card { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.045) 0 10px, transparent 10px 20px), linear-gradient(180deg, #2c5623 0 56%, #e7eadf 56% 100%); }
+
+.arena-hero-card .child-name,
+.arena-hero-card .tokens-display,
+.arena-hero-card .qml-progress-label,
+.arena-reward-strip strong,
+.weekly-score,
+.arena-nfc-summary strong { font-family: 'Press Start 2P', cursive; letter-spacing: .02em; }
+
+.arena-hero-card .child-name { font-size: 12px; line-height: 1.55; }
+.arena-hero-card .tokens-display { color: #ffe379; font-size: 12px; text-shadow: 2px 2px 0 #244717; }
+.dashboard-qml-panel { border-color: #1a1a1a; box-shadow: inset -3px -3px 0 #bec7b2, inset 3px 3px 0 #fff, 3px 3px 0 rgba(0,0,0,.22); }
+.dashboard-qml-panel .qml-progress-label { color: #526b20; font-family: 'Press Start 2P', cursive; font-size: 9px; }
+.dashboard-qml-panel .progress-fill { background: repeating-linear-gradient(90deg, #82bc36 0 8px, #58a52d 8px 16px); }
+
+.arena-card-kicker,
+.arena-screen-banner span,
+.arena-reward-strip span { color: #ffd947; text-shadow: 1px 1px 0 #3b2c08; }
+
+.arena-reward-strip { background: repeating-linear-gradient(90deg, #e7ebdf 0 12px, #dce2d4 12px 24px); }
+.treasure-card .arena-reward-strip { background: repeating-linear-gradient(90deg, #fff1bd 0 12px, #ffe7a0 12px 24px); }
+
+.arena-card-actions .btn:first-child,
+.arena-wide-action,
+.nfc-complete-button { background: linear-gradient(180deg, #78b63b 0 50%, #3c842b 50% 100%); border-color: #1a3217; }
+.arena-secondary-action { background: linear-gradient(180deg, #777 0 50%, #4f4f4f 50% 100%); }
+.tab-btn.active { box-shadow: inset 0 4px 0 #ffe16a, inset 0 -4px 0 #2f6a2a; }
