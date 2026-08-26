@@ -11,7 +11,7 @@ body {
     background: linear-gradient(135deg, #2D5016 0%, #8B4513 100%);
     color: #1a1a1a;
     padding: 10px;
-    padding-bottom: 100px;
+    padding-bottom: 122px;
 }
 
 .container {
@@ -84,13 +84,16 @@ body {
 
 .tab-btn {
     flex: 1;
-    padding: 12px 8px;
+    min-height: 76px;
+    padding: 10px 5px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: bold;
+    justify-content: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.15px;
     color: #C0C0C0;
     cursor: pointer;
     transition: all 0.2s;
@@ -99,13 +102,25 @@ body {
 }
 
 .tab-icon {
-    font-size: 20px;
+    font-size: 25px;
+    line-height: 1;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.45));
+}
+
+.tab-label {
+    line-height: 1;
 }
 
 .tab-btn.active {
     background: #4CAF50;
     color: #1a1a1a;
     border-top: 3px solid #7CB342;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.45);
+}
+
+.tab-btn.active .tab-icon {
+    transform: translateY(-1px) scale(1.08);
+    filter: drop-shadow(2px 2px 0 rgba(255,255,255,0.55));
 }
 
 .tab-btn:hover:not(.active) {
@@ -578,46 +593,163 @@ body {
     font-size: 12px;
 }
 
-/* Weekly Stats */
+/* Weekly Quest Arena — a 7-day, activity-based race for the whole family. */
 .weekly-stats-container {
-    margin-top: 20px;
+    margin-top: 22px;
 }
 
-.weekly-stat-item {
-    padding: 12px;
-    border: 2px solid #1a1a1a;
-    margin-bottom: 10px;
-    background: #f0f0f0;
+.weekly-arena {
+    border: 3px solid #1a1a1a;
+    background: linear-gradient(180deg, #273f17 0, #2D5016 108px, #d9d9d9 108px, #f3f3f3 100%);
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.3), inset 3px 3px 0 rgba(255,255,255,0.22), 4px 4px 0 rgba(0,0,0,0.38);
+    padding: 14px;
 }
 
-.weekly-stat-title {
-    font-weight: bold;
-    color: #2D5016;
-    margin-bottom: 8px;
+.weekly-arena-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    color: #fff;
 }
 
-.stat-row {
-    font-size: 11px;
-    color: #666;
-    margin-bottom: 4px;
-}
-
-.weekly-activity-bar {
-    font-size: 12px;
+.weekly-arena-kicker {
+    display: block;
     color: #FFD700;
-    margin-bottom: 8px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    animation: activityPulse 1.5s ease-in-out infinite;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    margin-bottom: 5px;
 }
 
-@keyframes activityPulse {
-    0%, 100% {
-        text-shadow: 0 0 0 rgba(255, 215, 0, 0.5);
-    }
-    50% {
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    }
+.weekly-arena h3 {
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.weekly-reset-note {
+    max-width: 148px;
+    color: #d6f4b3;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.3;
+    text-align: right;
+}
+
+.weekly-arena-rule {
+    color: #d6f4b3;
+    font-size: 10px;
+    line-height: 1.42;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.weekly-race-list {
+    display: grid;
+    gap: 9px;
+}
+
+.weekly-racer {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 10px;
+    background: #f7f7f7;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c6c6c6, inset 2px 2px 0 #fff;
+    padding: 10px;
+}
+
+.weekly-racer-1 {
+    background: linear-gradient(135deg, #fff9d4 0%, #ffeb77 100%);
+    border-color: #8b6d00;
+}
+
+.weekly-rank-badge {
+    min-height: 64px;
+    background: #2D5016;
+    border: 2px solid #1a1a1a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    line-height: 1.05;
+}
+
+.weekly-racer-1 .weekly-rank-badge {
+    background: #FFD700;
+    color: #1a1a1a;
+}
+
+.weekly-rank-badge strong {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.weekly-racer-main { min-width: 0; }
+
+.weekly-racer-topline,
+.weekly-score-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.weekly-racer-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    color: #2D5016;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 0;
+    text-align: left;
+}
+
+.weekly-rank-label {
+    color: #6b4e00;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+    white-space: nowrap;
+}
+
+.weekly-score-line { margin-top: 6px; }
+.weekly-score-line strong { color: #1a1a1a; font-size: 20px; line-height: 1; }
+.weekly-score-line span { color: #2D5016; font-size: 10px; font-weight: 900; margin-right: auto; }
+.weekly-score-line em { color: #5b5b5b; font-size: 9px; font-style: normal; line-height: 1.2; text-align: right; }
+
+.weekly-pace-track {
+    height: 11px;
+    background: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.weekly-pace-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A, #FFD700);
+    min-width: 4px;
+}
+
+.weekly-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 8px;
+    color: #4d4d4d;
+    font-size: 10px;
+    font-weight: 800;
+    margin-top: 8px;
 }
 
 /* Ongoing Quest */
@@ -815,6 +947,112 @@ body {
     box-shadow: inset 0 0 0 2px #4CAF50;
 }
 
+/* Notification access feedback — the action now reports what Android returned. */
+.notification-action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.notification-action-grid .btn {
+    min-height: 44px;
+    padding: 7px 8px;
+    font-size: 11px;
+    line-height: 1.22;
+}
+
+.phone-notification-status {
+    border: 2px solid #1a1a1a;
+    background: #e8e8e8;
+    color: #3d3d3d;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 8px 0;
+    padding: 9px 10px;
+}
+
+.phone-notification-status.is-checking { background: #d9efff; border-color: #1769aa; color: #0c4f83; }
+.phone-notification-status.is-ready { background: #d9f2d5; border-color: #2D7D32; color: #1f5e25; }
+.phone-notification-status.is-warning { background: #fff2c6; border-color: #A66A00; color: #795000; }
+.phone-notification-status.is-muted { background: #e4e4e4; border-color: #666; color: #505050; }
+
+/* Settings editor — compact data rows prevent labels and inputs competing for space. */
+.settings-editor-modal {
+    max-width: 520px;
+    max-height: 86vh;
+    padding: 15px;
+}
+
+.settings-editor-intro {
+    color: #4f4f4f;
+    font-size: 11px;
+    line-height: 1.42;
+    margin-bottom: 13px;
+}
+
+.settings-editor-section {
+    border-top: 3px solid #2D5016;
+    margin-top: 15px;
+    padding-top: 10px;
+}
+
+.settings-editor-section-title {
+    color: #2D5016;
+    font-size: 13px;
+    font-weight: 900;
+    margin-bottom: 9px;
+}
+
+.age-group-editor,
+.qml-tier-editor {
+    display: grid;
+    grid-template-columns: minmax(124px, 1.8fr) minmax(54px, 0.65fr) minmax(54px, 0.65fr) minmax(70px, 0.8fr);
+    gap: 7px;
+    align-items: end;
+    background: rgba(0,0,0,0.08);
+    border: 2px solid #1a1a1a;
+    margin-bottom: 7px;
+    padding: 8px;
+}
+
+.compact-field {
+    min-width: 0;
+}
+
+.compact-field label {
+    display: block;
+    color: #2D5016;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.compact-field input,
+.compact-field select {
+    width: 100%;
+    min-height: 36px;
+    border: 2px solid #1a1a1a;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 6px;
+}
+
+.qml-editor-category {
+    margin-top: 12px;
+}
+
+.qml-editor-category-title {
+    display: block;
+    color: #4CAF50;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
 /* Checkbox List */
 .checkbox-list {
     max-height: 200px;
@@ -856,7 +1094,7 @@ body {
 /* NFC Button in Header */
 .nfc-button {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(96px + var(--phone-bottom-safe));
     right: 20px;
     z-index: 50;
     padding: 8px 12px;
@@ -1306,7 +1544,7 @@ html {
 
 body {
     min-height: 100dvh;
-    padding: max(8px, env(safe-area-inset-top)) var(--phone-inline-pad) calc(88px + var(--phone-bottom-safe));
+    padding: max(8px, env(safe-area-inset-top)) var(--phone-inline-pad) calc(102px + var(--phone-bottom-safe));
     overflow-x: hidden;
 }
 
@@ -1318,19 +1556,19 @@ body {
 
 .tab-content {
     min-height: 0;
-    max-height: calc(100dvh - 156px - env(safe-area-inset-top) - var(--phone-bottom-safe));
+    max-height: calc(100dvh - 168px - env(safe-area-inset-top) - var(--phone-bottom-safe));
     padding: clamp(12px, 4vw, 20px);
     overscroll-behavior: contain;
 }
 
 .bottom-tabs {
-    min-height: 64px;
+    min-height: 72px;
     padding-bottom: var(--phone-bottom-safe);
 }
 
 .tab-btn {
-    min-height: 64px;
-    padding: 9px 4px 7px;
+    min-height: 72px;
+    padding: 8px 4px 7px;
     touch-action: manipulation;
 }
 
@@ -1449,15 +1687,44 @@ textarea:focus-visible {
     }
 
     .tab-btn {
-        font-size: 9px;
+        font-size: 10.5px;
     }
 
     .tab-icon {
-        font-size: 17px;
+        font-size: 21px;
     }
 
     .modal-content {
         padding: 14px;
+    }
+
+    .notification-action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .age-group-editor,
+    .qml-tier-editor {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .weekly-arena {
+        padding: 10px;
+    }
+
+    .weekly-racer {
+        grid-template-columns: 44px 1fr;
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .weekly-rank-badge {
+        min-height: 58px;
+        font-size: 16px;
+    }
+
+    .weekly-score-line em {
+        display: none;
     }
 }
 
@@ -1473,7 +1740,7 @@ textarea:focus-visible {
 
 @media (orientation: landscape) and (max-height: 520px) {
     body {
-        padding-bottom: calc(72px + var(--phone-bottom-safe));
+        padding-bottom: calc(78px + var(--phone-bottom-safe));
     }
 
     .header {
@@ -1481,7 +1748,7 @@ textarea:focus-visible {
     }
 
     .tab-content {
-        max-height: calc(100dvh - 112px - var(--phone-bottom-safe));
+        max-height: calc(100dvh - 122px - var(--phone-bottom-safe));
     }
 
     .bottom-tabs,

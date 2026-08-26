@@ -1355,31 +1355,60 @@ function renderLeaderboard() {
     
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
-    statsContainer.innerHTML = '<h3 style="margin-top: 20px; margin-bottom: 10px; color: #FFD700;">📊 Weekly Performance</h3>' +
-        sorted.map((child, index) => {
-            const weeklyQuests = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).length;
-            const weeklyTokens = child.questHistory.filter(q => new Date(q.approvedDate) >= weekAgo).reduce((sum, q) => sum + q.tokensEarned, 0);
-            const weeklyTreasures = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).length;
-            const weeklyBadges = child.badges.filter(b => b.earned && new Date(b.earnedDate) >= weekAgo).length;
-            const weeklyTime = child.treasureHistory.filter(t => new Date(t.claimDate) >= weekAgo).reduce((sum, t) => sum + (t.finalTimerSeconds || 0), 0);
-            
-            const medalEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "⭐";
-            const totalActivity = weeklyQuests + weeklyTokens + weeklyTreasures + weeklyBadges;
-            const activityBar = "█".repeat(Math.min(totalActivity, 10)) + "░".repeat(Math.max(0, 10 - totalActivity));
-            
-            return `
-                <div class="weekly-stat-item">
-                    <div class="weekly-stat-title">${medalEmoji} ${child.name}</div>
-                    <div class="weekly-activity-bar">${activityBar}</div>
-                    <div class="stat-row">⚔️ Quests: ${weeklyQuests}</div>
-                    <div class="stat-row">💰 Tokens: ${weeklyTokens}</div>
-                    <div class="stat-row">🎁 Treasures: ${weeklyTreasures}</div>
-                    <div class="stat-row">⏱️ Time: ${Math.floor(weeklyTime / 60)} mins</div>
-                    <div class="stat-row">🏅 Badges: ${weeklyBadges}</div>
-                </div>
-            `;
-        }).join('');
+    const weeklyRanks = appState.children.map(child => {
+        const weeklyQuestHistory = child.questHistory.filter(q => q.approvedDate && new Date(q.approvedDate) >= weekAgo);
+        const weeklyTreasureHistory = child.treasureHistory.filter(t => t.claimDate && new Date(t.claimDate) >= weekAgo);
+        const weeklyQuests = weeklyQuestHistory.length;
+        const weeklyTokens = weeklyQuestHistory.reduce((sum, q) => sum + (q.tokensEarned || 0), 0);
+        const weeklyTreasures = weeklyTreasureHistory.length;
+        const weeklyBadges = child.badges.filter(b => b.earned && b.earnedDate && new Date(b.earnedDate) >= weekAgo).length;
+        const activeDays = new Set([
+            ...weeklyQuestHistory.map(q => new Date(q.approvedDate).toDateString()),
+            ...weeklyTreasureHistory.map(t => new Date(t.claimDate).toDateString())
+        ]).size;
+        // Quest Points reward varied, recent participation instead of relying on token balance alone.
+        const weeklyScore = (weeklyQuests * 10) + weeklyTokens + (weeklyTreasures * 6) + (weeklyBadges * 12) + (activeDays * 4);
+        return { child, weeklyQuests, weeklyTokens, weeklyTreasures, weeklyBadges, activeDays, weeklyScore };
+    }).sort((a, b) => b.weeklyScore - a.weeklyScore || b.weeklyTokens - a.weeklyTokens || a.child.name.localeCompare(b.child.name));
+
+    const leader = weeklyRanks[0];
+    const leaderScore = Math.max(leader?.weeklyScore || 0, 1);
+    const hasWeeklyActivity = weeklyRanks.some(entry => entry.weeklyScore > 0);
+    const rankLabel = index => !hasWeeklyActivity ? (index === 0 ? 'ARENA READY' : 'JOIN THE RACE') : (index === 0 ? 'CHAMPION' : index === 1 ? 'CHALLENGER' : index === 2 ? 'RISING HERO' : 'QUESTER');
+    const rankIcon = index => !hasWeeklyActivity ? '⚔️' : (index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '⭐');
+
+    statsContainer.innerHTML = `
+        <section class="weekly-arena" aria-label="Weekly Quest Arena">
+            <div class="weekly-arena-heading">
+                <div><span class="weekly-arena-kicker">LAST 7 DAYS</span><h3>⚔️ Weekly Quest Arena</h3></div>
+                <span class="weekly-reset-note">Fresh race • recent activity wins</span>
+            </div>
+            <p class="weekly-arena-rule">Quest Points: quests ×10, tokens earned, treasures ×6, badges ×12, and active days ×4.</p>
+            <div class="weekly-race-list">
+                ${weeklyRanks.map((entry, index) => {
+                    const pace = Math.round((entry.weeklyScore / leaderScore) * 100);
+                    const gapText = !hasWeeklyActivity
+                        ? 'Complete a quest to claim the first lead!'
+                        : index === 0
+                        ? (entry.weeklyScore > 0 ? 'Leading the arena this week!' : 'The arena is ready for the first quest!')
+                        : `${leader.weeklyScore - entry.weeklyScore} Quest Points behind ${leader.child.name}`;
+                    return `
+                        <article class="weekly-racer weekly-racer-${index + 1}">
+                            <div class="weekly-rank-badge"><span>${rankIcon(index)}</span><strong>${hasWeeklyActivity ? `#${index + 1}` : 'TIE'}</strong></div>
+                            <div class="weekly-racer-main">
+                                <div class="weekly-racer-topline"><button class="weekly-racer-name" onclick="openChildProfile('${entry.child.id}')">${entry.child.name}</button><span class="weekly-rank-label">${rankLabel(index)}</span></div>
+                                <div class="weekly-score-line"><strong>${entry.weeklyScore}</strong><span>Quest Points</span><em>${gapText}</em></div>
+                                <div class="weekly-pace-track" aria-label="${entry.child.name} weekly pace"><div class="weekly-pace-fill" style="width: ${pace}%"></div></div>
+                                <div class="weekly-stat-grid">
+                                    <span>⚔️ ${entry.weeklyQuests} quests</span><span>💰 ${entry.weeklyTokens} earned</span><span>🎁 ${entry.weeklyTreasures} rewards</span><span>🔥 ${entry.activeDays} active days</span>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join('')}
+            </div>
+        </section>
+    `;
 }
 
 function renderPlay() {
@@ -1452,11 +1481,14 @@ function renderSettings() {
     html += `
         <div class="profile-section feedback-settings">
             <div class="profile-section-title">Phone Alerts & Sound Feedback</div>
-            <label class="setting-toggle"><input type="checkbox" ${appState.notificationsEnabled !== false ? 'checked' : ''} onchange="updateNotificationPreference(this.checked)"> Treasure timer phone notifications</label>
+            <label class="setting-toggle"><input type="checkbox" id="notificationPreferenceToggle" ${appState.notificationsEnabled !== false ? 'checked' : ''} onchange="updateNotificationPreference(this.checked)"> Treasure timer phone notifications</label>
             <p class="setting-help">The phone can alert you when a treasure timer ends. Android may ask for notification permission.</p>
-            <button class="btn btn-small" onclick="window.prepareTreasureNotifications && window.prepareTreasureNotifications()">Enable / Check Phone Notifications</button>
-            <button class="btn btn-small" onclick="window.requestExactTreasureAlarms && window.requestExactTreasureAlarms()">Allow Precise Screen-Off Alarms</button>
-            <p class="setting-help">If alerts arrive only after waking the screen, allow EPIC RPG under Android Settings → Alarms & reminders. This gives Android permission to wake the phone at the timer end.</p>
+            <div class="notification-action-grid">
+                <button class="btn btn-small" onclick="checkPhoneNotifications()">Enable / Check Phone Notifications</button>
+                <button class="btn btn-small" onclick="requestPrecisePhoneAlarms()">Allow Precise Screen-Off Alarms</button>
+            </div>
+            <div id="phoneNotificationStatus" class="phone-notification-status" role="status" aria-live="polite">Tap “Enable / Check” to confirm Android notification access.</div>
+            <p class="setting-help">For the most reliable screen-off timer, allow EPIC RPG under Android Settings → Alarms & reminders. The app will keep a safe fallback when precise alarms are not granted.</p>
             <label class="setting-toggle"><input type="checkbox" ${appState.soundEnabled !== false ? 'checked' : ''} onchange="updateSoundEnabled(this.checked)"> Achievement and task-completion sounds</label>
             <label class="setting-range">Sound volume <input type="range" min="0" max="1" step="0.05" value="${appState.soundVolume ?? 0.65}" oninput="updateSoundVolume(this.value)"></label>
             <button class="btn btn-small" onclick="testFeedbackSound()">Test Achievement Sound</button>
@@ -1673,8 +1705,72 @@ function updateNotificationPreference(value) {
     saveData();
     window.dispatchEvent(new CustomEvent('epic-notification-preference-changed', { detail: { enabled: appState.notificationsEnabled } }));
     if (appState.notificationsEnabled) {
-        const prepare = window.prepareTreasureNotifications;
-        if (typeof prepare === 'function') prepare();
+        checkPhoneNotifications(false);
+    } else {
+        setPhoneNotificationStatus('Treasure timer phone notifications are turned off. Existing scheduled timer alerts were cleared.', 'muted');
+    }
+}
+
+function setPhoneNotificationStatus(message, state = 'info') {
+    const status = document.getElementById('phoneNotificationStatus');
+    if (!status) return;
+    status.className = `phone-notification-status is-${state}`;
+    status.textContent = message;
+}
+
+async function checkPhoneNotifications(enablePreference = true) {
+    const prepare = window.prepareTreasureNotifications;
+    if (typeof prepare !== 'function') {
+        setPhoneNotificationStatus('Phone notification checks are available after installing EPIC RPG on an Android device.', 'muted');
+        showNotification('Open the Android app to check phone notifications.', 'error');
+        return;
+    }
+
+    if (enablePreference && appState.notificationsEnabled === false) {
+        appState.notificationsEnabled = true;
+        saveData();
+        const toggle = document.getElementById('notificationPreferenceToggle');
+        if (toggle) toggle.checked = true;
+        window.dispatchEvent(new CustomEvent('epic-notification-preference-changed', { detail: { enabled: true } }));
+    }
+
+    setPhoneNotificationStatus('Checking Android notification access…', 'checking');
+    try {
+        const result = await prepare();
+        if (!result || result.enabled !== true) {
+            setPhoneNotificationStatus('Notifications are not allowed yet. Choose Allow in the Android permission prompt, then check again.', 'warning');
+            showNotification('Notification permission is still needed.', 'error');
+            return;
+        }
+        const exactNote = result.exact ? ' Precise screen-off alarms are also allowed.' : ' Precise screen-off alarms can be enabled with the button above.';
+        setPhoneNotificationStatus(`Phone notifications are enabled.${exactNote}`, result.exact ? 'ready' : 'warning');
+        dispatchActiveTreasureNotificationSync();
+        showNotification(result.exact ? 'Phone notifications and precise alarms are ready!' : 'Phone notifications are enabled!', 'success');
+    } catch (error) {
+        console.error('Unable to check phone notifications', error);
+        setPhoneNotificationStatus('Android could not complete the notification check. Please try again from the installed app.', 'warning');
+        showNotification('Unable to check phone notifications.', 'error');
+    }
+}
+
+async function requestPrecisePhoneAlarms() {
+    const requestExact = window.requestExactTreasureAlarms;
+    if (typeof requestExact !== 'function') {
+        setPhoneNotificationStatus('Precise alarm access can only be changed from the installed Android app.', 'muted');
+        return;
+    }
+    setPhoneNotificationStatus('Opening Android’s precise alarm setting…', 'checking');
+    try {
+        const result = await requestExact();
+        if (result?.exact_alarm === 'granted') {
+            setPhoneNotificationStatus('Precise screen-off alarms are enabled.', 'ready');
+            showNotification('Precise screen-off alarms are enabled!', 'success');
+        } else {
+            setPhoneNotificationStatus('Android’s precise alarm setting was opened. Return here and use Check Phone Notifications to confirm your choice.', 'warning');
+        }
+    } catch (error) {
+        console.error('Unable to request precise alarms', error);
+        setPhoneNotificationStatus('Android could not open the precise alarm setting. Please check Settings → Alarms & reminders.', 'warning');
     }
 }
 
@@ -1773,31 +1869,33 @@ function openEditSettingsModal() {
     modal.className = 'modal';
     modal.id = 'editSettingsModal';
     modal.innerHTML = `
-        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+        <div class="modal-content settings-editor-modal">
             <div class="modal-header">Edit Settings</div>
-            
-            <div class="form-group">
-                <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">Age Multiplier Groups</label>
+            <p class="settings-editor-intro">Update the reward rules in compact rows. Changes are saved immediately to this device.</p>
+            <div class="settings-editor-section">
+                <div class="settings-editor-section-title">Age Multiplier Groups</div>
                 ${appState.ageGroups.map(group => `
-                    <div style="background: rgba(0,0,0,0.1); padding: 12px; margin-bottom: 10px; border-radius: 6px;">
-                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Group Name:</strong> <input type="text" value="${group.name}" style="flex: 1; padding: 4px; max-width: 180px;" onchange="updateAgeGroupName('${group.id}', this.value)"></div>
-                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Age Range:</strong> <input type="number" value="${group.ageRangeMin}" style="width: 60px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'min')"> <span>-</span> <input type="number" value="${group.ageRangeMax}" style="width: 60px; padding: 4px;" onchange="updateAgeGroupRange('${group.id}', this.value, 'max')"></div>
-                        <div style="display: flex; align-items: center; gap: 8px;"><strong style="min-width: 100px;">Multiplier:</strong> <select class="setting-input" onchange="updateAgeGroupMultiplier('${group.id}', this.value)" style="flex: 1; max-width: 180px;">
+                    <div class="age-group-editor">
+                        <div class="compact-field compact-field-name"><label>Group name</label><input type="text" value="${group.name}" onchange="updateAgeGroupName('${group.id}', this.value)"></div>
+                        <div class="compact-field"><label>Min age</label><input type="number" value="${group.ageRangeMin}" onchange="updateAgeGroupRange('${group.id}', this.value, 'min')"></div>
+                        <div class="compact-field"><label>Max age</label><input type="number" value="${group.ageRangeMax}" onchange="updateAgeGroupRange('${group.id}', this.value, 'max')"></div>
+                        <div class="compact-field compact-field-multiplier"><label>Reward</label><select onchange="updateAgeGroupMultiplier('${group.id}', this.value)">
                             ${group.multiplierOptions.map(opt => `<option value="${opt}" ${opt === group.currentMultiplier ? 'selected' : ''}>${opt}x</option>`).join('')}
                         </select></div>
                     </div>
                 `).join('')}
             </div>
-            
-            <div class="form-group">
-                <label style="font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block;">QML Tiers</label>
+            <div class="settings-editor-section">
+                <div class="settings-editor-section-title">QML Tiers</div>
                 ${Object.entries(appState.qmlTiers).map(([category, tiers]) => `
-                    <div style="margin-bottom: 15px;">
-                        <strong style="display: block; margin-bottom: 8px; color: #4CAF50;">${category}</strong>
+                    <div class="qml-editor-category">
+                        <strong class="qml-editor-category-title">${category}</strong>
                         ${tiers.map(tier => `
-                            <div style="background: rgba(0,0,0,0.1); padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px;">
-                                <div style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px;"><strong style="min-width: 80px;">Tier Name:</strong> <input type="text" value="${tier.tierName}" style="flex: 1; padding: 4px; max-width: 150px;" onchange="updateQMLTierName('${category}', '${tier.id}', this.value)"></div>
-                                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;"><strong style="min-width: 35px;">Min:</strong> <input type="number" value="${tier.minRequirement}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"> <strong style="min-width: 35px;">Max:</strong> <input type="number" value="${tier.maxRequirement}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"> <strong style="min-width: 50px;">Bonus:</strong> <input type="number" value="${tier.bonusPercentage}" style="width: 45px; padding: 4px;" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)"><span>%</span></div>
+                            <div class="qml-tier-editor">
+                                <div class="compact-field compact-field-name"><label>Tier name</label><input type="text" value="${tier.tierName}" onchange="updateQMLTierName('${category}', '${tier.id}', this.value)"></div>
+                                <div class="compact-field"><label>Min</label><input type="number" value="${tier.minRequirement}" onchange="updateQMLTier('${category}', '${tier.id}', 'minRequirement', this.value)"></div>
+                                <div class="compact-field"><label>Max</label><input type="number" value="${tier.maxRequirement}" onchange="updateQMLTier('${category}', '${tier.id}', 'maxRequirement', this.value)"></div>
+                                <div class="compact-field compact-field-bonus"><label>Bonus %</label><input type="number" value="${tier.bonusPercentage}" onchange="updateQMLTier('${category}', '${tier.id}', 'bonusPercentage', this.value)"></div>
                             </div>
                         `).join('')}
                     </div>

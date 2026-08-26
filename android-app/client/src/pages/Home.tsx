@@ -41,7 +41,7 @@ export default function Home() {
         </div>
 
         <div id="play" className="tab-content">
-          <h2>⚔️ Play/Quests</h2>
+          <h2>⚔️ Quest</h2>
           <div id="quests-list" className="quests-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addQuestModal")}>
             + Add Quest
@@ -49,7 +49,7 @@ export default function Home() {
         </div>
 
         <div id="shop" className="tab-content">
-          <h2>🎁 Shop/Treasures</h2>
+          <h2>🎁 Shop</h2>
           <div id="treasures-list" className="treasures-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addTreasureModal")}>
             + Add Treasure
@@ -82,13 +82,13 @@ export default function Home() {
           <span className="tab-icon">🏆</span>
           <span>Leaderboard</span>
         </button>
-        <button className="tab-btn" data-tab="play" onClick={() => invoke("switchTab", "play")}>
+        <button className="tab-btn" data-tab="play" onClick={() => invoke("switchTab", "play")} aria-label="Quest">
           <span className="tab-icon">⚔️</span>
-          <span>Play</span>
+          <span className="tab-label">Quest</span>
         </button>
-        <button className="tab-btn" data-tab="shop" onClick={() => invoke("switchTab", "shop")}>
+        <button className="tab-btn" data-tab="shop" onClick={() => invoke("switchTab", "shop")} aria-label="Shop">
           <span className="tab-icon">🎁</span>
-          <span>Shop</span>
+          <span className="tab-label">Shop</span>
         </button>
         <button className="tab-btn" data-tab="settings" onClick={() => invoke("switchTab", "settings")}>
           <span className="tab-icon">⚙️</span>

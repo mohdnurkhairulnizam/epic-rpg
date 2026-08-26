@@ -104,10 +104,11 @@ export async function scheduleTreasureNotification(payload: TreasureTimerPayload
 }
 
 export async function requestExactTreasureAlarms() {
-  if (!isAndroid()) return;
+  if (!isAndroid()) return { exact_alarm: "denied" };
   const result = await LocalNotifications.changeExactNotificationSetting();
   window.dispatchEvent(new CustomEvent("epic-notification-permission-changed", { detail: { exact: result.exact_alarm === "granted" } }));
   window.dispatchEvent(new CustomEvent("epic-exact-alarm-updated", { detail: result }));
+  return result;
 }
 
 export async function cancelTreasureNotification(payload: Pick<TreasureTimerPayload, "childId" | "treasureId" | "notificationId" | "notificationKey">) {
