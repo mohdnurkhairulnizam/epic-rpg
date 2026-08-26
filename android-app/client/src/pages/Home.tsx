@@ -206,16 +206,18 @@ export default function Home() {
       </div>
 
       <div id="nfcScanModal" className="modal">
-        <div className="modal-content">
-          <span className="close" onClick={() => invoke("closeModal", "nfcScanModal")}>&times;</span>
-          <h3>📱 Scan NFC Card</h3>
+        <div className="modal-content nfc-scan-station">
+          <div className="modal-header nfc-scan-station-header">
+            <span><small>NFC CHECKPOINT</small>📱 Scan NFC Card</span>
+            <button className="claim-treasure-close" onClick={() => invoke("closeModal", "nfcScanModal")} aria-label="Close NFC scan window">×</button>
+          </div>
           <div id="nfc-status" className="nfc-status">Ready to scan...</div>
           <div className="nfc-input-group">
             <input type="text" id="nfcCardInput" placeholder="Tap NFC card or enter ID" autoFocus />
             <button className="btn" onClick={() => invoke("processNFCCard")}>Use ID</button>
           </div>
           <div id="nfc-result" className="nfc-result" />
-          <button className="btn" onClick={() => invoke("closeModal", "nfcScanModal")}>Close</button>
+          <div className="modal-buttons"><button className="btn" onClick={() => invoke("closeModal", "nfcScanModal")}>Close Scan Station</button></div>
         </div>
       </div>
     </>

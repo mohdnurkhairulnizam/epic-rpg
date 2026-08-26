@@ -774,28 +774,28 @@ function openNfcChildActionWindow(childId) {
     modal.dataset.childId = child.id;
     modal.className = 'modal';
     modal.innerHTML = `
-        <div class="modal-content nfc-child-action-content">
-            <div class="modal-header claim-treasure-header">
-                <span>📱 ${child.name}</span>
+        <div class="modal-content nfc-child-action-content arena-nfc-child-window">
+            <div class="modal-header claim-treasure-header arena-nfc-child-header">
+                <span><small>NFC HERO CHECKPOINT</small>📱 ${child.name}</span>
                 <button type="button" class="claim-treasure-close" aria-label="Close child action window" onclick="closeModal('nfcChildActionModal')">×</button>
             </div>
-            <div class="nfc-child-summary" data-nfc-summary>
+            <div class="nfc-child-summary arena-nfc-summary" data-nfc-summary>
                 <strong>💰 ${child.tokens} Tokens</strong>
                 <span>⚔️ ${child.ongoingQuests.length} Ongoing Quest${child.ongoingQuests.length === 1 ? '' : 's'}</span>
             </div>
-            <div class="nfc-action-section">
+            <div class="nfc-action-section arena-nfc-section">
                 <div class="profile-section-title">Ongoing Quests</div>
                 <div class="nfc-ongoing-quest-list" data-nfc-ongoing-quests>${renderNfcOngoingQuests(child)}</div>
             </div>
-            <div class="nfc-action-section">
+            <div class="nfc-action-section arena-nfc-section">
                 <div class="profile-section-title">Active Reward Timers</div>
                 <div class="nfc-reward-timer-list" data-nfc-rewards>${renderNfcActiveRewards(child)}</div>
             </div>
-            <div class="nfc-action-section">
+            <div class="nfc-action-section arena-nfc-section">
                 <div class="profile-section-title">Request a New Quest</div>
                 <div class="nfc-action-list" data-nfc-quest-requests>${renderNfcQuestRequests(child)}</div>
             </div>
-            <div class="nfc-action-section">
+            <div class="nfc-action-section arena-nfc-section">
                 <div class="profile-section-title">Claim an Eligible Treasure</div>
                 <div class="nfc-action-list" data-nfc-eligible-treasures>${renderNfcEligibleTreasures(child)}</div>
             </div>
@@ -1327,9 +1327,9 @@ function renderDashboard() {
                     <div class="child-name">${child.name}</div>
                     <div class="child-details">Age: ${age} | ${child.currentQMLTier}</div>
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
-                    <div class="qml-progress" style="padding: 8px 12px; margin: 8px -12px 0 -12px; background: rgba(0,0,0,0.1); border-radius: 0 0 4px 4px;">
-                        <div class="qml-progress-label" style="font-size: 11px; margin-bottom: 4px;">${child.currentQMLTier}</div>
-                        <div class="progress-bar" style="height: 8px;">
+                    <div class="dashboard-qml-panel">
+                        <div class="qml-progress-label">${child.currentQMLTier}</div>
+                        <div class="progress-bar">
                             <div class="progress-fill" style="width: ${(child.currentQMLProgress / 30) * 100}%"></div>
                         </div>
                     </div>
@@ -1529,20 +1529,21 @@ function renderChildProfile() {
     const age = calculateAge(child.dateOfBirth);
     
     let html = `
-        <div class="profile-section">
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+        <div class="profile-section child-profile-hero-panel">
+            <div class="child-profile-hero-row">
                 <img src="${avatarPath(child.avatarId)}" alt="${child.name}" style="width: 80px; height: 80px; border: 2px solid #1a1a1a; border-radius: 4px;">
                 <div>
-                    <div class="profile-section-title" style="border: none; margin: 0; padding: 0;">${child.name}</div>
-                    <div style="font-size: 12px; color: #666;">Age: ${age} | DOB: ${child.dateOfBirth}</div>
-                    ${child.nfcCardId ? `<div style="font-size: 12px; color: #666;">NFC: ${child.nfcCardId}</div>` : ''}
+                    <div class="arena-card-kicker">HERO PROFILE</div>
+                    <div class="profile-section-title child-profile-hero-name">${child.name}</div>
+                    <div class="child-profile-meta">Age: ${age} | DOB: ${child.dateOfBirth}</div>
+                    ${child.nfcCardId ? `<div class="child-profile-meta">NFC: ${child.nfcCardId}</div>` : ''}
                 </div>
             </div>
         </div>
     `;
     
     html += `
-        <div class="profile-section">
+        <div class="profile-section child-profile-status-panel">
             <div class="profile-section-title">Status</div>
             <div style="font-size: 12px; margin-bottom: 10px;">
                 <div style="margin-bottom: 8px;"><strong>Tokens:</strong> 💰 ${child.tokens}</div>
@@ -1571,7 +1572,7 @@ function renderChildProfile() {
         </div>
     `;
     
-    html += `<div class="profile-section"><div class="profile-section-title">Ongoing Quests</div>`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Ongoing Quests</div>`;
     if (child.ongoingQuests.length === 0) {
         html += '<div class="empty-state">No ongoing quests</div>';
     } else {
@@ -1589,7 +1590,7 @@ function renderChildProfile() {
     }
     html += '</div>';
     
-    html += `<div class="profile-section"><div class="profile-section-title">Active Treasures</div>`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Active Treasures</div>`;
     if (child.activeTreasures.length === 0) {
         html += '<div class="empty-state">No active treasures</div>';
     } else {
@@ -1612,7 +1613,7 @@ function renderChildProfile() {
     }
     html += '</div>';
     
-    html += `<div class="profile-section"><div class="profile-section-title">Available Treasures</div>`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Available Treasures</div>`;
     appState.treasures.forEach(treasure => {
         const canClaim = child.tokens >= treasure.costTokens;
         html += `
@@ -1625,7 +1626,7 @@ function renderChildProfile() {
     });
     html += '</div>';
     
-    html += `<div class="profile-section"><div class="profile-section-title">Badges</div><div class="badge-grid">`;
+    html += `<div class="profile-section child-profile-arena-panel"><div class="profile-section-title">Badges</div><div class="badge-grid">`;
     child.badges.forEach(badge => {
         const badgeData = appState.badges.find(b => b.id === badge.badgeId);
         if (badgeData) {
