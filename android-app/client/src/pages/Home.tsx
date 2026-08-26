@@ -28,6 +28,11 @@ export default function Home() {
 
         <div id="dashboard" className="tab-content active">
           <h2>👨‍👩‍👧‍👦 Dashboard</h2>
+          <div className="arena-screen-banner arena-dashboard-banner">
+            <span>FAMILY BASE</span>
+            <strong>Hero HQ</strong>
+            <p>Choose a hero to review progress, quests, and rewards.</p>
+          </div>
           <div id="children-list" className="children-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addChildModal")}>
             + Add Child
@@ -36,12 +41,21 @@ export default function Home() {
 
         <div id="leaderboard" className="tab-content">
           <h2>🏆 Leaderboard</h2>
-          <div id="leaderboard-list" className="leaderboard-container" />
+          <div className="arena-screen-banner arena-leaderboard-banner">
+            <span>WEEKLY RACE</span>
+            <strong>Quest Arena</strong>
+            <p>Recent activity decides this week’s champion.</p>
+          </div>
           <div id="weekly-stats" className="weekly-stats-container" />
         </div>
 
         <div id="play" className="tab-content">
           <h2>⚔️ Quest</h2>
+          <div className="arena-screen-banner arena-quest-banner">
+            <span>MISSION BOARD</span>
+            <strong>Choose the next quest</strong>
+            <p>Assign a mission to one hero or build a family team.</p>
+          </div>
           <div id="quests-list" className="quests-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addQuestModal")}>
             + Add Quest
@@ -50,6 +64,11 @@ export default function Home() {
 
         <div id="shop" className="tab-content">
           <h2>🎁 Shop</h2>
+          <div className="arena-screen-banner arena-shop-banner">
+            <span>TREASURE VAULT</span>
+            <strong>Trade tokens for rewards</strong>
+            <p>Every reward starts a timer and becomes part of the adventure.</p>
+          </div>
           <div id="treasures-list" className="treasures-container" />
           <button className="btn btn-add" onClick={() => invoke("openModal", "addTreasureModal")}>
             + Add Treasure
@@ -58,6 +77,11 @@ export default function Home() {
 
         <div id="settings" className="tab-content">
           <h2>⚙️ Settings</h2>
+          <div className="arena-screen-banner arena-settings-banner">
+            <span>GAME MASTER</span>
+            <strong>Shape the family rules</strong>
+            <p>Configure rewards, alerts, sound feedback, and learning tiers.</p>
+          </div>
           <div id="settings-content" />
         </div>
 

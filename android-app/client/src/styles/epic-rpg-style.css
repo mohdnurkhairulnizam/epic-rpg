@@ -346,6 +346,306 @@ body {
     margin-bottom: 8px;
 }
 
+/* Quest Arena visual system for the primary game screens. */
+.arena-screen-banner {
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.32), inset 2px 2px 0 rgba(255,255,255,0.18), 3px 3px 0 rgba(0,0,0,0.35);
+    color: #fff;
+    margin-bottom: 16px;
+    padding: 12px 13px;
+    position: relative;
+}
+
+.arena-screen-banner::after {
+    content: '';
+    background: rgba(255,255,255,0.18);
+    bottom: 0;
+    height: 3px;
+    left: 12px;
+    position: absolute;
+    right: 12px;
+}
+
+.arena-screen-banner span {
+    color: #FFD700;
+    display: block;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.25px;
+    margin-bottom: 5px;
+}
+
+.arena-screen-banner strong {
+    display: block;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.arena-screen-banner p {
+    color: #e1f6c6;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-top: 8px;
+}
+
+.arena-dashboard-banner { background: linear-gradient(135deg, #1d3d22 0%, #477b2e 100%); }
+.arena-leaderboard-banner { background: linear-gradient(135deg, #2a3d18 0%, #6b711d 100%); }
+.arena-quest-banner { background: linear-gradient(135deg, #31352b 0%, #58742b 100%); }
+.arena-shop-banner { background: linear-gradient(135deg, #5f3d11 0%, #a86a13 100%); }
+.arena-settings-banner { background: linear-gradient(135deg, #263a2a 0%, #38644b 100%); }
+
+.arena-hero-card {
+    background: linear-gradient(180deg, #284f23 0, #376f2d 56%, #e7eadf 56%, #f5f5f0 100%);
+    border-color: #1a1a1a;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.25), inset 3px 3px 0 rgba(255,255,255,0.14), 4px 4px 0 rgba(0,0,0,0.35);
+}
+
+.arena-hero-card .child-name,
+.arena-hero-card .child-details,
+.arena-hero-card .tokens-display,
+.arena-hero-card .qml-progress-label {
+    color: #fff;
+}
+
+.arena-card-kicker {
+    color: #FFD700;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+}
+
+.arena-hero-card .tokens-display {
+    border-top-color: rgba(255,255,255,0.25);
+}
+
+.arena-hero-card .qml-progress {
+    background: #e7eadf !important;
+    border-color: #1a1a1a !important;
+    box-shadow: inset -2px -2px 0 #c4c8bd, inset 2px 2px 0 #fff;
+}
+
+.arena-hero-card .qml-progress-label {
+    color: #2D5016;
+    font-weight: 900;
+}
+
+.arena-hero-card .progress-bar {
+    background: #1a1a1a;
+    border: 2px solid #1a1a1a;
+}
+
+.arena-item-card {
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -3px -3px 0 #c2c2c2, inset 3px 3px 0 #fff, 4px 4px 0 rgba(0,0,0,0.34);
+    margin-bottom: 13px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.arena-item-topline {
+    align-items: center;
+    display: flex;
+    min-height: 44px;
+    padding: 9px 11px;
+}
+
+.quest-card {
+    background: #f2f2ec;
+}
+
+.quest-card .arena-item-topline {
+    background: linear-gradient(135deg, #253c20 0%, #47742f 100%);
+}
+
+.quest-card .quest-type {
+    background: #f0c938;
+    border: 2px solid #1a1a1a;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.quest-card .quest-name,
+.treasure-card .treasure-name {
+    font-size: 15px;
+    padding: 12px 12px 6px;
+}
+
+.arena-reward-strip {
+    align-items: baseline;
+    background: #dfe6d7;
+    border-bottom: 2px solid #1a1a1a;
+    border-top: 2px solid #1a1a1a;
+    display: flex;
+    gap: 7px;
+    margin: 0 10px;
+    padding: 8px 9px;
+}
+
+.arena-reward-strip span {
+    color: #49602f;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.75px;
+}
+
+.arena-reward-strip strong {
+    color: #1a1a1a;
+    font-size: 17px;
+    margin-left: auto;
+}
+
+.arena-reward-strip em,
+.arena-reward-strip b {
+    color: #4c4c4c;
+    font-size: 10px;
+    font-style: normal;
+}
+
+.arena-reward-strip b {
+    border-left: 1px solid #78806e;
+    margin-left: 3px;
+    padding-left: 7px;
+}
+
+.arena-card-actions {
+    display: flex;
+    gap: 7px;
+    padding: 8px 10px 10px;
+}
+
+.arena-card-actions .btn {
+    flex: 1;
+    margin: 0;
+    min-height: 40px;
+}
+
+.arena-secondary-action {
+    background: #5b5b5b;
+}
+
+.treasure-card {
+    background: #f8e4a3;
+}
+
+.treasure-card .arena-item-topline {
+    background: linear-gradient(135deg, #6b4213 0%, #bd7b1c 100%);
+}
+
+.treasure-card .treasure-name {
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.treasure-card .arena-reward-strip {
+    background: #ffedb2;
+}
+
+.arena-empty-state {
+    align-items: center;
+    background: #e5e8df;
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c3c7bc, inset 2px 2px 0 #fff;
+    color: #2D5016;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 18px;
+    text-align: center;
+}
+
+.arena-empty-state span { font-size: 28px; margin-bottom: 8px; }
+.arena-empty-state strong { font-size: 13px; }
+.arena-empty-state p { color: #555; font-size: 11px; line-height: 1.45; margin-top: 8px; }
+
+.arena-settings-panel {
+    background: #eff2e9;
+    border: 3px solid #1a1a1a;
+    box-shadow: inset -3px -3px 0 #c8cdc0, inset 3px 3px 0 #fff, 4px 4px 0 rgba(0,0,0,0.3);
+    padding: 0;
+    overflow: hidden;
+}
+
+.arena-settings-panel .profile-section-title {
+    background: linear-gradient(135deg, #243f26 0%, #467337 100%);
+    border: 0;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 11px 12px;
+}
+
+.arena-settings-panel > :not(.profile-section-title) {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.arena-wide-action {
+    margin-bottom: 11px !important;
+    margin-top: 11px !important;
+    width: calc(100% - 24px);
+}
+
+.arena-settings-summary {
+    background: #dfe5d6;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    margin-bottom: 12px !important;
+    padding: 11px;
+}
+
+.arena-settings-summary strong {
+    color: #2D5016;
+}
+
+.arena-settings-panel .setting-item {
+    background: #dfe5d6;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    margin-bottom: 12px;
+}
+
+.arena-settings-panel .setting-label {
+    color: #2D5016;
+    font-size: 11px;
+}
+
+.arena-settings-panel .setting-toggle {
+    background: #dfe5d6;
+    border: 2px solid #1a1a1a;
+    box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff;
+    margin: 12px;
+    padding: 9px;
+}
+
+.arena-settings-panel .setting-help {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.arena-settings-panel .notification-action-grid,
+.arena-settings-panel .phone-notification-status,
+.arena-settings-panel .setting-range {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.arena-settings-panel .badge-glossary {
+    margin-bottom: 12px;
+}
+
+.arena-danger-panel {
+    padding: 10px;
+}
+
+.arena-danger-panel .btn {
+    margin: 0;
+    width: 100%;
+}
+
 /* Leaderboard */
 .leaderboard-row {
     display: flex;

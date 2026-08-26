@@ -862,6 +862,7 @@ function createQuest() {
     document.getElementById('questName').value = '';
     document.getElementById('questTokens').value = '';
     renderPlay();
+    window.dispatchEvent(new CustomEvent('epic-item-created', { detail: { type: 'quest', label: name } }));
 }
 
 function requestQuestFromPlay(questId) {
@@ -917,6 +918,7 @@ function confirmMultiQuestAssignment(questId) {
     });
     
     renderPlay();
+    window.dispatchEvent(new CustomEvent('epic-quest-assigned', { detail: { questId, count: checkboxes.length } }));
 }
 
 function requestQuest(childId, questId) {
@@ -945,6 +947,7 @@ function cancelQuest(childId, questInstanceId) {
         child.ongoingQuests = child.ongoingQuests.filter(q => q.instanceId !== questInstanceId);
         saveData();
         showNotification('Quest cancelled.', 'success');
+        window.dispatchEvent(new CustomEvent('epic-action-reversed', { detail: { type: 'quest-cancelled' } }));
         renderChildProfile();
         renderDashboard();
     }
@@ -961,6 +964,7 @@ function rejectQuest(childId, questInstanceId) {
         delete ongoingQuest.completedDate;
         saveData();
         showNotification('Quest returned to ongoing.', 'success');
+        window.dispatchEvent(new CustomEvent('epic-action-reversed', { detail: { type: 'quest-rejected' } }));
         renderChildProfile();
         renderDashboard();
     }
@@ -974,6 +978,7 @@ function markQuestComplete(childId, questInstanceId) {
         ongoingQuest.status = 'pending_approval';
         ongoingQuest.completedDate = new Date().toISOString().split('T')[0];
         saveData();
+        window.dispatchEvent(new CustomEvent('epic-quest-ready', { detail: { childId, questInstanceId } }));
         renderChildProfile();
     }
 }
@@ -1070,6 +1075,7 @@ function createTreasure() {
     document.getElementById('treasureCost').value = '';
     document.getElementById('treasureTimer').value = '';
     renderShop();
+    window.dispatchEvent(new CustomEvent('epic-item-created', { detail: { type: 'treasure', label: name } }));
 }
 
 function showClaimTreasureDialog(treasureId) {
@@ -1315,8 +1321,9 @@ function renderDashboard() {
         statusHtml += '</div>';
 
         return `
-            <div class="child-card" onclick="openChildProfile('${child.id}')">
+            <div class="child-card arena-hero-card" onclick="openChildProfile('${child.id}')">
                 <div class="child-info">
+                    <div class="arena-card-kicker">ACTIVE HERO</div>
                     <div class="child-name">${child.name}</div>
                     <div class="child-details">Age: ${age} | ${child.currentQMLTier}</div>
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
@@ -1335,23 +1342,12 @@ function renderDashboard() {
 }
 
 function renderLeaderboard() {
-    const container = document.getElementById('leaderboard-list');
     const statsContainer = document.getElementById('weekly-stats');
     
     if (appState.children.length === 0) {
-        container.innerHTML = '<div class="empty-state">No children yet.</div>';
-        statsContainer.innerHTML = '';
+        statsContainer.innerHTML = '<div class="arena-empty-state"><span>⚔️</span><strong>The Quest Arena is waiting.</strong><p>Add a child profile, then approve quests to begin the weekly race.</p></div>';
         return;
     }
-    
-    const sorted = [...appState.children].sort((a, b) => b.tokens - a.tokens);
-    container.innerHTML = sorted.map((child, index) => `
-        <div class="leaderboard-row">
-            <div class="rank rank-${index + 1}">${index + 1}</div>
-            <div class="name" onclick="openChildProfile('${child.id}')">${child.name}</div>
-            <div class="score">💰 ${child.tokens}</div>
-        </div>
-    `).join('');
     
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1418,16 +1414,15 @@ function renderPlay() {
         return;
     }
     container.innerHTML = appState.quests.map(quest => `
-        <div class="quest-card">
-            <div class="quest-header" style="position: relative;">
+        <article class="quest-card arena-item-card">
+            <div class="quest-header arena-item-topline" style="position: relative;">
                 <div class="quest-type">${quest.type}</div>
                 <button class="btn card-delete-btn" onclick="deleteQuest('${quest.id}')" aria-label="Delete quest" title="Delete quest">🗑 <span>Delete</span></button>
             </div>
             <div class="quest-name">${quest.name}</div>
-            <div class="quest-tokens">💰 ${quest.baseTokenReward} tokens</div>
-            <button class="btn btn-small" onclick="requestQuestFromPlay('${quest.id}')">Request Quest</button>
-            <button class="btn btn-small" onclick="editQuest('${quest.id}')">Edit</button>
-        </div>
+            <div class="arena-reward-strip"><span>QUEST REWARD</span><strong>💰 ${quest.baseTokenReward}</strong><em>tokens</em></div>
+            <div class="arena-card-actions"><button class="btn btn-small" onclick="requestQuestFromPlay('${quest.id}')">Request Quest</button><button class="btn btn-small arena-secondary-action" onclick="editQuest('${quest.id}')">Edit</button></div>
+        </article>
     `).join('');
 }
 
@@ -1438,15 +1433,14 @@ function renderShop() {
         return;
     }
     container.innerHTML = appState.treasures.map(treasure => `
-        <div class="treasure-card">
-            <div class="treasure-header" style="position: relative;">
+        <article class="treasure-card arena-item-card">
+            <div class="treasure-header arena-item-topline" style="position: relative;">
                 <div class="treasure-name">${treasure.name}</div>
                 <button class="btn card-delete-btn" onclick="deleteTreasure('${treasure.id}')" aria-label="Delete treasure" title="Delete treasure">🗑 <span>Delete</span></button>
             </div>
-            <div class="treasure-cost">💰 ${treasure.costTokens} tokens | ⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} mins</div>
-            <button class="btn btn-small" onclick="showClaimTreasureDialog('${treasure.id}')">Claim Treasure</button>
-            <button class="btn btn-small" onclick="editTreasure('${treasure.id}')">Edit</button>
-        </div>
+            <div class="arena-reward-strip"><span>VAULT COST</span><strong>💰 ${treasure.costTokens}</strong><em>tokens</em><b>⏱️ ${Math.floor(treasure.baseTimerSeconds / 60)} min</b></div>
+            <div class="arena-card-actions"><button class="btn btn-small" onclick="showClaimTreasureDialog('${treasure.id}')">Claim Treasure</button><button class="btn btn-small arena-secondary-action" onclick="editTreasure('${treasure.id}')">Edit</button></div>
+        </article>
     `).join('');
 }
 
@@ -1454,9 +1448,9 @@ function renderSettings() {
     const container = document.getElementById('settings-content');
     let html = '<div>';
     
-    html += '<div class="profile-section"><div class="profile-section-title">Age Multiplier & QML Tiers</div>';
-    html += '<button class="btn btn-primary" onclick="openEditSettingsModal()" style="width: 100%; margin-bottom: 15px;">Edit All Settings</button>';
-    html += '<div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px;">';
+    html += '<div class="profile-section arena-settings-panel"><div class="profile-section-title">Age Multiplier & QML Tiers</div>';
+    html += '<button class="btn btn-primary arena-wide-action" onclick="openEditSettingsModal()">Edit All Settings</button>';
+    html += '<div class="arena-settings-summary">';
     html += '<strong style="display: block; margin-bottom: 10px;">Age Multiplier Groups:</strong>';
     appState.ageGroups.forEach(group => {
         html += `<div style="margin: 5px 0; font-size: 12px;">${group.name}: <strong>${group.currentMultiplier}x</strong></div>`;
@@ -1469,7 +1463,7 @@ function renderSettings() {
     html += '</div>';
     
     html += `
-        <div class="profile-section">
+        <div class="profile-section arena-settings-panel">
             <div class="profile-section-title">Birthday Reward</div>
             <div class="setting-item">
                 <div class="setting-label">Tokens to Award on Birthday</div>
@@ -1479,7 +1473,7 @@ function renderSettings() {
     `;
     
     html += `
-        <div class="profile-section feedback-settings">
+        <div class="profile-section feedback-settings arena-settings-panel">
             <div class="profile-section-title">Phone Alerts & Sound Feedback</div>
             <label class="setting-toggle"><input type="checkbox" id="notificationPreferenceToggle" ${appState.notificationsEnabled !== false ? 'checked' : ''} onchange="updateNotificationPreference(this.checked)"> Treasure timer phone notifications</label>
             <p class="setting-help">The phone can alert you when a treasure timer ends. Android may ask for notification permission.</p>
@@ -1489,14 +1483,14 @@ function renderSettings() {
             </div>
             <div id="phoneNotificationStatus" class="phone-notification-status" role="status" aria-live="polite">Tap “Enable / Check” to confirm Android notification access.</div>
             <p class="setting-help">For the most reliable screen-off timer, allow EPIC RPG under Android Settings → Alarms & reminders. The app will keep a safe fallback when precise alarms are not granted.</p>
-            <label class="setting-toggle"><input type="checkbox" ${appState.soundEnabled !== false ? 'checked' : ''} onchange="updateSoundEnabled(this.checked)"> Achievement and task-completion sounds</label>
+            <label class="setting-toggle"><input type="checkbox" ${appState.soundEnabled !== false ? 'checked' : ''} onchange="updateSoundEnabled(this.checked)"> Pixel adventure sounds for quests, rewards, badges, NFC, and timers</label>
             <label class="setting-range">Sound volume <input type="range" min="0" max="1" step="0.05" value="${appState.soundVolume ?? 0.65}" oninput="updateSoundVolume(this.value)"></label>
-            <button class="btn btn-small" onclick="testFeedbackSound()">Test Achievement Sound</button>
+            <button class="btn btn-small" onclick="testFeedbackSound()">Test Adventure Sound</button>
         </div>
     `;
 
     html += `
-        <div class="profile-section">
+        <div class="profile-section arena-settings-panel">
             <div class="profile-section-title">Badge Glossary & Requirements</div>
             <div class="badge-glossary">
                 ${['Coal', 'Copper', 'Iron', 'Gold', 'Redstone', 'Diamond', 'Emerald', 'Ancient Debris'].map(cat => {
@@ -1519,7 +1513,7 @@ function renderSettings() {
         </div>
     `;
     
-    html += `<div class="profile-section"><button class="btn btn-danger" onclick="masterReset()">Master Reset All Data</button></div>`;
+    html += `<div class="profile-section arena-settings-panel arena-danger-panel"><button class="btn btn-danger" onclick="masterReset()">Master Reset All Data</button></div>`;
     container.innerHTML = html;
 }
 
