@@ -1450,7 +1450,7 @@ body {
 .nfc-button {
     align-items: center;
     position: absolute;
-    top: 20px;
+    top: 116px;
     right: 14px;
     z-index: 3;
     display: flex;
@@ -1924,6 +1924,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
 }
 
 .header {
