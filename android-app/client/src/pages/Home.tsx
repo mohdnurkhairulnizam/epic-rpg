@@ -34,6 +34,10 @@ export default function Home() {
             </div>
             <span className="header-ore-badge" aria-hidden="true">◆</span>
           </div>
+          <button className="nfc-button" onClick={() => { invoke("openModal", "nfcScanModal"); invoke("startNfcScan", "open"); }} title="Scan NFC Card">
+            <span className="nfc-button-sigil" aria-hidden="true">⌁</span>
+            <span className="nfc-button-copy"><small>NFC CHECKPOINT</small><strong>Scan Card</strong></span>
+          </button>
         </div>
 
         <div id="dashboard" className="tab-content active">
@@ -102,11 +106,6 @@ export default function Home() {
           <div id="profile-content" />
         </div>
       </div>
-
-      <button className="nfc-button" onClick={() => { invoke("openModal", "nfcScanModal"); invoke("startNfcScan", "open"); }} title="Scan NFC Card">
-        <span className="nfc-button-sigil" aria-hidden="true">⌁</span>
-        <span className="nfc-button-copy"><small>NFC CHECKPOINT</small><strong>Scan Card</strong></span>
-      </button>
 
       <div className="bottom-tabs">
         <button className="tab-btn active" data-tab="dashboard" onClick={() => invoke("switchTab", "dashboard")}>
