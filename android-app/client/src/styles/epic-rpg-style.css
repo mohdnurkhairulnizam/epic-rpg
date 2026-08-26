@@ -24,11 +24,13 @@ body {
 
 /* Header */
 .header {
-    padding: 20px;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 10px, transparent 10px 20px), linear-gradient(135deg, #1d4b24 0 50%, #2f7632 50% 100%);
     text-align: center;
     border-bottom: 4px solid #1a1a1a;
-    background: linear-gradient(135deg, #2D5016 0%, #4CAF50 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    box-shadow: inset 4px 4px 0 rgba(255,255,255,.10), inset -4px -4px 0 rgba(0,0,0,.26), 0 4px 0 #151b10;
+    overflow: hidden;
+    padding: 20px;
+    position: relative;
 }
 
 .header h1 {
@@ -44,6 +46,15 @@ body {
     color: #fff;
     opacity: 0.9;
 }
+
+.header-block-rivets { display: flex; justify-content: space-between; left: 10px; position: absolute; right: 10px; top: 8px; }
+.header-block-rivets i { background: #d7ac2d; box-shadow: 2px 2px 0 #51370a; display: block; height: 5px; width: 5px; }
+.header-brand-row { align-items: center; display: grid; grid-template-columns: 36px minmax(0, 1fr) 24px; gap: 10px; position: relative; text-align: left; }
+.header-game-icon { font-size: 23px; filter: drop-shadow(2px 2px 0 rgba(0,0,0,.45)); }
+.header-kicker { color: #ffe16a; display: block; font-family: 'Press Start 2P', cursive; font-size: 7px; letter-spacing: .45px; margin-bottom: 7px; text-shadow: 1px 1px 0 #3b2c08; }
+.header .header-brand-row h1 { font-size: 18px; line-height: 1.25; margin: 0 0 5px; }
+.header .header-brand-row p { color: #e6f5d6; font-size: 10px; opacity: 1; }
+.header-ore-badge { color: #ffe16a; filter: drop-shadow(2px 2px 0 #3b2c08); font-size: 20px; text-align: center; }
 
 /* Tab Content */
 .tab-content {
@@ -626,6 +637,13 @@ body {
     margin-right: 12px;
 }
 
+.emerald-loot-panel { border-image: linear-gradient(90deg, #1a1a1a 0 30%, #48a54c 30% 36%, #1a1a1a 36% 70%, #6be06f 70% 76%, #1a1a1a 76%) 1; }
+.emerald-loot-controls { align-items: end; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) 112px; margin: 12px 0 6px; }
+.emerald-loot-controls .setting-range { align-items: center; display: grid; gap: 7px; grid-template-columns: auto minmax(0, 1fr) 38px; }
+.emerald-loot-controls .setting-range strong { color: #2f7632; font-family: 'Press Start 2P', cursive; font-size: 8px; text-align: right; }
+.emerald-loot-controls .setting-label { display: grid; gap: 6px; font-size: 10px; }
+.emerald-loot-controls .setting-input { margin: 0; width: 100%; }
+
 .arena-settings-panel .notification-action-grid,
 .arena-settings-panel .phone-notification-status,
 .arena-settings-panel .setting-range {
@@ -816,8 +834,11 @@ body {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 8px;
+    max-height: 260px;
     margin-top: 10px;
     margin-bottom: 15px;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .avatar-option {

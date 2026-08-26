@@ -227,6 +227,12 @@ const AVATAR_LIST = [
     { id: 'avatar_m_20', path: '/mobile-assets/avatar_m_20_7ad306b2.png' }
 ];
 
+const COMPLETED_BONUS_AVATAR_NUMBERS = [1, 17, 18, 19, 20];
+for (const number of COMPLETED_BONUS_AVATAR_NUMBERS) {
+    const padded = String(number).padStart(2, '0');
+    AVATAR_LIST.push({ id: `avatar_bonus_${padded}`, path: `/mobile-assets/avatar_bonus_${padded}.png` });
+}
+
 const BADGE_ASSETS = {
     "ancient-debris": "/mobile-assets/ancient-debris_fb9a7d47.png",
     "coal-ore": "/mobile-assets/coal-ore_607de9f7.png",
@@ -261,7 +267,10 @@ let appState = {
     currentProfileChildId: null,
     soundEnabled: true,
     soundVolume: 0.65,
-    notificationsEnabled: true
+    notificationsEnabled: true,
+    emeraldLootEnabled: true,
+    emeraldLootTokens: 3,
+    emeraldLootChance: 0.25
 };
 
 let selectedAvatarId = 'avatar_m_1';
@@ -273,6 +282,9 @@ function loadData() {
         appState.soundEnabled = appState.soundEnabled !== false;
         appState.soundVolume = Number.isFinite(appState.soundVolume) ? Math.min(1, Math.max(0, appState.soundVolume)) : 0.65;
         appState.notificationsEnabled = appState.notificationsEnabled !== false;
+        appState.emeraldLootEnabled = appState.emeraldLootEnabled !== false;
+        appState.emeraldLootTokens = Number.isFinite(appState.emeraldLootTokens) ? Math.max(0, Math.floor(appState.emeraldLootTokens)) : 3;
+        appState.emeraldLootChance = Number.isFinite(appState.emeraldLootChance) ? Math.min(1, Math.max(0, appState.emeraldLootChance)) : 0.25;
         appState.children = Array.isArray(appState.children) ? appState.children : [];
         appState.treasures = Array.isArray(appState.treasures) ? appState.treasures : [];
         appState.children.forEach(child => {
@@ -993,7 +1005,9 @@ function approveQuest(childId, questInstanceId) {
     if (!child || !quest || !ongoingQuest) return;
     
     const age = calculateAge(child.dateOfBirth);
-    const tokensEarned = calculateTokens(quest.baseTokenReward, age, child.currentQMLTier, child.qmlType);
+    const questTokens = calculateTokens(quest.baseTokenReward, age, child.currentQMLTier, child.qmlType);
+    const emeraldLootTokens = appState.emeraldLootEnabled && Math.random() < appState.emeraldLootChance ? appState.emeraldLootTokens : 0;
+    const tokensEarned = questTokens + emeraldLootTokens;
     
     child.tokens += tokensEarned;
     child.questHistory.push({
@@ -1003,6 +1017,8 @@ function approveQuest(childId, questInstanceId) {
         baseTokens: quest.baseTokenReward,
         ageMultiplier: getAgeMultiplier(age),
         qmlBonus: getQMLBonus(child.currentQMLTier) * 100,
+        questTokens,
+        emeraldLootTokens,
         tokensEarned,
         completedDate: ongoingQuest.completedDate,
         approvedDate: new Date().toISOString().split('T')[0]
@@ -1013,8 +1029,10 @@ function approveQuest(childId, questInstanceId) {
     updateBadgeProgress(child, 'tokens_earned', tokensEarned);
     
     saveData();
-    showNotification(`Quest approved! ${tokensEarned} tokens`, 'success');
-    window.dispatchEvent(new CustomEvent('epic-task-completed', { detail: { childId, childName: child.name, questId: quest.id, questName: quest.name, tokensEarned } }));
+    const lootMessage = emeraldLootTokens > 0 ? ` Emerald Loot Drop! +${emeraldLootTokens} bonus tokens.` : '';
+    showNotification(`Quest approved! ${tokensEarned} tokens.${lootMessage}`, 'success');
+    window.dispatchEvent(new CustomEvent('epic-task-completed', { detail: { childId, childName: child.name, questId: quest.id, questName: quest.name, tokensEarned, emeraldLootTokens } }));
+    if (emeraldLootTokens > 0) window.dispatchEvent(new CustomEvent('epic-achievement-earned', { detail: { type: 'emerald-loot-drop', childId, childName: child.name, tokens: emeraldLootTokens } }));
     renderChildProfile();
 }
 
@@ -1471,6 +1489,19 @@ function renderSettings() {
             </div>
         </div>
     `;
+
+    html += `
+        <div class="profile-section arena-settings-panel emerald-loot-panel">
+            <div class="profile-section-title">💚 Emerald Loot Drop</div>
+            <p class="setting-help">A random quest-completion bonus that turns a normal mission into a rare reward drop.</p>
+            <label class="setting-toggle"><input type="checkbox" ${appState.emeraldLootEnabled !== false ? 'checked' : ''} onchange="updateEmeraldLootEnabled(this.checked)"> Enable Emerald Loot Drops</label>
+            <div class="emerald-loot-controls">
+                <label class="setting-range">Drop chance <input type="range" min="0.05" max="1" step="0.05" value="${appState.emeraldLootChance ?? 0.25}" oninput="updateEmeraldLootChance(this.value)"><strong>${Math.round((appState.emeraldLootChance ?? 0.25) * 100)}%</strong></label>
+                <label class="setting-label">Bonus tokens <input type="number" class="setting-input" min="0" step="1" value="${appState.emeraldLootTokens ?? 3}" onchange="updateEmeraldLootTokens(this.value)"></label>
+            </div>
+            <p class="setting-help">Default: 25% chance to grant <strong>+3 tokens</strong> after a quest is approved. Both values are yours to set.</p>
+        </div>
+    `;
     
     html += `
         <div class="profile-section feedback-settings arena-settings-panel">
@@ -1682,6 +1713,24 @@ function updateQMLTierName(category, tierId, newName) {
 }
 
 function updateBirthdayReward(value) { appState.birthdayTokenReward = parseInt(value); saveData(); }
+
+function updateEmeraldLootEnabled(value) {
+    appState.emeraldLootEnabled = Boolean(value);
+    saveData();
+    renderSettings();
+}
+
+function updateEmeraldLootTokens(value) {
+    appState.emeraldLootTokens = Math.max(0, Math.floor(Number(value) || 0));
+    saveData();
+}
+
+function updateEmeraldLootChance(value) {
+    appState.emeraldLootChance = Math.min(1, Math.max(0.05, Number(value) || 0.25));
+    saveData();
+    const label = document.querySelector('.emerald-loot-controls .setting-range strong');
+    if (label) label.textContent = `${Math.round(appState.emeraldLootChance * 100)}%`;
+}
 
 function updateSoundEnabled(value) {
     appState.soundEnabled = Boolean(value);

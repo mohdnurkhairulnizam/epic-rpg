@@ -22,8 +22,16 @@ export default function Home() {
     <>
       <div className="container">
         <div className="header">
-          <h1>🎮 EPIC RPG</h1>
-          <p>Family Quest &amp; Treasure System</p>
+          <div className="header-block-rivets" aria-hidden="true"><i /><i /><i /><i /></div>
+          <div className="header-brand-row">
+            <span className="header-game-icon" aria-hidden="true">🎮</span>
+            <div>
+              <span className="header-kicker">FAMILY QUEST BOARD</span>
+              <h1>EPIC RPG</h1>
+              <p>Family Quest &amp; Treasure System</p>
+            </div>
+            <span className="header-ore-badge" aria-hidden="true">◆</span>
+          </div>
         </div>
 
         <div id="dashboard" className="tab-content active">
