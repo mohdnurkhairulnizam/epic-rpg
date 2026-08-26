@@ -1,5 +1,6 @@
 // Vanilla HTML5, CSS3, JavaScript (ES6+)
 
+// Quest Arena visual reminder: preserve the Minecraft/pixel hierarchy with clearly separated hero status, achievement, and race information on phone screens.
 // ============================================
 // CUSTOM NOTIFICATIONS
 // ============================================
@@ -237,6 +238,29 @@ const BADGE_ASSETS = {
     "iron-ore": "/mobile-assets/iron-ore_b1d611ca.png",
     "redstone-ore": "/mobile-assets/redstone-ore_053844d6.png"
 };
+
+const BADGE_TIER_ORDER = Object.freeze({
+    'Coal': 1,
+    'Copper': 2,
+    'Iron': 3,
+    'Gold': 4,
+    'Redstone': 5,
+    'Diamond': 6,
+    'Emerald': 7,
+    'Ancient Debris': 8
+});
+
+const BADGE_ICON_BY_CATEGORY = Object.freeze({
+    'Coal': 'coal-ore',
+    'Copper': 'copper-ore',
+    'Iron': 'iron-ore',
+    'Gold': 'gold-ore',
+    'Redstone': 'redstone-ore',
+    'Diamond': 'diamond-ore',
+    'Emerald': 'emerald-ore',
+    'Ancient Debris': 'ancient-debris'
+});
+
 function avatarPath(avatarId) {
     const avatar = AVATAR_LIST.find(item => item.id === avatarId);
     return avatar ? avatar.path : '';
@@ -1298,6 +1322,19 @@ function startTimerUpdates() {
 // ============================================
 // RENDERING FUNCTIONS
 // ============================================
+function getHighestEarnedBadge(child) {
+    return child.badges
+        .filter(badge => badge.earned)
+        .map(badge => ({ progress: badge, definition: appState.badges.find(item => item.id === badge.badgeId) }))
+        .filter(entry => entry.definition)
+        .sort((a, b) => {
+            const tierDifference = (BADGE_TIER_ORDER[b.definition.category] || 0) - (BADGE_TIER_ORDER[a.definition.category] || 0);
+            if (tierDifference !== 0) return tierDifference;
+            const targetDifference = b.definition.targetValue - a.definition.targetValue;
+            if (targetDifference !== 0) return targetDifference;
+            return a.definition.name.localeCompare(b.definition.name);
+        })[0] || null;
+}
 
 function renderDashboard() {
     const container = document.getElementById('children-list');
@@ -1310,6 +1347,16 @@ function renderDashboard() {
         const age = calculateAge(child.dateOfBirth);
         const onQuest = child.ongoingQuests.length > 0;
         const enjoyingTreasure = child.activeTreasures.length > 0;
+        const highestBadge = getHighestEarnedBadge(child);
+        const highestBadgeMarkup = highestBadge
+            ? `
+                <div class="dashboard-achievement-icon"><img src="${badgePath(BADGE_ICON_BY_CATEGORY[highestBadge.definition.category])}" alt="${highestBadge.definition.category} badge"></div>
+                <div class="dashboard-achievement-copy"><span>TOP ACHIEVEMENT</span><strong>${highestBadge.definition.name}</strong><small>${highestBadge.definition.category} Badge</small></div>
+            `
+            : `
+                <div class="dashboard-achievement-icon is-unearned">✦</div>
+                <div class="dashboard-achievement-copy"><span>TOP ACHIEVEMENT</span><strong>Badge Hunt Begins</strong><small>Complete a quest to earn the first badge</small></div>
+            `;
         
         let statusHtml = '<div class="child-status-area">';
         if (onQuest) {
@@ -1341,6 +1388,7 @@ function renderDashboard() {
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
                 </div>
                 <img src="${avatarPath(child.avatarId)}" class="child-avatar" alt="Avatar">
+                <div class="dashboard-achievement-ribbon ${highestBadge ? 'is-earned' : 'is-unearned'}">${highestBadgeMarkup}</div>
                 <div class="dashboard-qml-panel">
                     <div class="qml-progress-label">${child.currentQMLTier}</div>
                     <div class="progress-bar">
@@ -1380,7 +1428,7 @@ function renderLeaderboard() {
     }).sort((a, b) => b.weeklyScore - a.weeklyScore || b.weeklyTokens - a.weeklyTokens || a.child.name.localeCompare(b.child.name));
 
     const leader = weeklyRanks[0];
-    const leaderScore = Math.max(leader?.weeklyScore || 0, 1);
+    const activeQuestPointTotal = weeklyRanks.reduce((total, entry) => total + entry.weeklyScore, 0);
     const hasWeeklyActivity = weeklyRanks.some(entry => entry.weeklyScore > 0);
     const rankLabel = index => !hasWeeklyActivity ? (index === 0 ? 'ARENA READY' : 'JOIN THE RACE') : (index === 0 ? 'CHAMPION' : index === 1 ? 'CHALLENGER' : index === 2 ? 'RISING HERO' : 'QUESTER');
     const rankIcon = index => !hasWeeklyActivity ? '⚔️' : (index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '⭐');
@@ -1391,10 +1439,11 @@ function renderLeaderboard() {
                 <div><span class="weekly-arena-kicker">LAST 7 DAYS</span><h3>⚔️ Weekly Quest Arena</h3></div>
                 <span class="weekly-reset-note">Fresh race • recent activity wins</span>
             </div>
-            <p class="weekly-arena-rule">Quest Points: quests ×10, tokens earned, treasures ×6, badges ×12, and active days ×4.</p>
+            <p class="weekly-arena-rule">Quest Points: quests ×10, tokens earned, treasures ×6, badges ×12, and active days ×4. Progress bars show each hero’s share of all active Quest Points — no point cap.</p>
             <div class="weekly-race-list">
                 ${weeklyRanks.map((entry, index) => {
-                    const pace = Math.round((entry.weeklyScore / leaderScore) * 100);
+                    const pointShare = activeQuestPointTotal > 0 ? (entry.weeklyScore / activeQuestPointTotal) * 100 : 0;
+                    const roundedPointShare = Math.round(pointShare);
                     const gapText = !hasWeeklyActivity
                         ? 'Complete a quest to claim the first lead!'
                         : index === 0
@@ -1406,7 +1455,8 @@ function renderLeaderboard() {
                             <div class="weekly-racer-main">
                                 <div class="weekly-racer-topline"><button class="weekly-racer-name" onclick="openChildProfile('${entry.child.id}')">${entry.child.name}</button><span class="weekly-rank-label">${rankLabel(index)}</span></div>
                                 <div class="weekly-score-line"><strong>${entry.weeklyScore}</strong><span>Quest Points</span><em>${gapText}</em></div>
-                                <div class="weekly-pace-track" aria-label="${entry.child.name} weekly pace"><div class="weekly-pace-fill" style="width: ${pace}%"></div></div>
+                                <div class="weekly-pace-track" aria-label="${entry.child.name} holds ${roundedPointShare}% of active Quest Points"><div class="weekly-pace-fill" style="width: ${pointShare.toFixed(2)}%"></div></div>
+                                <div class="weekly-share-caption"><span>ARENA SHARE</span><strong>${roundedPointShare}% of ${activeQuestPointTotal} active Quest Points</strong></div>
                                 <div class="weekly-stat-grid">
                                     <span>⚔️ ${entry.weeklyQuests} quests</span><span>💰 ${entry.weeklyTokens} earned</span><span>🎁 ${entry.weeklyTreasures} rewards</span><span>🔥 ${entry.activeDays} active days</span>
                                 </div>
@@ -1573,27 +1623,26 @@ function renderChildProfile() {
     html += `
         <div class="profile-section child-profile-status-panel">
             <div class="profile-section-title">Status</div>
-            <div style="font-size: 12px; margin-bottom: 10px;">
-                <div style="margin-bottom: 8px;"><strong>Tokens:</strong> 💰 ${child.tokens}</div>
-                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
-                    <strong>QML Type:</strong>
-                    <select onchange="changeQMLType('${child.id}', this.value)" style="padding: 4px;">
+            <div class="child-status-content">
+                <div class="status-resource-grid">
+                    <div class="status-resource-tile status-token-tile"><span>REWARD CHEST</span><strong>💰 ${child.tokens}</strong><small>Tokens ready</small></div>
+                    <div class="status-resource-tile status-tier-tile"><span>CURRENT TIER</span><strong>${child.currentQMLTier}</strong><small>${child.qmlType}</small></div>
+                </div>
+                <label class="status-qml-type-control"><span>QML PATH</span>
+                    <select onchange="changeQMLType('${child.id}', this.value)">
                         <option value="Juz Amma" ${child.qmlType === 'Juz Amma' ? 'selected' : ''}>Juz Amma</option>
                         <option value="Al-Quran" ${child.qmlType === 'Al-Quran' ? 'selected' : ''}>Al-Quran</option>
                     </select>
-                </div>
-                <div style="margin-bottom: 8px;"><strong>Current Tier:</strong> ${child.currentQMLTier}</div>
-                <div style="margin-bottom: 12px;">
-                    <strong style="display: block; margin-bottom: 8px;">QML Progress:</strong>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
-                        <div style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 0 10px;">
-                            <div style="flex: 1; height: 16px; background: #1a1a1a; border: 2px solid #1a1a1a; position: relative; overflow: hidden;">
-                                <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${(child.currentQMLProgress / getQMLMaxValue(child.qmlType)) * 100}%; transition: width 0.2s;"></div>
-                            </div>
-                            <span style="font-weight: bold; min-width: 40px; text-align: center;">${child.currentQMLProgress}/${getQMLMaxValue(child.qmlType)}</span>
+                </label>
+                <div class="status-progress-board">
+                    <div class="status-progress-heading"><span>QML PROGRESS</span><strong>RECITATION MILESTONE</strong></div>
+                    <div class="status-progress-controls">
+                        <button class="btn btn-progress-control" aria-label="Decrease QML progress for ${child.name}" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
+                        <div class="status-progress-track" role="progressbar" aria-label="${child.name} QML progress" aria-valuemin="0" aria-valuemax="${getQMLMaxValue(child.qmlType)}" aria-valuenow="${child.currentQMLProgress}">
+                            <div class="status-progress-fill" style="width: ${(child.currentQMLProgress / getQMLMaxValue(child.qmlType)) * 100}%;"></div>
+                            <span>${child.currentQMLProgress}/${getQMLMaxValue(child.qmlType)}</span>
                         </div>
-                        <button class="btn btn-progress-control" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} + 1)">+</button>
+                        <button class="btn btn-progress-control" aria-label="Increase QML progress for ${child.name}" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} + 1)">+</button>
                     </div>
                 </div>
             </div>
