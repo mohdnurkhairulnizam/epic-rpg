@@ -1,6 +1,8 @@
 // EPIC RPG audio contract: local Web Audio cue sets create a light Minecraft-inspired pixel adventure feel without adding media files or cloud dependencies.
 import { Capacitor } from "@capacitor/core";
 
+// Quest Arena feedback reminder: rare parent-awarded rewards use a bright, compact enchanted cadence that remains subject to the app's sound preferences.
+
 let audioContext: AudioContext | null = null;
 let audioUnlocked = false;
 
@@ -89,6 +91,11 @@ function playAchievement() {
   playPattern([[523, 0.07, 0, "triangle", 0.7], [659, 0.07, 0.075, "triangle", 0.75], [784, 0.08, 0.15, "triangle", 0.85], [1047, 0.1, 0.23, "triangle", 0.95], [1319, 0.26, 0.33, "sine", 1]]);
 }
 
+function playQuestmasterBoon() {
+  // Questmaster's Boon: warm coin-like chime with a final enchanted sparkle.
+  playPattern([[659, 0.06, 0, "triangle", 0.7], [784, 0.065, 0.075, "triangle", 0.78], [1047, 0.08, 0.15, "triangle", 0.88], [1319, 0.22, 0.24, "sine", 1]]);
+}
+
 function playTreasureClaimed() {
   // Coin pickup: two quick metallic pings, then a glittering high note.
   playPattern([[988, 0.06, 0, "square", 0.7], [1319, 0.065, 0.075, "square", 0.8], [1760, 0.16, 0.16, "triangle", 1]]);
@@ -140,6 +147,7 @@ export function registerNativeFeedback() {
 
   window.addEventListener("epic-task-completed", playTaskCompleted);
   window.addEventListener("epic-achievement-earned", playAchievement);
+  window.addEventListener("epic-questmaster-boon", playQuestmasterBoon);
   window.addEventListener("epic-treasure-claimed", playTreasureClaimed);
   window.addEventListener("epic-treasure-ended", playTimerEnded);
   window.addEventListener("epic-nfc-success", playNfcSuccess);

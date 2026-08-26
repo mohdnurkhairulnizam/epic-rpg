@@ -2,6 +2,8 @@
 import { useEffect } from "react";
 import "../styles/epic-rpg-style.css";
 
+// Quest Arena visual reminder: preserve the pixel-material hierarchy in global floating actions with a compact checkpoint marker and clear two-line label.
+
 const invoke = (name: string, ...args: unknown[]) => {
   const fn = (window as any)[name];
   if (typeof fn === "function") fn(...args);
@@ -102,7 +104,8 @@ export default function Home() {
       </div>
 
       <button className="nfc-button" onClick={() => { invoke("openModal", "nfcScanModal"); invoke("startNfcScan", "open"); }} title="Scan NFC Card">
-        📱 Scan Card
+        <span className="nfc-button-sigil" aria-hidden="true">⌁</span>
+        <span className="nfc-button-copy"><small>NFC CHECKPOINT</small><strong>Scan Card</strong></span>
       </button>
 
       <div className="bottom-tabs">

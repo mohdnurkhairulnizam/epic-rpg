@@ -288,7 +288,8 @@ let appState = {
     notificationsEnabled: true,
     emeraldLootEnabled: true,
     emeraldLootTokens: 3,
-    emeraldLootChance: 0.25
+    emeraldLootChance: 0.25,
+    questmasterBlessingTokens: 5
 };
 
 let selectedAvatarId = 'avatar_m_1';
@@ -303,10 +304,12 @@ function loadData() {
         appState.emeraldLootEnabled = appState.emeraldLootEnabled !== false;
         appState.emeraldLootTokens = Number.isFinite(appState.emeraldLootTokens) ? Math.max(0, Math.floor(appState.emeraldLootTokens)) : 3;
         appState.emeraldLootChance = Number.isFinite(appState.emeraldLootChance) ? Math.min(1, Math.max(0, appState.emeraldLootChance)) : 0.25;
+        appState.questmasterBlessingTokens = Number.isFinite(appState.questmasterBlessingTokens) ? Math.max(1, Math.floor(appState.questmasterBlessingTokens)) : 5;
         appState.children = Array.isArray(appState.children) ? appState.children : [];
         appState.treasures = Array.isArray(appState.treasures) ? appState.treasures : [];
         appState.children.forEach(child => {
             child.activeTreasures = Array.isArray(child.activeTreasures) ? child.activeTreasures : [];
+            child.blessingHistory = Array.isArray(child.blessingHistory) ? child.blessingHistory : [];
             child.activeTreasures.forEach(treasure => {
                 if (!treasure.endAt) treasure.endAt = Date.now() + Math.max(0, treasure.timeRemaining || 0) * 1000;
                 if (!treasure.notificationKey) treasure.notificationKey = generateId();
@@ -931,6 +934,26 @@ function requestQuestFromPlay(questId) {
     document.body.appendChild(modal);
 }
 
+function grantQuestmasterBlessing(childId) {
+    const child = appState.children.find(item => item.id === childId);
+    const tokens = Math.max(1, Math.floor(appState.questmasterBlessingTokens ?? 5));
+    if (!child) {
+        showNotification('Choose a hero profile before granting a blessing.', 'error');
+        return;
+    }
+    child.tokens += tokens;
+    child.blessingHistory = Array.isArray(child.blessingHistory) ? child.blessingHistory : [];
+    child.blessingHistory.push({ grantedAt: new Date().toISOString(), tokens, source: 'questmaster_boon' });
+    updateBadgeProgress(child, 'tokens_earned', tokens);
+    saveData();
+    renderPlay();
+    renderDashboard();
+    if (appState.currentProfileChildId === child.id) renderChildProfile();
+    showNotification(`Questmaster's Boon granted: ${child.name} received +${tokens} tokens!`, 'success');
+    window.dispatchEvent(new CustomEvent('epic-questmaster-boon', { detail: { childId, childName: child.name, tokens } }));
+    showQuestmasterBlessingPopup(child.name, tokens);
+}
+
 function confirmMultiQuestAssignmentAndClose(questId) {
     confirmMultiQuestAssignment(questId);
     closeModal('assignQuestModal');
@@ -1435,13 +1458,16 @@ function renderLeaderboard() {
 
     statsContainer.innerHTML = `
         <section class="weekly-arena" aria-label="Weekly Quest Arena">
-            <div class="weekly-arena-heading">
-                <div><span class="weekly-arena-kicker">LAST 7 DAYS</span><h3>⚔️ Weekly Quest Arena</h3></div>
-                <span class="weekly-reset-note">Fresh race • recent activity wins</span>
+            <div class="weekly-arena-intro">
+                <div class="weekly-arena-heading">
+                    <div><span class="weekly-arena-kicker">LAST 7 DAYS</span><h3>⚔️ Weekly Quest Arena</h3></div>
+                    <span class="weekly-reset-note">Fresh race • recent activity wins</span>
+                </div>
+                <p class="weekly-arena-rule">Quest Points: quests ×10, tokens earned, treasures ×6, badges ×12, and active days ×4. Progress bars show each hero’s share of all active Quest Points — no point cap.</p>
             </div>
-            <p class="weekly-arena-rule">Quest Points: quests ×10, tokens earned, treasures ×6, badges ×12, and active days ×4. Progress bars show each hero’s share of all active Quest Points — no point cap.</p>
-            <div class="weekly-race-list">
-                ${weeklyRanks.map((entry, index) => {
+            <div class="weekly-race-board">
+                <div class="weekly-race-list">
+                    ${weeklyRanks.map((entry, index) => {
                     const pointShare = activeQuestPointTotal > 0 ? (entry.weeklyScore / activeQuestPointTotal) * 100 : 0;
                     const roundedPointShare = Math.round(pointShare);
                     const gapText = !hasWeeklyActivity
@@ -1463,7 +1489,8 @@ function renderLeaderboard() {
                             </div>
                         </article>
                     `;
-                }).join('')}
+                    }).join('')}
+                </div>
             </div>
         </section>
     `;
@@ -1471,11 +1498,19 @@ function renderLeaderboard() {
 
 function renderPlay() {
     const container = document.getElementById('quests-list');
+    const blessingTokens = appState.questmasterBlessingTokens ?? 5;
+    const blessingPanel = `
+        <section class="questmaster-blessing-panel" aria-label="Questmaster's Boon">
+            <div class="questmaster-blessing-header"><span>✦ QUESTMASTER'S BOON</span><strong>Direct token blessing</strong><em>+${blessingTokens} tokens each</em></div>
+            <p>Choose a hero to receive a parent-awarded token grant. Blessings are saved locally, progress token badges, and do not add Quest Points to the weekly race.</p>
+            ${appState.children.length === 0 ? '<div class="questmaster-blessing-empty">Add a hero profile before granting a blessing.</div>' : `<div class="questmaster-blessing-targets">${appState.children.map(child => `<button class="questmaster-blessing-target" onclick="grantQuestmasterBlessing('${child.id}')" aria-label="Grant ${blessingTokens} token Questmaster's Blessing to ${child.name}"><img src="${avatarPath(child.avatarId)}" alt=""><span><strong>${child.name}</strong><small>Current balance: ${child.tokens} tokens</small></span><b>+${blessingTokens}</b></button>`).join('')}</div>`}
+        </section>
+    `;
     if (appState.quests.length === 0) {
-        container.innerHTML = '<div class="empty-state">No quests yet.</div>';
+        container.innerHTML = `${blessingPanel}<div class="empty-state">No quests yet.</div>`;
         return;
     }
-    container.innerHTML = appState.quests.map(quest => `
+    container.innerHTML = blessingPanel + appState.quests.map(quest => `
         <article class="quest-card arena-item-card">
             <div class="quest-header arena-item-topline" style="position: relative;">
                 <div class="quest-type">${quest.type}</div>
@@ -1547,6 +1582,14 @@ function renderSettings() {
                 <label class="emerald-control-row emerald-token-control"><span class="emerald-control-label">Bonus tokens</span><input type="number" class="setting-input" min="0" step="1" value="${appState.emeraldLootTokens ?? 3}" onchange="updateEmeraldLootTokens(this.value)"></label>
             </div>
             <p class="setting-help">Default: 25% chance to grant <strong>+3 tokens</strong> after a quest is approved. Both values are yours to set.</p>
+        </div>
+    `;
+
+    html += `
+        <div class="profile-section arena-settings-panel questmaster-blessing-settings">
+            <div class="profile-section-title">✦ Questmaster's Boon</div>
+            <p class="setting-help">A direct parent-awarded token blessing from the Quest tab. It raises token and badge progress without adding a completed quest or Weekly Quest Points.</p>
+            <label class="blessing-setting-row"><span>Tokens per blessing</span><input type="number" class="setting-input" min="1" step="1" value="${appState.questmasterBlessingTokens ?? 5}" onchange="updateQuestmasterBlessingTokens(this.value)"></label>
         </div>
     `;
     
@@ -1778,6 +1821,13 @@ function updateEmeraldLootChance(value) {
     if (label) label.textContent = `${Math.round(appState.emeraldLootChance * 100)}%`;
 }
 
+function updateQuestmasterBlessingTokens(value) {
+    appState.questmasterBlessingTokens = Math.max(1, Math.floor(Number(value) || 1));
+    saveData();
+    renderSettings();
+    renderPlay();
+}
+
 function updateSoundEnabled(value) {
     appState.soundEnabled = Boolean(value);
     saveData();
@@ -1871,7 +1921,7 @@ function testFeedbackSound() {
 function masterReset() {
     if (confirm('Master Reset: This will reset tokens, history, and ALL badge progress for all children. Continue?')) {
         appState.children.forEach(child => {
-            child.tokens = 0; child.questHistory = []; child.treasureHistory = []; child.ongoingQuests = []; child.activeTreasures = [];
+            child.tokens = 0; child.questHistory = []; child.treasureHistory = []; child.blessingHistory = []; child.ongoingQuests = []; child.activeTreasures = [];
             child.badges = appState.badges.map(b => ({ badgeId: b.id, progress: 0, earned: false }));
         });
         saveData();
@@ -1947,6 +1997,22 @@ function showTierMilestonePopup(childName, tierName, category = 'Juz Amma') {
     setTimeout(() => {
         if (popup.parentNode) popup.remove();
     }, 5000);
+}
+
+function showQuestmasterBlessingPopup(childName, tokens) {
+    document.getElementById('questmasterBlessingPopup')?.remove();
+    const popup = document.createElement('div');
+    popup.id = 'questmasterBlessingPopup';
+    popup.className = 'questmaster-blessing-popup';
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-modal', 'true');
+    popup.setAttribute('aria-label', "Questmaster's Boon granted");
+    popup.innerHTML = `<div class="questmaster-blessing-popup-content"><div class="questmaster-blessing-sparkles" aria-hidden="true">✦ ✧ ✦</div><div class="questmaster-blessing-gift" aria-hidden="true">🎁</div><p class="questmaster-blessing-kicker">QUESTMASTER'S BOON</p><h3>+${tokens} TOKENS</h3><strong>${childName}</strong><span>A bright blessing has reached this hero.</span><button class="btn questmaster-blessing-close" onclick="closeQuestmasterBlessingPopup()">Continue</button></div>`;
+    document.body.appendChild(popup);
+}
+
+function closeQuestmasterBlessingPopup() {
+    document.getElementById('questmasterBlessingPopup')?.remove();
 }
 
 
