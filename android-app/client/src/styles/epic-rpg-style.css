@@ -638,11 +638,13 @@ body {
 }
 
 .emerald-loot-panel { border-image: linear-gradient(90deg, #1a1a1a 0 30%, #48a54c 30% 36%, #1a1a1a 36% 70%, #6be06f 70% 76%, #1a1a1a 76%) 1; }
-.emerald-loot-controls { align-items: end; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) 112px; margin: 12px 0 6px; }
-.emerald-loot-controls .setting-range { align-items: center; display: grid; gap: 7px; grid-template-columns: auto minmax(0, 1fr) 38px; }
-.emerald-loot-controls .setting-range strong { color: #2f7632; font-family: 'Press Start 2P', cursive; font-size: 8px; text-align: right; }
-.emerald-loot-controls .setting-label { display: grid; gap: 6px; font-size: 10px; }
-.emerald-loot-controls .setting-input { margin: 0; width: 100%; }
+.emerald-loot-controls { display: grid; gap: 12px; margin: 12px 0 8px; }
+.emerald-control-row { display: grid; gap: 7px; margin: 0; }
+.emerald-control-label { color: #2D5016; font-family: 'Press Start 2P', cursive; font-size: 9px; line-height: 1.45; }
+.emerald-slider-row { align-items: center; background: #dfe5d6; border: 2px solid #1a1a1a; box-shadow: inset -2px -2px 0 #c1c8b7, inset 2px 2px 0 #fff; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) 46px; min-width: 0; padding: 9px; }
+.emerald-slider-row input { margin: 0; min-width: 0; width: 100%; }
+.emerald-loot-percent { color: #2f7632; font-family: 'Press Start 2P', cursive; font-size: 9px; text-align: right; white-space: nowrap; }
+.emerald-token-control .setting-input { background: #fff; border: 2px solid #1a1a1a; box-sizing: border-box; font-size: 16px; margin: 0; min-height: 42px; padding: 8px 10px; width: 100%; }
 
 .arena-settings-panel .notification-action-grid,
 .arena-settings-panel .phone-notification-status,

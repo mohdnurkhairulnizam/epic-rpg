@@ -227,12 +227,6 @@ const AVATAR_LIST = [
     { id: 'avatar_m_20', path: '/mobile-assets/avatar_m_20_7ad306b2.png' }
 ];
 
-const COMPLETED_BONUS_AVATAR_NUMBERS = [1, 17, 18, 19, 20];
-for (const number of COMPLETED_BONUS_AVATAR_NUMBERS) {
-    const padded = String(number).padStart(2, '0');
-    AVATAR_LIST.push({ id: `avatar_bonus_${padded}`, path: `/mobile-assets/avatar_bonus_${padded}.png` });
-}
-
 const BADGE_ASSETS = {
     "ancient-debris": "/mobile-assets/ancient-debris_fb9a7d47.png",
     "coal-ore": "/mobile-assets/coal-ore_607de9f7.png",
@@ -1496,8 +1490,11 @@ function renderSettings() {
             <p class="setting-help">A random quest-completion bonus that turns a normal mission into a rare reward drop.</p>
             <label class="setting-toggle"><input type="checkbox" ${appState.emeraldLootEnabled !== false ? 'checked' : ''} onchange="updateEmeraldLootEnabled(this.checked)"> Enable Emerald Loot Drops</label>
             <div class="emerald-loot-controls">
-                <label class="setting-range">Drop chance <input type="range" min="0.05" max="1" step="0.05" value="${appState.emeraldLootChance ?? 0.25}" oninput="updateEmeraldLootChance(this.value)"><strong>${Math.round((appState.emeraldLootChance ?? 0.25) * 100)}%</strong></label>
-                <label class="setting-label">Bonus tokens <input type="number" class="setting-input" min="0" step="1" value="${appState.emeraldLootTokens ?? 3}" onchange="updateEmeraldLootTokens(this.value)"></label>
+                <div class="emerald-control-row">
+                    <span class="emerald-control-label">Drop chance</span>
+                    <div class="emerald-slider-row"><input type="range" min="0.05" max="1" step="0.05" value="${appState.emeraldLootChance ?? 0.25}" oninput="updateEmeraldLootChance(this.value)"><strong class="emerald-loot-percent">${Math.round((appState.emeraldLootChance ?? 0.25) * 100)}%</strong></div>
+                </div>
+                <label class="emerald-control-row emerald-token-control"><span class="emerald-control-label">Bonus tokens</span><input type="number" class="setting-input" min="0" step="1" value="${appState.emeraldLootTokens ?? 3}" onchange="updateEmeraldLootTokens(this.value)"></label>
             </div>
             <p class="setting-help">Default: 25% chance to grant <strong>+3 tokens</strong> after a quest is approved. Both values are yours to set.</p>
         </div>
@@ -1728,7 +1725,7 @@ function updateEmeraldLootTokens(value) {
 function updateEmeraldLootChance(value) {
     appState.emeraldLootChance = Math.min(1, Math.max(0.05, Number(value) || 0.25));
     saveData();
-    const label = document.querySelector('.emerald-loot-controls .setting-range strong');
+    const label = document.querySelector('.emerald-loot-percent');
     if (label) label.textContent = `${Math.round(appState.emeraldLootChance * 100)}%`;
 }
 
