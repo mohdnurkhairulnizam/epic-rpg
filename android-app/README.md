@@ -12,8 +12,8 @@ The first Android release is intentionally **local-only**. Data is stored inside
 
 - App name: `EPIC RPG Family Quest`
 - Android package: `com.epicrpg.familyquest`
-- Version: `1.2.0`
-- Version code: `3`
+- Version: `1.3.0`
+- Version code: `4`
 - Compile/target SDK: `36`
 - Minimum SDK: `24`
 
@@ -83,6 +83,10 @@ The Play and Shop destructive card controls are now labeled **Delete** with a tr
 
 Open the app’s Settings screen and press **Allow Precise Screen-Off Alarms**. Android opens the EPIC RPG **Alarms & reminders** permission page. Turn the permission on, return to EPIC RPG, and resume or reclaim the treasure so it is scheduled again using exact timing. Also confirm that Android notifications are allowed for the app, that the **Treasure timers** channel is not silent, and that Do Not Disturb or a manufacturer battery-saving mode is not suppressing alerts. If exact-alarm access is declined, Android may delay an inexact alert until the device wakes.
 
+
+## NFC child-focus quest and reward actions
+
+After scanning a linked card, the child-focus window shows the child’s ongoing quests and active reward timers. An in-progress quest can be marked complete from this window; it changes to pending approval and reuses the normal parent approval flow. Active treasure timers show the reward name, countdown, progress bar, and paused/active status, refreshing with the existing local timer loop.
 
 ## NFC card-linked child access
 

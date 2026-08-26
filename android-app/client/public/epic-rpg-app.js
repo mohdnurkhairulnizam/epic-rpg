@@ -659,13 +659,78 @@ function processNFCCard(value) {
     }
 }
 
+function renderNfcOngoingQuests(child) {
+    if (!child.ongoingQuests.length) return '<div class="empty-state">No ongoing quests.</div>';
+    return child.ongoingQuests.map(ongoingQuest => {
+        const quest = appState.quests.find(item => item.id === ongoingQuest.questId);
+        const questName = quest ? quest.name : 'Quest';
+        const isPending = ongoingQuest.status === 'pending_approval';
+        return `
+            <div class="nfc-quest-row ${isPending ? 'nfc-quest-pending' : ''}">
+                <div><strong>⚔️ ${questName}</strong><small>${isPending ? 'Waiting for parent approval' : 'In progress'}</small></div>
+                ${isPending ? '<span class="nfc-status-pill">Pending</span>' : `<button class="btn btn-small nfc-complete-button" onclick="markQuestCompleteFromNfc('${child.id}', '${ongoingQuest.instanceId}')">✓ Mark Complete</button>`}
+            </div>
+        `;
+    }).join('');
+}
+
+function renderNfcActiveRewards(child) {
+    if (!child.activeTreasures.length) return '<div class="empty-state">No active reward timers.</div>';
+    return child.activeTreasures.map(activeTreasure => {
+        const treasure = appState.treasures.find(item => item.id === activeTreasure.treasureId);
+        const remaining = activeTreasure.isPaused ? activeTreasure.timeRemaining : Math.max(0, Math.ceil(((activeTreasure.endAt || Date.now()) - Date.now()) / 1000));
+        const percent = activeTreasure.timerDuration ? Math.max(0, Math.min(100, (remaining / activeTreasure.timerDuration) * 100)) : 0;
+        return `
+            <div class="nfc-reward-timer-row">
+                <div class="nfc-reward-timer-heading"><strong>🎁 ${treasure ? treasure.name : 'Reward'}</strong><strong>⏱️ ${formatTime(remaining)}</strong></div>
+                <div class="nfc-reward-timer-bar"><div style="width: ${percent}%"></div></div>
+                <small>${activeTreasure.isPaused ? 'Paused' : 'Active reward timer'}</small>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderNfcQuestRequests(child) {
+    return appState.quests.length === 0 ? '<div class="empty-state">No quests available.</div>' : appState.quests.map(quest => `
+        <button class="btn btn-small nfc-action-button" onclick="requestQuestFromNfc('${child.id}', '${quest.id}')">
+            <span>⚔️ ${quest.name}</span><strong>+${quest.baseTokenReward} tokens</strong>
+        </button>
+    `).join('');
+}
+
+function renderNfcEligibleTreasures(child) {
+    const availableTreasures = appState.treasures.filter(treasure => child.tokens >= treasure.costTokens);
+    return availableTreasures.length === 0 ? '<div class="empty-state">No treasure is affordable with the current token count.</div>' : availableTreasures.map(treasure => `
+        <button class="btn btn-small nfc-action-button treasure-action-button" onclick="claimTreasureFromNfc('${child.id}', '${treasure.id}')">
+            <span>🎁 ${treasure.name}</span><strong>${treasure.costTokens} tokens</strong>
+        </button>
+    `).join('');
+}
+
+function refreshNfcChildActionWindow() {
+    const modal = document.getElementById('nfcChildActionModal');
+    if (!modal) return;
+    const child = appState.children.find(c => c.id === modal.dataset.childId);
+    if (!child) return closeModal('nfcChildActionModal');
+    const summary = modal.querySelector('[data-nfc-summary]');
+    if (summary) summary.innerHTML = `<strong>💰 ${child.tokens} Tokens</strong><span>⚔️ ${child.ongoingQuests.length} Ongoing Quest${child.ongoingQuests.length === 1 ? '' : 's'}</span>`;
+    const questRows = modal.querySelector('[data-nfc-ongoing-quests]');
+    if (questRows) questRows.innerHTML = renderNfcOngoingQuests(child);
+    const rewardRows = modal.querySelector('[data-nfc-rewards]');
+    if (rewardRows) rewardRows.innerHTML = renderNfcActiveRewards(child);
+    const requestRows = modal.querySelector('[data-nfc-quest-requests]');
+    if (requestRows) requestRows.innerHTML = renderNfcQuestRequests(child);
+    const treasureRows = modal.querySelector('[data-nfc-eligible-treasures]');
+    if (treasureRows) treasureRows.innerHTML = renderNfcEligibleTreasures(child);
+}
+
 function openNfcChildActionWindow(childId) {
     const child = appState.children.find(c => c.id === childId);
     if (!child) return;
     document.querySelectorAll('#nfcChildActionModal').forEach(modal => modal.remove());
-    const availableTreasures = appState.treasures.filter(treasure => child.tokens >= treasure.costTokens);
     const modal = document.createElement('div');
     modal.id = 'nfcChildActionModal';
+    modal.dataset.childId = child.id;
     modal.className = 'modal';
     modal.innerHTML = `
         <div class="modal-content nfc-child-action-content">
@@ -673,35 +738,37 @@ function openNfcChildActionWindow(childId) {
                 <span>📱 ${child.name}</span>
                 <button type="button" class="claim-treasure-close" aria-label="Close child action window" onclick="closeModal('nfcChildActionModal')">×</button>
             </div>
-            <div class="nfc-child-summary">
+            <div class="nfc-child-summary" data-nfc-summary>
                 <strong>💰 ${child.tokens} Tokens</strong>
                 <span>⚔️ ${child.ongoingQuests.length} Ongoing Quest${child.ongoingQuests.length === 1 ? '' : 's'}</span>
             </div>
             <div class="nfc-action-section">
+                <div class="profile-section-title">Ongoing Quests</div>
+                <div class="nfc-ongoing-quest-list" data-nfc-ongoing-quests>${renderNfcOngoingQuests(child)}</div>
+            </div>
+            <div class="nfc-action-section">
+                <div class="profile-section-title">Active Reward Timers</div>
+                <div class="nfc-reward-timer-list" data-nfc-rewards>${renderNfcActiveRewards(child)}</div>
+            </div>
+            <div class="nfc-action-section">
                 <div class="profile-section-title">Request a New Quest</div>
-                <div class="nfc-action-list">
-                    ${appState.quests.length === 0 ? '<div class="empty-state">No quests available.</div>' : appState.quests.map(quest => `
-                        <button class="btn btn-small nfc-action-button" onclick="requestQuestFromNfc('${child.id}', '${quest.id}')">
-                            <span>⚔️ ${quest.name}</span><strong>+${quest.baseTokenReward} tokens</strong>
-                        </button>
-                    `).join('')}
-                </div>
+                <div class="nfc-action-list" data-nfc-quest-requests>${renderNfcQuestRequests(child)}</div>
             </div>
             <div class="nfc-action-section">
                 <div class="profile-section-title">Claim an Eligible Treasure</div>
-                <div class="nfc-action-list">
-                    ${availableTreasures.length === 0 ? '<div class="empty-state">No treasure is affordable with the current token count.</div>' : availableTreasures.map(treasure => `
-                        <button class="btn btn-small nfc-action-button treasure-action-button" onclick="claimTreasureFromNfc('${child.id}', '${treasure.id}')">
-                            <span>🎁 ${treasure.name}</span><strong>${treasure.costTokens} tokens</strong>
-                        </button>
-                    `).join('')}
-                </div>
+                <div class="nfc-action-list" data-nfc-eligible-treasures>${renderNfcEligibleTreasures(child)}</div>
             </div>
             <div class="modal-buttons"><button class="btn" onclick="closeModal('nfcChildActionModal')">Close</button></div>
         </div>
     `;
     document.body.appendChild(modal);
     modal.classList.add('active');
+}
+
+function markQuestCompleteFromNfc(childId, questInstanceId) {
+    markQuestComplete(childId, questInstanceId);
+    showNotification('Quest marked complete and sent for parent approval.', 'success');
+    refreshNfcChildActionWindow();
 }
 
 function requestQuestFromNfc(childId, questId) {
@@ -1164,6 +1231,7 @@ function startTimerUpdates() {
                     renderDashboard();
                 }
             }
+            refreshNfcChildActionWindow();
         }
     }, 1000);
 }

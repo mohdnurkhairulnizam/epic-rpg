@@ -1616,3 +1616,26 @@ textarea:focus-visible {
         gap: 4px;
     }
 }
+
+/* NFC child-focus extension: preserve the Minecraft/pixel visual language while making quest completion and reward timers readable on small phones. */
+.nfc-ongoing-quest-list,
+.nfc-reward-timer-list { display: grid; gap: 8px; }
+.nfc-quest-row,
+.nfc-reward-timer-row { border: 2px solid #263b22; background: rgba(255,255,255,.88); color: #1e2a17; padding: 9px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.45); }
+.nfc-quest-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.nfc-quest-row > div { min-width: 0; display: grid; gap: 3px; }
+.nfc-quest-row strong { overflow-wrap: anywhere; }
+.nfc-quest-row small,
+.nfc-reward-timer-row small { font-size: 10px; color: #4d5b42; }
+.nfc-quest-pending { background: #fff3bf; }
+.nfc-status-pill { border: 2px solid #6e5718; background: #ffd84d; color: #322400; padding: 4px 7px; font-size: 10px; white-space: nowrap; }
+.nfc-complete-button { min-height: 36px; padding: 7px 10px; background: #2f8c3d; color: #fff; border-color: #173d1b; white-space: nowrap; }
+.nfc-reward-timer-heading { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+.nfc-reward-timer-heading strong:last-child { color: #8a5b00; white-space: nowrap; }
+.nfc-reward-timer-bar { height: 10px; margin: 8px 0 4px; border: 2px solid #263b22; background: #d8ddcb; }
+.nfc-reward-timer-bar > div { height: 100%; background: #e0ad24; transition: width 180ms linear; }
+@media (max-width: 380px) {
+  .nfc-quest-row { align-items: stretch; flex-direction: column; }
+  .nfc-complete-button { width: 100%; }
+  .nfc-reward-timer-heading { font-size: 11px; }
+}

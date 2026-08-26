@@ -81,3 +81,21 @@ The NFC child action window quest-request path worked in preview: selecting a qu
 The NFC scan modal reopened successfully after the first quest request, while the temporary first-child balance remained at 100 tokens. This confirms repeated scan entry remains available after an NFC child action.
 
 With a temporary browser-only balance of 100 tokens, the NFC child action window displayed all four eligible preset treasures and their token costs. This confirms the eligibility filter is based on the scanned child’s current token count.
+
+## NFC Android 1.2.0 release
+
+The NFC-enabled build uses package `com.epicrpg.familyquest`, versionName `1.2`, versionCode `3`, compile/target SDK 36, and minimum SDK 24. `@capgo/capacitor-nfc@8.2.5` is synchronized into the native project. The Android manifest declares optional NFC hardware and the NFC permission. TypeScript validation, Vite production build, Capacitor sync, debug APK build, and release AAB build passed. Manual preview validation covered repeated Scan Card entry, linked-child summary, quest request, token-based treasure filtering, and eligible treasure claim. Physical NFC tag detection, NFC-disabled handling, and device-specific permission behavior still require a phone test. GitHub commit: `bf9129a`.
+
+The updated Android preview reopened the Scan NFC Card modal successfully after the NFC child-window enhancement. The existing manual-ID fallback remains available for browser validation.
+
+The updated NFC child-focus window reopened successfully and retained the child summary and eligible treasure actions. The preview state currently contains one ongoing quest but no active reward timer, so a temporary browser-only quest/timer setup is needed to exercise the new sections.
+
+A temporary browser-only active timer for `TV (30min)` was created with 120 seconds remaining for the first child. This is preview-only validation data and is not part of the Android release or stable website.
+
+The updated preview showed the first child’s active `TV (30min)` reward countdown on Dashboard while the NFC Scan Card modal reopened. This confirms the timer state remains active across repeated NFC entry.
+
+The enhanced NFC child-focus preview showed the first child’s ongoing `Pick up toys` quest with a visible `✓ Mark Complete` button and the active `TV (30min)` reward with a live countdown and progress bar. The modal also retained quest-request and eligible-treasure actions.
+
+## NFC child-focus quest and reward extension
+
+The NFC child-focus window now includes an Ongoing Quests section with a `Mark Complete` action for each in-progress quest and a Pending status after completion. It also includes an Active Reward Timers section with treasure name, remaining time, progress bar, and active/paused status. The preview confirmed the timer counted down and Mark Complete saved the quest as `pending_approval` while keeping the child window open. The timer refreshes every second through the existing app tick and refreshes after child actions.
