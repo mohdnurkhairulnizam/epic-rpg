@@ -1639,3 +1639,29 @@ textarea:focus-visible {
   .nfc-complete-button { width: 100%; }
   .nfc-reward-timer-heading { font-size: 11px; }
 }
+
+/* NFC registration modal: it must sit above the dynamically-created child editor and celebrate a successful read before returning the ID. */
+#nfcScanModal.nfc-registration-modal { z-index: 2200; }
+#nfcScanModal.nfc-registration-modal .modal-content { position: relative; z-index: 2201; }
+#nfcScanModal.nfc-scan-success .modal-content { animation: nfcScanSuccessPop 420ms steps(3, end); }
+#nfcScanModal.nfc-scan-success .nfc-status { animation: nfcScanSuccessGlow 700ms steps(4, end); }
+.nfc-success-card { text-align: center; font-size: 12px; letter-spacing: .2px; animation: nfcCardLinked 650ms steps(4, end); }
+.nfc-success-card strong { color: #1c7d2a; font-size: 14px; }
+@keyframes nfcScanSuccessPop {
+  0% { transform: scale(.96); }
+  40% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes nfcScanSuccessGlow {
+  0%, 100% { box-shadow: inset 0 0 0 2px #4CAF50; }
+  50% { box-shadow: inset 0 0 0 4px #FFD700, 0 0 0 4px rgba(255,215,0,.3); }
+}
+@keyframes nfcCardLinked {
+  0% { opacity: .35; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #nfcScanModal.nfc-scan-success .modal-content,
+  #nfcScanModal.nfc-scan-success .nfc-status,
+  .nfc-success-card { animation: none; }
+}

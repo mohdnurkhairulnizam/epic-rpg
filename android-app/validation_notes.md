@@ -99,3 +99,19 @@ The enhanced NFC child-focus preview showed the first child’s ongoing `Pick up
 ## NFC child-focus quest and reward extension
 
 The NFC child-focus window now includes an Ongoing Quests section with a `Mark Complete` action for each in-progress quest and a Pending status after completion. It also includes an Active Reward Timers section with treasure name, remaining time, progress bar, and active/paused status. The preview confirmed the timer counted down and Mark Complete saved the quest as `pending_approval` while keeping the child window open. The timer refreshes every second through the existing app tick and refreshes after child actions.
+
+## Android 1.3.0 child-focus update
+
+The Android build now uses versionName `1.3`, versionCode `4`. TypeScript validation, Vite production build, Capacitor sync, debug APK build, and release AAB build passed. The APK identity is `com.epicrpg.familyquest`, target SDK 36. Preview validation confirmed the NFC child-focus window shows `Mark Complete` for an in-progress quest, changes it to `pending_approval` while keeping the window open, and shows active reward name, countdown, progress bar, and status. The timer display refreshes through the existing one-second timer loop. GitHub commit: `a3c77b4`.
+
+The Android preview opened the first child profile successfully. The profile displayed the existing NFC card ID and the Edit Profile action, ready for registration-modal layering validation.
+
+The updated Android preview opened the first child’s Edit Child Profile modal and exposed the NFC Detect control. The editor is a body-appended modal, so the NFC registration overlay must explicitly use a higher z-index to remain visible above it.
+
+## NFC edit-registration scan modal fix
+
+Browser preview simulation confirmed that opening NFC registration from Edit Child Profile leaves both dialogs active but assigns `#nfcScanModal` z-index `2200`, above the dynamically-created editor, and sets the status to “Hold the NFC card near the back of the phone to update this child.” The scan modal contains no `Start NFC Scan` button. A simulated native NFC event populated the normalized ID `04DEADBEEF`, set the success status, added the `nfc-scan-success` animation class, dispatched `epic-nfc-success` for the Android sound bridge, and retained the success card briefly before closing.
+
+## NFC registration modal layering and automatic scan fix
+
+Android release 1.3.1/versionCode 5 passed TypeScript validation, Vite build, Capacitor sync, debug APK build, release AAB build, and package identity checks. The child-edit preview simulation confirmed the NFC registration popup receives z-index 2200 and remains visible above the dynamically-created child editor. Opening registration immediately shows the hold-card instruction; the `Start NFC Scan` button is removed. A simulated successful tag event populated the normalized card ID, applied the success animation state, displayed a card-linked confirmation, dispatched the `epic-nfc-success` sound event, and then closed the scan popup after the brief feedback period.

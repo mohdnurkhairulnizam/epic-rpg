@@ -12,12 +12,14 @@ The first Android release is intentionally **local-only**. Data is stored inside
 
 - App name: `EPIC RPG Family Quest`
 - Android package: `com.epicrpg.familyquest`
-- Version: `1.3.0`
-- Version code: `4`
+- Version: `1.3.1`
+- Version code: `5`
 - Compile/target SDK: `36`
 - Minimum SDK: `24`
 
 The Android package name is a permanent Play identity and should be reviewed before the first upload.
+
+The NFC registration scanner opens above the child editor, begins listening automatically, and shows a short success animation plus the NFC success sound before returning the normalized card ID to the form. Manual ID entry remains available as a fallback.
 
 ## Local development
 

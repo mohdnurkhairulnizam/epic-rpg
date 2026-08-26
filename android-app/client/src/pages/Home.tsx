@@ -186,7 +186,6 @@ export default function Home() {
           <span className="close" onClick={() => invoke("closeModal", "nfcScanModal")}>&times;</span>
           <h3>📱 Scan NFC Card</h3>
           <div id="nfc-status" className="nfc-status">Ready to scan...</div>
-          <button className="btn btn-small" onClick={() => invoke("startNfcScan", "open")}>Start NFC Scan</button>
           <div className="nfc-input-group">
             <input type="text" id="nfcCardInput" placeholder="Tap NFC card or enter ID" autoFocus />
             <button className="btn" onClick={() => invoke("processNFCCard")}>Use ID</button>

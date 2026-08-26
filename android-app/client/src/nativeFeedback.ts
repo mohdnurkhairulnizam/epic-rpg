@@ -63,6 +63,10 @@ function playTimerEnded() {
   playPattern([[880, 0.24, 0], [660, 0.24, 0.3], [880, 0.24, 0.6], [660, 0.24, 0.9]], "sawtooth");
 }
 
+function playNfcSuccess() {
+  playPattern([[784, 0.1, 0], [988, 0.1, 0.11], [1319, 0.22, 0.22]], "triangle");
+}
+
 export function registerNativeFeedback() {
   if (Capacitor.getPlatform() !== "android") return;
 
@@ -79,5 +83,6 @@ export function registerNativeFeedback() {
   window.addEventListener("epic-task-completed", playTaskCompleted);
   window.addEventListener("epic-achievement-earned", playAchievement);
   window.addEventListener("epic-treasure-ended", playTimerEnded);
+  window.addEventListener("epic-nfc-success", playNfcSuccess);
   window.addEventListener("epic-test-sound", playAchievement);
 }

@@ -397,7 +397,14 @@ function backToDashboard() {
 }
 
 function openModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    if (modalId === 'nfcScanModal') {
+        modal.classList.add('nfc-registration-modal');
+        modal.style.zIndex = '2200';
+        modal.classList.remove('nfc-scan-success');
+    }
+    modal.classList.add('active');
     if (modalId === 'addChildModal' || modalId === 'editChildModal') {
         renderAvatarGrid(modalId === 'addChildModal' ? 'avatarGrid' : 'editAvatarGrid');
     }
@@ -601,7 +608,7 @@ function detectNFCForAdd() {
     const startScan = window.startNfcScan;
     if (typeof startScan === 'function') {
         openModal('nfcScanModal');
-        showNotification('Hold the NFC card near the back of the phone.', 'success');
+        showNfcScanReadyState('add');
         startScan('add');
         return;
     }
@@ -613,12 +620,40 @@ function detectNFCForEdit() {
     const startScan = window.startNfcScan;
     if (typeof startScan === 'function') {
         openModal('nfcScanModal');
-        showNotification('Hold the NFC card near the back of the phone.', 'success');
+        showNfcScanReadyState('edit');
         startScan('edit');
         return;
     }
     const nfcId = prompt("Enter NFC card ID:");
     if (nfcId) document.getElementById('editChildNFC').value = normalizeNfcCardId(nfcId);
+}
+
+function showNfcScanReadyState(purpose) {
+    const status = document.getElementById('nfc-status');
+    const result = document.getElementById('nfc-result');
+    if (status) {
+        status.className = 'nfc-status scanning';
+        status.textContent = purpose === 'edit'
+            ? 'Hold the NFC card near the back of the phone to update this child.'
+            : 'Hold the NFC card near the back of the phone to register this child.';
+    }
+    if (result) result.innerHTML = '';
+}
+
+function showNfcScanSuccess(nfcId, purpose) {
+    const modal = document.getElementById('nfcScanModal');
+    const status = document.getElementById('nfc-status');
+    const result = document.getElementById('nfc-result');
+    if (modal) modal.classList.add('nfc-scan-success');
+    if (status) {
+        status.className = 'nfc-status success';
+        status.textContent = 'NFC card scanned successfully!';
+    }
+    if (result) {
+        result.className = 'nfc-result success nfc-success-card';
+        result.innerHTML = `<strong>✓ Card linked</strong><br><small>${purpose === 'edit' ? 'Child profile updated' : 'Ready to create child'} · ${nfcId}</small>`;
+    }
+    window.dispatchEvent(new CustomEvent('epic-nfc-success', { detail: { nfcId, purpose } }));
 }
 
 function handleNativeNfcDetected(event) {
@@ -628,15 +663,21 @@ function handleNativeNfcDetected(event) {
     if (detail.purpose === 'add') {
         const input = document.getElementById('childNFC');
         if (input) input.value = nfcId;
-        closeModal('nfcScanModal');
-        showNotification('NFC card captured for this new child.', 'success');
+        showNfcScanSuccess(nfcId, 'add');
+        setTimeout(() => {
+            closeModal('nfcScanModal');
+            showNotification('NFC card captured for this new child.', 'success');
+        }, 850);
         return;
     }
     if (detail.purpose === 'edit') {
         const input = document.getElementById('editChildNFC');
         if (input) input.value = nfcId;
-        closeModal('nfcScanModal');
-        showNotification('NFC card captured for this child profile.', 'success');
+        showNfcScanSuccess(nfcId, 'edit');
+        setTimeout(() => {
+            closeModal('nfcScanModal');
+            showNotification('NFC card captured for this child profile.', 'success');
+        }, 850);
         return;
     }
     const input = document.getElementById('nfcCardInput');
