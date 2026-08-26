@@ -1327,14 +1327,14 @@ function renderDashboard() {
                     <div class="child-name">${child.name}</div>
                     <div class="child-details">Age: ${age} | ${child.currentQMLTier}</div>
                     <div class="tokens-display">💰 ${child.tokens} Tokens</div>
-                    <div class="dashboard-qml-panel">
-                        <div class="qml-progress-label">${child.currentQMLTier}</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(child.currentQMLProgress / 30) * 100}%"></div>
-                        </div>
-                    </div>
                 </div>
                 <img src="${avatarPath(child.avatarId)}" class="child-avatar" alt="Avatar">
+                <div class="dashboard-qml-panel">
+                    <div class="qml-progress-label">${child.currentQMLTier}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(child.currentQMLProgress / 30) * 100}%"></div>
+                    </div>
+                </div>
                 ${statusHtml}
             </div>
         `;
