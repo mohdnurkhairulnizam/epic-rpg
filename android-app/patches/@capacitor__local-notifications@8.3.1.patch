@@ -1,0 +1,14 @@
+diff --git a/android/src/main/kotlin/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.kt b/android/src/main/kotlin/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.kt
+index 72c31a70c95449b9a8dafd754d4a34c89c4abc1e..45d5081611b0a9d7dfdd56d313cb6e701afb4700 100644
+--- a/android/src/main/kotlin/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.kt
++++ b/android/src/main/kotlin/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.kt
+@@ -195,7 +195,8 @@ class LocalNotificationManager(
+             }
+         }
+ 
+-        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
++        // User-facing treasure timer alerts must be eligible to display on the lock screen.
++        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+         mBuilder.setOnlyAlertOnce(true)
+ 
+         mBuilder.setSmallIcon(localNotification.resolveSmallIcon(context, getDefaultSmallIcon(context)))
