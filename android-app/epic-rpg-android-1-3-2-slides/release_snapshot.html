@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Release Snapshot</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    .slide-container { width: 1280px; min-height: 720px; background: #E8F4F8; color: #2D3748; font-family: "Trebuchet MS", Arial, sans-serif; }
+    .header { min-height: 176px; padding: 51px 82px 0 82px; }
+    .kicker { color: #ED8936; font-size: 15px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+    h1 { color: #1A365D; font-family: Impact, "Arial Black", sans-serif; font-size: 43px; letter-spacing: -0.4px; line-height: 1.05; margin-top: 13px; }
+    .rule { width: 490px; height: 6px; background: #ED8936; margin-top: 20px; }
+    .content { min-height: 474px; display: grid; grid-template-columns: 1.42fr 0.9fr; gap: 52px; padding: 8px 82px 40px 82px; }
+    .signals { display: grid; grid-template-columns: 1fr 1fr; column-gap: 34px; row-gap: 0; align-content: start; border-top: 2px solid #A9C8D5; }
+    .signal { min-height: 142px; border-bottom: 2px solid #A9C8D5; padding-top: 20px; }
+    .signal:nth-child(odd) { padding-right: 21px; }
+    .signal:nth-child(even) { padding-left: 21px; border-left: 2px solid #A9C8D5; }
+    .label { color: #58708A; font-size: 13px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; }
+    .value { color: #1A365D; font-size: 30px; font-weight: 900; line-height: 1.12; margin-top: 9px; }
+    .detail { color: #46596E; font-size: 16px; line-height: 1.35; margin-top: 8px; font-weight: 600; }
+    .statement { color: #1A365D; font-size: 18px; line-height: 1.45; font-weight: 800; margin-top: 26px; max-width: 690px; }
+    .statement span { color: #ED8936; }
+    .visual { min-height: 360px; padding-top: 2px; }
+    .image-frame { width: 450px; height: 248px; overflow: hidden; border-radius: 16px; box-shadow: 8px 8px 0 #1A365D; background: #F9FCFD; }
+    .image-frame img { width: 450px; height: 248px; object-fit: cover; object-position: center; display: block; }
+    .caption { color: #58708A; font-size: 14px; line-height: 1.4; font-weight: 700; margin-top: 22px; max-width: 430px; }
+    .caption strong { color: #1A365D; }
+    .source { color: #58708A; font-size: 12px; margin-top: 8px; }
+    .footer { min-height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 82px; border-top: 1px solid #C8DEE6; color: #58708A; font-size: 13px; font-weight: 700; }
+    .page { color: #1A365D; font-weight: 900; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div class="slide-container">
+    <header class="header">
+      <div class="kicker">Release Snapshot</div>
+      <h1>Release 1.3.2 closes a screen-off notification gap</h1>
+      <div class="rule"></div>
+    </header>
+    <main class="content">
+      <section>
+        <div class="signals">
+          <div class="signal"><div class="label">App version</div><div class="value">1.3.2</div><div class="detail">Focused Android release</div></div>
+          <div class="signal"><div class="label">Version code</div><div class="value">6</div><div class="detail">Incremented for distribution</div></div>
+          <div class="signal"><div class="label">Core correction</div><div class="value">Public visibility</div><div class="detail">Native treasure-timer notification flag updated</div></div>
+          <div class="signal"><div class="label">User value</div><div class="value">Visible when locked</div><div class="detail">Timer alert can remain actionable with the display off</div></div>
+        </div>
+        <p class="statement"><span>Scope discipline:</span> The update preserves the child-focused quests, treasure rewards, QML tracking, sound, NFC flows, and local-only family data model.</p>
+      </section>
+      <aside class="visual">
+        <div class="image-frame"><img src="/home/ubuntu/upload/search_images/BngomQPRb7Yk.png" alt="Android lock screen notification illustration" /></div>
+        <p class="caption"><strong>Design intent:</strong> sound and a visible prompt should arrive together when a treasure timer ends.</p>
+        <p class="source">Image: Android Developers notification guidance</p>
+      </aside>
+    </main>
+    <footer class="footer"><span>Source: EPIC RPG Android 1.3.2 Release Notes [1]</span><span class="page">02 / 08</span></footer>
+  </div>
+</body>
+</html>

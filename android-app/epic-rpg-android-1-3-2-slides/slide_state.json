@@ -1,0 +1,96 @@
+{
+  "project_info": {
+    "title": "EPIC RPG Android 1.3.2",
+    "created": 1787729040.443,
+    "last_updated": 1787729311.214,
+    "total_slides": 8
+  },
+  "slides": [
+    {
+      "id": "cover",
+      "state": "edited",
+      "pageNum": 1
+    },
+    {
+      "id": "release_snapshot",
+      "state": "edited",
+      "pageNum": 2
+    },
+    {
+      "id": "reported_experience",
+      "state": "edited",
+      "pageNum": 3
+    },
+    {
+      "id": "visibility_fix",
+      "state": "edited",
+      "pageNum": 4
+    },
+    {
+      "id": "delivery_flow",
+      "state": "edited",
+      "pageNum": 5
+    },
+    {
+      "id": "preserved_experience",
+      "state": "edited",
+      "pageNum": 6
+    },
+    {
+      "id": "verification",
+      "state": "edited",
+      "pageNum": 7
+    },
+    {
+      "id": "test_and_next_steps",
+      "state": "edited",
+      "pageNum": 8
+    }
+  ],
+  "outline": [
+    {
+      "id": "cover",
+      "title": "EPIC RPG Android 1.3.2",
+      "summary": "Release title slide focused on the lock-screen treasure timer notification correction and versionCode 6."
+    },
+    {
+      "id": "release_snapshot",
+      "title": "Release 1.3.2 closes a screen-off notification gap",
+      "summary": "At-a-glance release markers: version, versionCode, core correction, and preserved family features.",
+      "image_plan": "/home/ubuntu/upload/search_images/BngomQPRb7Yk.png - Illustrates Android lock-screen notification presentation concept discussed in release 1.3.2 gap correction"
+    },
+    {
+      "id": "reported_experience",
+      "title": "The reported experience was sound without a visible alert",
+      "summary": "Explain the screen-off user experience and the goal of restoring a visible lock-screen prompt.",
+      "image_plan": "/home/ubuntu/upload/search_images/L1zHrJ8p9UyR.jpeg - Illustrates lock-screen notifications on an actual Android device as described in the reported experience"
+    },
+    {
+      "id": "visibility_fix",
+      "title": "One native visibility setting changed the delivery presentation",
+      "summary": "Show the PRIVATE-to-PUBLIC visibility correction and explain its intended lock-screen effect.",
+      "image_plan": "/home/ubuntu/upload/search_images/oz4dkd0sVMDw.jpg - Shows lock screen notifications in an Android app context relevant to visibility settings"
+    },
+    {
+      "id": "delivery_flow",
+      "title": "The alert flow combines scheduling, sound, and return-to-app behavior",
+      "summary": "Trace treasure claim through local scheduling, permissions, alert delivery, and child-profile return."
+    },
+    {
+      "id": "preserved_experience",
+      "title": "The release keeps the broader family experience intact",
+      "summary": "Summarize retained Minecraft UI, local storage, NFC, reward, QML, sound, and responsive behavior."
+    },
+    {
+      "id": "verification",
+      "title": "The release artifacts and source configuration were verified",
+      "summary": "Present TypeScript, Android build, patch configuration, GitHub commit, and delivery artifact evidence."
+    },
+    {
+      "id": "test_and_next_steps",
+      "title": "Physical-device testing is the final release gate",
+      "summary": "Set out locked/unlocked timer test cases, permissions, OEM battery caveats, and the recommended next step.",
+      "image_plan": "/home/ubuntu/upload/search_images/qERjApkY0bSr.png - Illustrates physical Android device testing for lock-screen behavior"
+    }
+  ]
+}

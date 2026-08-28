@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import "../styles/epic-rpg-style.css";
 
-// Quest Arena visual reminder: preserve the pixel-material hierarchy in global floating actions with a compact checkpoint marker and clear two-line label.
+// Quest Arena visual reminder: preserve the pixel-material hierarchy while NFC scanning uses a compact, non-overlapping header control and an animated checkpoint station.
 
 const invoke = (name: string, ...args: unknown[]) => {
   const fn = (window as any)[name];
@@ -34,7 +34,7 @@ export default function Home() {
             </div>
             <span className="header-ore-badge" aria-hidden="true">◆</span>
           </div>
-          <button className="nfc-button" onClick={() => { invoke("openModal", "nfcScanModal"); invoke("startNfcScan", "open"); }} title="Scan NFC Card" aria-label="Scan NFC Card">
+          <button className="nfc-button" onClick={() => { invoke("openModal", "nfcScanModal"); invoke("showNfcScanReadyState", "open"); invoke("startNfcScan", "open"); }} title="Scan NFC Card" aria-label="Scan NFC Card">
           <span className="nfc-button-sigil" aria-hidden="true">⌁</span>
             <span className="nfc-button-copy"><small>NFC CARD</small><strong>SCAN</strong></span>
           </button>
@@ -153,7 +153,7 @@ export default function Home() {
             <div id="avatarGrid" className="avatar-grid" />
           </div>
           <div className="form-group" style={{ marginTop: "30px" }}>
-            <label style={{ marginTop: "20px", display: "block" }}>QML Type</label>
+            <label style={{ marginTop: "20px", display: "block" }}>Qur'an Mastery Path</label>
             <select id="childQMLType" defaultValue="Juz Amma">
               <option value="Juz Amma">Juz Amma</option>
               <option value="Al-Quran">Al-Quran</option>
@@ -218,8 +218,13 @@ export default function Home() {
       <div id="nfcScanModal" className="modal">
         <div className="modal-content nfc-scan-station">
           <div className="modal-header nfc-scan-station-header">
-            <span><small>NFC CHECKPOINT</small>📱 Scan NFC Card</span>
+            <span><small>NFC CHECKPOINT</small>Scan NFC Card</span>
             <button className="claim-treasure-close" onClick={() => invoke("closeModal", "nfcScanModal")} aria-label="Close NFC scan window">×</button>
+          </div>
+          <div className="nfc-scanner-visual" aria-hidden="true">
+            <div className="nfc-scanner-core"><span>⌁</span><i /><i /><i /></div>
+            <div className="nfc-scan-beam" />
+            <div className="nfc-scanner-caption">HOLD CARD NEAR PHONE</div>
           </div>
           <div id="nfc-status" className="nfc-status">Ready to scan...</div>
           <div className="nfc-input-group">

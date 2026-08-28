@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Treasure Timer Alert Flow</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    .slide-container { width: 1280px; min-height: 720px; background: #E8F4F8; color: #2D3748; font-family: "Trebuchet MS", Arial, sans-serif; display: flex; flex-direction: column; }
+    .header { min-height: 174px; padding: 48px 82px 0 82px; }
+    .kicker { color: #ED8936; font-size: 15px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+    h1 { color: #1A365D; font-family: Impact, "Arial Black", sans-serif; font-size: 46px; letter-spacing: -0.5px; line-height: 1.04; margin-top: 13px; }
+    .rule { width: 524px; height: 6px; background: #ED8936; margin-top: 19px; }
+    /* Reduced top padding to remove 19px of empty space */
+    .flow-area { min-height: 448px; padding: 10px 82px 0 82px; position: relative; }
+    .flow-intro { color: #46596E; font-size: 18px; line-height: 1.42; font-weight: 700; max-width: 918px; }
+    /* Slightly tighter spacing above the flow to save space */
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 27px; margin-top: 36px; position: relative; }
+    .connector { position: absolute; height: 4px; background: #A9C8D5; left: 93px; right: 93px; top: 30px; z-index: 0; }
+    .stage { min-height: 249px; position: relative; z-index: 1; }
+    .number { width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; background: #1A365D; color: #E8F4F8; font-family: Impact, "Arial Black", sans-serif; font-size: 29px; border: 5px solid #E8F4F8; }
+    .stage:nth-child(3) .number, .stage:nth-child(5) .number { background: #ED8936; color: #1A365D; }
+    .stage-title { color: #1A365D; font-size: 21px; font-weight: 900; line-height: 1.16; margin-top: 22px; max-width: 210px; }
+    .stage-copy { color: #46596E; font-size: 15px; line-height: 1.42; font-weight: 600; margin-top: 11px; max-width: 230px; }
+    .key-line { width: 56px; height: 5px; background: #ED8936; margin-top: 16px; }
+    .outcome { min-height: 82px; border-top: 2px solid #A9C8D5; display: flex; align-items: center; gap: 19px; margin-top: 7px; padding-top: 16px; }
+    .outcome-mark { width: 22px; height: 22px; background: #ED8936; box-shadow: 5px 5px 0 #1A365D; flex: 0 0 auto; }
+    .outcome-text { color: #1A365D; font-size: 18px; line-height: 1.38; font-weight: 900; }
+    .outcome-text span { color: #C05621; }
+    .footer { min-height: 70px; border-top: 1px solid #C8DEE6; display: flex; align-items: center; justify-content: space-between; padding: 0 82px; color: #58708A; font-size: 13px; font-weight: 700; }
+    .page { color: #1A365D; letter-spacing: 1px; font-weight: 900; }
+  </style>
+</head>
+<body>
+  <div class="slide-container">
+    <header class="header">
+      <div class="kicker">Notification Delivery Path</div>
+      <h1>The alert flow combines scheduling, sound, and return-to-app behavior</h1>
+      <div class="rule"></div>
+    </header>
+    <main class="flow-area">
+      <p class="flow-intro">The corrected visibility setting fits into the existing local timer workflow: a claimed treasure creates a native alert, supports the alarm experience, and links back to the relevant child journey.</p>
+      <section class="flow" aria-label="Treasure timer notification delivery flow">
+        <div class="connector" aria-hidden="true"></div>
+        <article class="stage">
+          <div class="number">1</div>
+          <div class="stage-title">Treasure is claimed</div>
+          <div class="stage-copy">The app stores the reward end time and notification key in its local family data.</div>
+          <div class="key-line"></div>
+        </article>
+        <article class="stage">
+          <div class="number">2</div>
+          <div class="stage-title">Native alert is scheduled</div>
+          <div class="stage-copy">The Capacitor bridge schedules the timer with the EPIC alarm sound, status icon, and child payload.</div>
+          <div class="key-line"></div>
+        </article>
+        <article class="stage">
+          <div class="number">3</div>
+          <div class="stage-title">Access is prepared</div>
+          <div class="stage-copy">Notification and exact-alarm access are requested when needed; an inexact fallback remains available.</div>
+          <div class="key-line"></div>
+        </article>
+        <article class="stage">
+          <div class="number">4</div>
+          <div class="stage-title">Alert returns to the child flow</div>
+          <div class="stage-copy">The delivered notification is eligible for lock-screen presentation. Tapping it opens the relevant child profile.</div>
+          <div class="key-line"></div>
+        </article>
+      </section>
+      <div class="outcome"><div class="outcome-mark" aria-hidden="true"></div><p class="outcome-text"><span>Release outcome:</span> the timer sound and visible prompt are designed to operate as one family-facing reward moment.</p></div>
+    </main>
+    <footer class="footer"><span>Source: EPIC RPG Android 1.3.2 Release Notes [1]</span><span class="page">05 / 08</span></footer>
+  </div>
+</body>
+</html>

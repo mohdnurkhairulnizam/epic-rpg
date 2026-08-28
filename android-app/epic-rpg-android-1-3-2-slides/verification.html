@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <title>Release Verification</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    /* keep the required minimum container height */
+    .slide-container { width: 1280px; min-height: 720px; background: #E8F4F8; color: #2D3748; font-family: "Trebuchet MS", Arial, sans-serif; display: flex; flex-direction: column; }
+    /* keep top padding of title intact */
+    .header { min-height: 156px; padding: 44px 82px 0 82px; }
+    .kicker { color: #ED8936; font-size: 15px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+    h1 { color: #1A365D; font-family: Impact, "Arial Black", sans-serif; font-size: 43px; line-height: 1.03; letter-spacing: -0.4px; margin-top: 12px; }
+    .rule { width: 560px; height: 6px; background: #ED8936; margin-top: 18px; }
+
+    /* main content reduced so overall slide height equals 720px
+       Calculation (target 720): header ~186 + content 464 + footer 70 = 720
+    */
+    .content { min-height: 464px; display: grid; grid-template-columns: 300px 1fr; gap: 36px; padding: 6px 82px 6px 82px; }
+
+    /* shrink stamp block to fit reduced content height */
+    .release-stamp { min-height: 376px; background: #1A365D; color: #E8F4F8; display: flex; flex-direction: column; justify-content: center; align-items: center; border-top: 10px solid #ED8936; }
+    .stamp-top { font-size: 13px; font-weight: 900; letter-spacing: 1.7px; text-transform: uppercase; color: #B7D1DB; }
+    .stamp-version { font-family: Impact, "Arial Black", sans-serif; font-size: 71px; line-height: 0.95; margin-top: 12px; }
+    .stamp-code { font-size: 18px; font-weight: 900; margin-top: 12px; padding-top: 12px; border-top: 2px solid #7699B7; }
+    .stamp-package { color: #B7D1DB; font-size: 12px; letter-spacing: 0.6px; line-height: 1.4; margin-top: 18px; max-width: 218px; text-align: center; }
+
+    .ledger { border-top: 2px solid #A9C8D5; }
+    .entry { min-height: 60px; display: grid; grid-template-columns: 48px 235px 1fr; align-items: center; border-bottom: 2px solid #A9C8D5; }
+    .icon { color: #ED8936; font-size: 22px; text-align: center; }
+    .entry-title { color: #1A365D; font-size: 17px; font-weight: 900; }
+    .entry-detail { color: #46596E; font-size: 15px; line-height: 1.28; font-weight: 650; }
+    .entry-detail strong { color: #1A365D; }
+
+    .artifact-band { min-height: 80px; display: grid; grid-template-columns: 1fr 1fr; border-top: 6px solid #1A365D; margin-top: 12px; }
+    .artifact { padding-top: 10px; }
+    .artifact + .artifact { border-left: 2px solid #A9C8D5; padding-left: 20px; }
+    .artifact:first-child { padding-right: 20px; }
+    .artifact-label { color: #58708A; font-size: 12px; font-weight: 900; letter-spacing: 1.4px; text-transform: uppercase; }
+    .artifact-value { color: #1A365D; font-size: 17px; font-weight: 900; line-height: 1.32; margin-top: 7px; }
+
+    .footer { min-height: 70px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #C8DEE6; padding: 0 82px; color: #58708A; font-size: 13px; font-weight: 700; }
+    .page { color: #1A365D; font-weight: 900; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div class="slide-container">
+    <header class="header">
+      <div class="kicker">Release Verification</div>
+      <h1>The release artifacts and source configuration were verified</h1>
+      <div class="rule"></div>
+    </header>
+    <main class="content">
+      <aside class="release-stamp" aria-label="Version 1.3.2 release stamp">
+        <div class="stamp-top">Android release</div>
+        <div class="stamp-version">1.3.2</div>
+        <div class="stamp-code">versionCode 6</div>
+        <div class="stamp-package">com.epicrpg.familyquest</div>
+      </aside>
+      <section>
+        <div class="ledger">
+          <div class="entry"><div class="icon"><i class="fa-solid fa-code"></i></div><div class="entry-title">Source validation</div><div class="entry-detail"><strong>TypeScript validation passed</strong> in the prepared Android working copy.</div></div>
+          <div class="entry"><div class="icon"><i class="fa-solid fa-mobile-screen-button"></i></div><div class="entry-title">Private-test artifact</div><div class="entry-detail"><strong>Debug APK built successfully</strong> for direct physical-device installation.</div></div>
+          <div class="entry"><div class="icon"><i class="fa-solid fa-box-archive"></i></div><div class="entry-title">Distribution artifact</div><div class="entry-detail"><strong>Release AAB built successfully</strong> for the Google Play workflow after signing readiness.</div></div>
+          <div class="entry"><div class="icon"><i class="fa-solid fa-puzzle-piece"></i></div><div class="entry-title">Reproducible patch</div><div class="entry-detail"><strong>pnpm-workspace.yaml</strong> registers the local-notifications patch for clean pnpm 10 installs.</div></div>
+          <div class="entry"><div class="icon"><i class="fa-brands fa-github"></i></div><div class="entry-title">Collaboration record</div><div class="entry-detail"><strong>GitHub main updated:</strong> commit <strong>4ee1558</strong>, “Release Android 1.3.2 lock-screen notifications”.</div></div>
+        </div>
+        <div class="artifact-band">
+          <div class="artifact"><div class="artifact-label">Delivered files</div><div class="artifact-value">EPIC_RPG_1.3.2_debug.apk<br />EPIC_RPG_1.3.2_release.aab</div></div>
+          <div class="artifact"><div class="artifact-label">Integrity support</div><div class="artifact-value">SHA-256 checksums and release notes were issued alongside the artifacts.</div></div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><span>Source: EPIC RPG Android 1.3.2 Release Notes [1]</span><span class="page">07 / 08</span></footer>
+  </div>
+</body>
+</html>

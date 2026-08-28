@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <title>Physical-device Testing</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    .slide-container { width: 1280px; min-height: 720px; background: #E8F4F8; color: #2D3748; font-family: "Trebuchet MS", Arial, sans-serif; display: flex; flex-direction: column; }
+    .header { min-height: 166px; padding: 44px 82px 0 82px; }
+    .kicker { color: #ED8936; font-size: 15px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+    h1 { color: #1A365D; font-family: Impact, "Arial Black", sans-serif; font-size: 46px; line-height: 1.03; letter-spacing: -0.5px; margin-top: 12px; }
+    .rule { width: 570px; height: 6px; background: #ED8936; margin-top: 18px; }
+    .content { min-height: 479px; display: grid; grid-template-columns: 1.54fr 0.78fr; gap: 42px; padding: 8px 82px 0 82px; }
+    .intro { color: #46596E; font-size: 18px; line-height: 1.4; font-weight: 700; max-width: 695px; }
+    .tests { margin-top: 20px; border-top: 2px solid #A9C8D5; }
+    .test-row { min-height: 71px; display: grid; grid-template-columns: 49px 220px 1fr; align-items: center; border-bottom: 2px solid #A9C8D5; }
+    .test-icon { width: 31px; height: 31px; background: #1A365D; color: #E8F4F8; display: flex; justify-content: center; align-items: center; font-size: 14px; margin-left: 6px; }
+    .test-name { color: #1A365D; font-size: 17px; font-weight: 900; line-height: 1.2; }
+    .test-result { color: #46596E; font-size: 15px; line-height: 1.32; font-weight: 650; }
+    .test-result strong { color: #1A365D; }
+    .action { min-height: 89px; display: grid; grid-template-columns: 61px 1fr; gap: 18px; align-items: center; border-top: 6px solid #ED8936; margin-top: 21px; padding-top: 11px; }
+    .action-square { width: 39px; height: 39px; background: #ED8936; color: #1A365D; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .action-copy { color: #1A365D; font-size: 18px; line-height: 1.35; font-weight: 900; max-width: 673px; }
+    .action-copy span { color: #C05621; }
+    .right { border-left: 2px solid #A9C8D5; padding-left: 32px; }
+    .image-wrap { width: 328px; height: 222px; overflow: hidden; background: #D8E8ED; }
+    .image-wrap img { width: 328px; height: 222px; object-fit: cover; object-position: center; display: block; }
+    .right-title { color: #1A365D; font-size: 20px; line-height: 1.2; font-weight: 900; margin-top: 18px; max-width: 325px; }
+    .right-copy { color: #58708A; font-size: 14px; line-height: 1.4; font-weight: 650; margin-top: 10px; max-width: 325px; }
+    .policy { color: #C05621; font-size: 13px; line-height: 1.35; font-weight: 850; margin-top: 13px; max-width: 325px; }
+    .footer { min-height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 82px; margin-top: auto; border-top: 1px solid #C8DEE6; color: #58708A; font-size: 13px; font-weight: 700; }
+    .page { color: #1A365D; font-weight: 900; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div class="slide-container">
+    <header class="header">
+      <div class="kicker">Release Gate</div>
+      <h1>Physical-device testing is the final release gate</h1>
+      <div class="rule"></div>
+    </header>
+    <main class="content">
+      <section>
+        <p class="intro">The build and source checks are complete. Before Google Play preparation, the behavior that matters most must be exercised on an intended Android device with real permissions, a real locked screen, and the device maker’s battery policy.</p>
+        <div class="tests" aria-label="Required device validation cases">
+          <div class="test-row"><div class="test-icon"><i class="fa-solid fa-lock"></i></div><div class="test-name">Locked-screen timer</div><div class="test-result">Start a short treasure timer, lock the phone, and confirm a <strong>visible notification plus alarm sound</strong> at expiry.</div></div>
+          <div class="test-row"><div class="test-icon"><i class="fa-solid fa-unlock"></i></div><div class="test-name">Unlocked timer</div><div class="test-result">Repeat with the display on and confirm the existing <strong>notification and in-app sound</strong> behavior remains correct.</div></div>
+          <div class="test-row"><div class="test-icon"><i class="fa-solid fa-sliders"></i></div><div class="test-name">Permissions and continuity</div><div class="test-result">Allow notifications and precise alarms when requested; then verify NFC, treasure claims, and timer behavior after restart.</div></div>
+        </div>
+        <div class="action"><div class="action-square"><i class="fa-solid fa-play"></i></div><p class="action-copy"><span>Recommended next action:</span> install the debug APK on the target phone and run the locked-screen treasure-timer scenario before proceeding with signing and Play Console submission.</p></div>
+      </section>
+      <aside class="right">
+        <div class="image-wrap"><img src="/home/ubuntu/upload/search_images/qERjApkY0bSr.png" alt="Android lock-screen notification example for physical device testing" /></div>
+        <h2 class="right-title">Test the device, not only the build</h2>
+        <p class="right-copy">Android device makers can vary lock-screen privacy, alarm access, and battery-management behavior. A successful build does not substitute for real-device validation.</p>
+        <p class="policy">If alerts are delayed, allow notifications, permit exact alarms, and temporarily remove EPIC RPG from battery optimization for the test.</p>
+      </aside>
+    </main>
+    <footer class="footer"><span>[1] EPIC RPG Android 1.3.2 Release Notes &nbsp; • &nbsp; [2] Android Developers: NotificationCompat.Builder</span><span class="page">08 / 08</span></footer>
+  </div>
+</body>
+</html>

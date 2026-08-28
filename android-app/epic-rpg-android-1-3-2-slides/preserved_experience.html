@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <title>Preserved Family Experience</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    .slide-container { width: 1280px; min-height: 720px; background: #E8F4F8; color: #2D3748; font-family: "Trebuchet MS", Arial, sans-serif; display: flex; flex-direction: column; }
+    .header { min-height: 186px; padding: 50px 82px 0 82px; }
+    .kicker { color: #ED8936; font-size: 15px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+    h1 { color: #1A365D; font-family: Impact, "Arial Black", sans-serif; font-size: 46px; line-height: 1.02; letter-spacing: -0.5px; margin-top: 14px; }
+    .rule { width: 520px; height: 6px; background: #ED8936; margin-top: 20px; }
+    /* Reduced vertical space in the matrix to avoid overflow */
+    .matrix { min-height: 356px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; margin: 0 82px; border-top: 2px solid #9CBBC9; border-left: 2px solid #9CBBC9; }
+    .item { min-height: 170px; padding: 18px 25px 0 25px; border-right: 2px solid #9CBBC9; border-bottom: 2px solid #9CBBC9; }
+    .item-top { display: flex; align-items: center; gap: 14px; }
+    .icon-box { width: 36px; height: 36px; background: #1A365D; color: #E8F4F8; display: flex; align-items: center; justify-content: center; font-size: 17px; flex: 0 0 auto; }
+    .item-title { color: #1A365D; font-size: 20px; font-weight: 900; line-height: 1.12; }
+    .item-copy { color: #46596E; font-size: 15px; line-height: 1.36; font-weight: 600; margin-top: 10px; max-width: 300px; }
+    .scope { min-height: 86px; display: grid; grid-template-columns: 70px 1fr 156px; align-items: center; gap: 20px; margin: 8px 82px 0 82px; border-top: 6px solid #1A365D; padding-top: 13px; }
+    .scope-mark { width: 42px; height: 42px; background: #ED8936; box-shadow: 6px 6px 0 #1A365D; display: flex; align-items: center; justify-content: center; color: #1A365D; font-size: 19px; }
+    .scope-text { color: #1A365D; font-size: 19px; line-height: 1.35; font-weight: 900; }
+    .scope-text span { color: #ED8936; }
+    .tag { color: #58708A; font-size: 13px; line-height: 1.3; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; text-align: right; }
+    .footer { min-height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 82px; margin-top: auto; border-top: 1px solid #C8DEE6; color: #58708A; font-size: 13px; font-weight: 700; }
+    .page { color: #1A365D; font-size: 13px; font-weight: 900; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div class="slide-container">
+    <header class="header">
+      <div class="kicker">What did not change</div>
+      <h1>The release keeps the broader family experience intact</h1>
+      <div class="rule"></div>
+    </header>
+    <main class="matrix" aria-label="Preserved EPIC RPG capabilities">
+      <section class="item"><div class="item-top"><div class="icon-box"><i class="fa-solid fa-cubes"></i></div><div class="item-title">Minecraft-inspired UI</div></div><p class="item-copy">The familiar pixel-flavored quest, reward, and QML experience remains in place.</p></section>
+      <section class="item"><div class="item-top"><div class="icon-box"><i class="fa-solid fa-mobile-screen-button"></i></div><div class="item-title">Local-first family data</div></div><p class="item-copy">Profiles, history, preferences, badges, and reward state stay on the individual device.</p></section>
+      <section class="item"><div class="item-top"><div class="icon-box"><i class="fa-solid fa-id-card"></i></div><div class="item-title">NFC child access</div></div><p class="item-copy">Linked cards continue to open the child-focus window for quests and treasure actions.</p></section>
+      <section class="item"><div class="item-top"><div class="icon-box"><i class="fa-solid fa-star"></i></div><div class="item-title">QML and reward progress</div></div><p class="item-copy">QML tracking, quest completion, token rewards, and achievement feedback are retained.</p></section>
+      <section class="item"><div class="item-top"><div class="icon-box"><i class="fa-solid fa-volume-high"></i></div><div class="item-title">Timer and sound feedback</div></div><p class="item-copy">Treasure alarms and event-specific sound feedback continue alongside the visibility correction.</p></section>
+      <section class="item"><div class="item-top"><div class="icon-box"><i class="fa-solid fa-tablet-screen-button"></i></div><div class="item-title">Responsive Android shell</div></div><p class="item-copy">Phone and tablet viewport handling, native navigation, and core app behavior remain unchanged.</p></section>
+    </main>
+    <section class="scope">
+      <div class="scope-mark"><i class="fa-solid fa-check"></i></div>
+      <p class="scope-text"><span>Scope discipline:</span> 1.3.2 improves timer-alert visibility without changing the family workflow, storage model, or core feature set.</p>
+      <div class="tag">Focused<br />Native Fix</div>
+    </section>
+    <footer class="footer"><span>Source: EPIC RPG Android 1.3.2 Release Notes [1]</span><span class="page">06 / 08</span></footer>
+  </div>
+</body>
+</html>

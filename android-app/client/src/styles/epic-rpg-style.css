@@ -2653,11 +2653,93 @@ textarea:focus-visible {
 .arena-nfc-section .nfc-action-button {
     box-shadow: inset -2px -2px 0 rgba(0,0,0,0.28), inset 2px 2px 0 rgba(255,255,255,0.18), 2px 2px 0 rgba(0,0,0,0.28);
 }
-
+/* NFC and Quran Mastery refinement: scanning is a focused, optional quest checkpoint; long learning labels remain compact without changing card geometry. */
+.nfc-scan-station {
+    background: #e5eadf;
+    border: 4px solid #1a1a1a;
+    box-shadow: inset -4px -4px 0 #a9b39c, inset 4px 4px 0 #fff, 7px 7px 0 rgba(0,0,0,.45);
+    max-width: 390px;
+    padding: 0 14px 15px;
+}
+.nfc-scan-station .nfc-scan-station-header {
+    background: linear-gradient(135deg, #1c3d21 0%, #397332 100%);
+    color: #fff;
+    margin: 0 -14px 14px;
+    padding: 11px 12px;
+}
+.nfc-scanner-visual {
+    align-items: center;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 8px, transparent 8px 16px), linear-gradient(135deg, #1d3f21, #315f28);
+    border: 3px solid #1a1a1a;
+    box-shadow: inset 3px 3px 0 rgba(255,255,255,.14), inset -3px -3px 0 rgba(0,0,0,.3);
+    display: grid;
+    justify-items: center;
+    min-height: 146px;
+    overflow: hidden;
+    padding: 15px 12px 11px;
+    position: relative;
+}
+.nfc-scanner-core {
+    align-items: center;
+    background: #d8b329;
+    border: 3px solid #fff0a0;
+    box-shadow: 3px 3px 0 #171a12, inset -3px -3px 0 #aa7b0c, inset 3px 3px 0 #ffe978;
+    color: #1a1a1a;
+    display: flex;
+    height: 66px;
+    justify-content: center;
+    position: relative;
+    width: 66px;
+    z-index: 1;
+}
+.nfc-scanner-core span { font-size: 37px; font-weight: 900; line-height: 1; transform: rotate(90deg); }
+.nfc-scanner-core i { background: #203b21; height: 5px; opacity: .72; position: absolute; width: 5px; }
+.nfc-scanner-core i:nth-of-type(1) { left: 7px; top: 7px; }
+.nfc-scanner-core i:nth-of-type(2) { right: 7px; top: 7px; }
+.nfc-scanner-core i:nth-of-type(3) { bottom: 7px; left: 7px; }
+.nfc-scan-beam { background: #dffc85; box-shadow: 0 0 0 3px rgba(202,255,103,.16), 0 0 18px rgba(223,252,133,.8); height: 3px; left: 12px; opacity: .15; position: absolute; right: 12px; top: 24px; }
+.nfc-scanner-caption { align-self: end; color: #e5f8bf; font-family: 'Press Start 2P', cursive; font-size: 7px; letter-spacing: .35px; line-height: 1.45; margin-top: 9px; text-align: center; z-index: 1; }
+.nfc-scan-station.is-scanning .nfc-scan-beam { animation: nfcScanBeam 1.15s steps(7, end) infinite; opacity: 1; }
+.nfc-scan-station.is-scanning .nfc-scanner-core { animation: nfcCorePulse 1.15s steps(2, end) infinite; }
+.nfc-scan-station.is-scan-success .nfc-scanner-visual { background: repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 8px, transparent 8px 16px), linear-gradient(135deg, #246323, #5d972f); }
+.nfc-scan-station.is-scan-success .nfc-scanner-core { animation: nfcSuccessCore .5s steps(3, end) both; background: #f3d338; }
+.nfc-scan-station.is-scan-success .nfc-scan-beam { animation: none; background: #fff6a9; opacity: 1; top: 50%; }
+.nfc-scan-station.is-scan-success .nfc-scanner-caption::after { content: ' · CARD READ'; }
+.nfc-scan-station.is-scan-error .nfc-scanner-visual { background: linear-gradient(135deg, #542321, #8c3b32); }
+.nfc-scan-station.is-scan-error .nfc-scanner-core { background: #d1654b; }
+@keyframes nfcScanBeam { 0% { transform: translateY(0); } 100% { transform: translateY(88px); } }
+@keyframes nfcCorePulse { 0%, 100% { transform: scale(.96); } 50% { transform: scale(1.04); } }
+@keyframes nfcSuccessCore { 0% { transform: scale(.94); } 58% { transform: scale(1.13) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+.nfc-scan-station .nfc-status { border-color: #1a1a1a; font-size: 11px; margin: 12px 0; min-height: 48px; padding: 10px; }
+.nfc-scan-station .nfc-status.nfc-status-active { background: #e9efd8; color: #275122; }
+.nfc-scan-station .nfc-status.nfc-status-error { background: #ffd8d3; border-color: #842b23; color: #69211c; }
+.nfc-scan-station .nfc-result { margin: 11px 0; min-height: 44px; }
+.family-playbook-panel .setting-help { line-height: 1.45; margin-bottom: 1px; margin-top: 12px; }
+.playbook-open-button { background: linear-gradient(135deg, #5a4015, #9d741c); color: #fff7cf; }
+.family-playbook-modal { background: #e6eadf; border-color: #1a1a1a; max-height: 86vh; max-width: 450px; padding: 0 14px 15px; }
+.family-playbook-modal .playbook-modal-header { background: linear-gradient(135deg, #254322, #526e28); color: #fff; margin: 0 -14px 13px; padding: 11px 12px; }
+.playbook-modal-header small { color: #ffe16a; display: block; font-size: 8px; letter-spacing: .75px; margin-bottom: 5px; }
+.playbook-intro { color: #2d4e27; font-size: 11px; font-weight: 800; line-height: 1.42; margin: 0 0 12px; }
+.playbook-section { background: #f7f8f3; border: 2px solid #1a1a1a; box-shadow: inset -2px -2px 0 #d0d6c9, inset 2px 2px 0 #fff; margin-top: 8px; padding: 9px 10px; }
+.playbook-section h3 { color: #2d5016; font-family: 'Press Start 2P', cursive; font-size: 8px; line-height: 1.45; margin: 0 0 6px; }
+.playbook-section p { color: #4e5845; font-size: 10px; font-weight: 700; line-height: 1.42; margin: 0; }
+.quran-mastery-settings .profile-section-title { font-size: 9px; }
+.quran-mastery-label { font-size: 7px !important; letter-spacing: .3px !important; line-height: 1.3; }
+.quran-mastery-editor-title { font-size: 11px; }
+@media (prefers-reduced-motion: reduce) {
+    .nfc-scan-station.is-scanning .nfc-scan-beam,
+    .nfc-scan-station.is-scanning .nfc-scanner-core,
+    .nfc-scan-station.is-scan-success .nfc-scanner-core { animation: none; }
+}
 @media (max-width: 380px) {
     .child-profile-hero-row { align-items: flex-start; gap: 10px; }
     .child-profile-hero-row img { height: 62px !important; width: 62px !important; }
     .child-profile-hero-name { font-size: 11px; }
     .nfc-scan-station-header span,
     .arena-nfc-child-header span { font-size: 10px; }
+    .nfc-scan-station { max-width: 350px; }
+    .nfc-scanner-visual { min-height: 132px; }
+    .nfc-scanner-caption { font-size: 6px; }
+    .status-progress-heading .quran-mastery-label { font-size: 6px !important; }
+    .quran-mastery-settings .profile-section-title { font-size: 8px; }
 }

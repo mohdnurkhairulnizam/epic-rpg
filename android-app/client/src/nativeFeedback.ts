@@ -1,7 +1,7 @@
 // EPIC RPG audio contract: local Web Audio cue sets create a light Minecraft-inspired pixel adventure feel without adding media files or cloud dependencies.
 import { Capacitor } from "@capacitor/core";
 
-// Quest Arena feedback reminder: rare parent-awarded rewards use a bright, compact enchanted cadence that remains subject to the app's sound preferences.
+// Quest Arena feedback reminder: NFC checkpoint actions use clear, compact scanning tones while all feedback remains subject to the app's sound preferences.
 
 let audioContext: AudioContext | null = null;
 let audioUnlocked = false;
@@ -107,8 +107,13 @@ function playTimerEnded() {
 }
 
 function playNfcSuccess() {
-  // Enchantment chime for a successful NFC card read.
-  playPattern([[740, 0.06, 0, "sine", 0.65], [988, 0.07, 0.07, "triangle", 0.8], [1480, 0.18, 0.15, "triangle", 1]]);
+  // NFC success: a bright lock-on chime that clearly confirms a card was read.
+  playPattern([[659, 0.06, 0, "triangle", 0.7], [880, 0.07, 0.065, "triangle", 0.82], [1175, 0.08, 0.14, "triangle", 0.92], [1568, 0.2, 0.225, "sine", 1]]);
+}
+
+function playNfcScanPressed() {
+  // NFC scan start: a soft two-pulse detector cue triggered directly by the Scan button.
+  playPattern([[440, 0.045, 0, "square", 0.5], [587, 0.065, 0.075, "triangle", 0.72]]);
 }
 
 function playQuestAssigned() {
@@ -150,6 +155,7 @@ export function registerNativeFeedback() {
   window.addEventListener("epic-questmaster-boon", playQuestmasterBoon);
   window.addEventListener("epic-treasure-claimed", playTreasureClaimed);
   window.addEventListener("epic-treasure-ended", playTimerEnded);
+  window.addEventListener("epic-nfc-scan-pressed", playNfcScanPressed);
   window.addEventListener("epic-nfc-success", playNfcSuccess);
   window.addEventListener("epic-quest-assigned", playQuestAssigned);
   window.addEventListener("epic-quest-ready", playQuestReady);

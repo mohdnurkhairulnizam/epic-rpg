@@ -435,7 +435,7 @@ function openModal(modalId) {
     if (modalId === 'nfcScanModal') {
         modal.classList.add('nfc-registration-modal');
         modal.style.zIndex = '2200';
-        modal.classList.remove('nfc-scan-success');
+        modal.classList.remove('nfc-scan-success', 'is-scanning', 'is-scan-success', 'is-scan-error');
     }
     modal.classList.add('active');
     if (modalId === 'addChildModal' || modalId === 'editChildModal') {
@@ -662,29 +662,44 @@ function detectNFCForEdit() {
 }
 
 function showNfcScanReadyState(purpose) {
+    const station = document.querySelector('#nfcScanModal .nfc-scan-station');
     const status = document.getElementById('nfc-status');
     const result = document.getElementById('nfc-result');
+    if (station) {
+        station.classList.remove('is-scan-success', 'is-scan-error');
+        station.classList.add('is-scanning');
+    }
     if (status) {
         status.className = 'nfc-status scanning';
         status.textContent = purpose === 'edit'
             ? 'Hold the NFC card near the back of the phone to update this child.'
-            : 'Hold the NFC card near the back of the phone to register this child.';
+            : purpose === 'open'
+                ? 'Hold the linked NFC card near the back of the phone to open its hero checkpoint.'
+                : 'Hold the NFC card near the back of the phone to register this child.';
     }
     if (result) result.innerHTML = '';
 }
 
 function showNfcScanSuccess(nfcId, purpose) {
     const modal = document.getElementById('nfcScanModal');
+    const station = modal?.querySelector('.nfc-scan-station');
     const status = document.getElementById('nfc-status');
     const result = document.getElementById('nfc-result');
     if (modal) modal.classList.add('nfc-scan-success');
+    if (station) {
+        station.classList.remove('is-scanning', 'is-scan-error');
+        station.classList.add('is-scan-success');
+    }
     if (status) {
         status.className = 'nfc-status success';
         status.textContent = 'NFC card scanned successfully!';
     }
     if (result) {
         result.className = 'nfc-result success nfc-success-card';
-        result.innerHTML = `<strong>✓ Card linked</strong><br><small>${purpose === 'edit' ? 'Child profile updated' : 'Ready to create child'} · ${nfcId}</small>`;
+        const successDetail = purpose === 'open'
+            ? 'Hero checkpoint found · opening profile'
+            : `${purpose === 'edit' ? 'Child profile updated' : 'Ready to create child'} · ${nfcId}`;
+        result.innerHTML = `<strong>✓ Card scanned</strong><br><small>${successDetail}</small>`;
     }
     window.dispatchEvent(new CustomEvent('epic-nfc-success', { detail: { nfcId, purpose } }));
 }
@@ -715,6 +730,16 @@ function handleNativeNfcDetected(event) {
     }
     const input = document.getElementById('nfcCardInput');
     if (input) input.value = nfcId;
+    const child = appState.children.find(c => normalizeNfcCardId(c.nfcCardId) === nfcId);
+    if (child) {
+        showNfcScanSuccess(nfcId, 'open');
+        setTimeout(() => {
+            closeModal('nfcScanModal');
+            if (input) input.value = '';
+            openNfcChildActionWindow(child.id);
+        }, 760);
+        return;
+    }
     processNFCCard(nfcId);
 }
 
@@ -864,6 +889,11 @@ window.addEventListener('epic-nfc-status', event => {
     if (status && detail.message) {
         status.textContent = detail.message;
         status.className = `nfc-status ${detail.tone === 'error' ? 'nfc-status-error' : 'nfc-status-active'}`;
+        const station = status.closest('.nfc-scan-station');
+        if (station) {
+            station.classList.toggle('is-scan-error', detail.tone === 'error');
+            if (detail.tone !== 'error') station.classList.add('is-scanning');
+        }
     }
 });
 window.addEventListener('epic-native-nfc-detected', handleNativeNfcDetected);
@@ -1545,14 +1575,14 @@ function renderSettings() {
     const container = document.getElementById('settings-content');
     let html = '<div>';
     
-    html += '<div class="profile-section arena-settings-panel"><div class="profile-section-title">Age Multiplier & QML Tiers</div>';
+    html += '<div class="profile-section arena-settings-panel quran-mastery-settings"><div class="profile-section-title">Age Multiplier & Qur\'an Mastery Levels</div>';
     html += '<button class="btn btn-primary arena-wide-action" onclick="openEditSettingsModal()">Edit All Settings</button>';
     html += '<div class="arena-settings-summary">';
     html += '<strong style="display: block; margin-bottom: 10px;">Age Multiplier Groups:</strong>';
     appState.ageGroups.forEach(group => {
         html += `<div style="margin: 5px 0; font-size: 12px;">${group.name}: <strong>${group.currentMultiplier}x</strong></div>`;
     });
-    html += '<br><strong style="display: block; margin-bottom: 10px; margin-top: 10px;">QML Tiers:</strong>';
+    html += '<br><strong style="display: block; margin-bottom: 10px; margin-top: 10px;">Qur\'an Mastery Levels:</strong>';
     for (const category in appState.qmlTiers) {
         html += `<div style="margin: 5px 0; font-size: 12px;"><strong>${category}:</strong> ${appState.qmlTiers[category].length} tiers configured</div>`;
     }
@@ -1590,6 +1620,14 @@ function renderSettings() {
             <div class="profile-section-title">✦ Questmaster's Boon</div>
             <p class="setting-help">A direct parent-awarded token blessing from the Quest tab. It raises token and badge progress without adding a completed quest or Weekly Quest Points.</p>
             <label class="blessing-setting-row"><span>Tokens per blessing</span><input type="number" class="setting-input" min="1" step="1" value="${appState.questmasterBlessingTokens ?? 5}" onchange="updateQuestmasterBlessingTokens(this.value)"></label>
+        </div>
+    `;
+
+    html += `
+        <div class="profile-section arena-settings-panel family-playbook-panel">
+            <div class="profile-section-title">📖 Family Quest Playbook</div>
+            <p class="setting-help">A clear guide to quests, rewards, Qur'an Mastery Levels, NFC cards, and treasure timer alerts.</p>
+            <button class="btn btn-small arena-wide-action playbook-open-button" onclick="openPlaybookModal()">Open the Playbook</button>
         </div>
     `;
     
@@ -1671,21 +1709,21 @@ function renderChildProfile() {
                     <div class="status-resource-tile status-token-tile"><span>REWARD CHEST</span><strong>💰 ${child.tokens}</strong><small>Tokens ready</small></div>
                     <div class="status-resource-tile status-tier-tile"><span>CURRENT TIER</span><strong>${child.currentQMLTier}</strong><small>${child.qmlType}</small></div>
                 </div>
-                <label class="status-qml-type-control"><span>QML PATH</span>
+                <label class="status-qml-type-control"><span class="quran-mastery-label">QUR'AN MASTERY PATH</span>
                     <select onchange="changeQMLType('${child.id}', this.value)">
                         <option value="Juz Amma" ${child.qmlType === 'Juz Amma' ? 'selected' : ''}>Juz Amma</option>
                         <option value="Al-Quran" ${child.qmlType === 'Al-Quran' ? 'selected' : ''}>Al-Quran</option>
                     </select>
                 </label>
                 <div class="status-progress-board">
-                    <div class="status-progress-heading"><span>QML PROGRESS</span><strong>RECITATION MILESTONE</strong></div>
+                    <div class="status-progress-heading"><span class="quran-mastery-label">QUR'AN MASTERY LEVEL</span><strong>RECITATION MILESTONE</strong></div>
                     <div class="status-progress-controls">
-                        <button class="btn btn-progress-control" aria-label="Decrease QML progress for ${child.name}" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
-                        <div class="status-progress-track" role="progressbar" aria-label="${child.name} QML progress" aria-valuemin="0" aria-valuemax="${getQMLMaxValue(child.qmlType)}" aria-valuenow="${child.currentQMLProgress}">
+                        <button class="btn btn-progress-control" aria-label="Decrease Quran Mastery Level progress for ${child.name}" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} - 1)">−</button>
+                        <div class="status-progress-track" role="progressbar" aria-label="${child.name} Quran Mastery Level progress" aria-valuemin="0" aria-valuemax="${getQMLMaxValue(child.qmlType)}" aria-valuenow="${child.currentQMLProgress}">
                             <div class="status-progress-fill" style="width: ${(child.currentQMLProgress / getQMLMaxValue(child.qmlType)) * 100}%;"></div>
                             <span>${child.currentQMLProgress}/${getQMLMaxValue(child.qmlType)}</span>
                         </div>
-                        <button class="btn btn-progress-control" aria-label="Increase QML progress for ${child.name}" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} + 1)">+</button>
+                        <button class="btn btn-progress-control" aria-label="Increase Quran Mastery Level progress for ${child.name}" onclick="updateQMLProgress('${child.id}', ${child.currentQMLProgress} + 1)">+</button>
                     </div>
                 </div>
             </div>
@@ -2015,6 +2053,27 @@ function closeQuestmasterBlessingPopup() {
     document.getElementById('questmasterBlessingPopup')?.remove();
 }
 
+function openPlaybookModal() {
+    document.getElementById('familyPlaybookModal')?.remove();
+    const modal = document.createElement('div');
+    modal.id = 'familyPlaybookModal';
+    modal.className = 'modal active';
+    modal.innerHTML = `
+        <div class="modal-content family-playbook-modal" role="dialog" aria-modal="true" aria-label="Family Quest Playbook">
+            <div class="modal-header claim-treasure-header playbook-modal-header"><span><small>FAMILY QUEST BOARD</small>📖 Playbook</span><button type="button" class="claim-treasure-close" aria-label="Close Playbook" onclick="closeModal('familyPlaybookModal')">×</button></div>
+            <p class="playbook-intro">EPIC RPG turns family tasks and Qur'an learning into a simple, parent-guided adventure on this device.</p>
+            <section class="playbook-section"><h3>1. QUEST LOOP</h3><p>Choose a Quest, assign one or more heroes, then approve a completed mission to award tokens. Age multipliers shape the quest reward.</p></section>
+            <section class="playbook-section"><h3>2. QUR'AN MASTERY LEVEL</h3><p>Choose Juz Amma or Al-Quran for each hero. Update the progress path to unlock tiers and their reward-timer bonus.</p></section>
+            <section class="playbook-section"><h3>3. TREASURE VAULT</h3><p>Spend earned tokens in Shop. A claimed treasure begins its timer, and optional Android alerts can notify you when it ends.</p></section>
+            <section class="playbook-section"><h3>4. SPECIAL REWARDS</h3><p>Emerald Loot Drop adds an optional random quest bonus. Questmaster's Boon is a parent-awarded token grant that does not add Weekly Quest Points.</p></section>
+            <section class="playbook-section"><h3>5. NFC CHECKPOINT</h3><p>Link an optional card to a child profile. Tap NFC Scan, hold the card near the phone, then use the child checkpoint to view quests and eligible treasures.</p></section>
+            <section class="playbook-section"><h3>6. YOUR FAMILY DATA</h3><p>Profiles, tokens, learning progress, cards, and reward history stay on this device. Use Settings carefully; Master Reset clears local game data.</p></section>
+            <div class="modal-buttons"><button class="btn" onclick="closeModal('familyPlaybookModal')">Got It</button></div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
 
 function openEditSettingsModal() {
     // Remove existing modal if present
@@ -2042,7 +2101,7 @@ function openEditSettingsModal() {
                 `).join('')}
             </div>
             <div class="settings-editor-section">
-                <div class="settings-editor-section-title">QML Tiers</div>
+                <div class="settings-editor-section-title quran-mastery-editor-title">Qur'an Mastery Levels</div>
                 ${Object.entries(appState.qmlTiers).map(([category, tiers]) => `
                     <div class="qml-editor-category">
                         <strong class="qml-editor-category-title">${category}</strong>

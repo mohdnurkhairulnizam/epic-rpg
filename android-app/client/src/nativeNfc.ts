@@ -29,6 +29,7 @@ async function stopNfcScan() {
 }
 
 async function startNfcScan(purpose: ScanPurpose = "open") {
+  window.dispatchEvent(new CustomEvent("epic-nfc-scan-pressed", { detail: { purpose } }));
   if (!isAndroid()) {
     updateScanStatus("NFC scanning is available in the Android app. You can enter a card ID manually here.", "error");
     return;
