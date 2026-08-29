@@ -17,6 +17,7 @@
     "android:release": "pnpm cap:sync && cd android && ./gradlew --no-daemon :app:bundleRelease"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
     "@capacitor/android": "^8.5.0",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.5.0",

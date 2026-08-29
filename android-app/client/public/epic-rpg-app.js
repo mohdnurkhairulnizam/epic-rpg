@@ -24,6 +24,20 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+async function requireParentBiometric(reason) {
+    const verifier = window.requestParentBiometric;
+    // The companion website has no native biometric bridge. Preserve its existing local-first behavior;
+    // Android installs register the bridge and must pass the system prompt before continuing.
+    if (typeof verifier !== 'function') return true;
+    const result = await verifier(reason);
+    return result?.ok === true;
+}
+
+window.addEventListener('epic-biometric-status', event => {
+    const detail = event.detail || {};
+    if (detail.type === 'error' && detail.message) showNotification(detail.message, 'error');
+});
+
 // ============================================
 // PRESET DATA
 // ============================================
@@ -418,7 +432,8 @@ function switchTab(tabId) {
     if (tabId === 'settings') renderSettings();
 }
 
-function openChildProfile(childId) {
+async function openChildProfile(childId) {
+    if (!(await requireParentBiometric('open-child-profile'))) return;
     appState.currentProfileChildId = childId;
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById('profile-screen').classList.add('active');
@@ -965,13 +980,14 @@ function requestQuestFromPlay(questId) {
     document.body.appendChild(modal);
 }
 
-function grantQuestmasterBlessing(childId) {
+async function grantQuestmasterBlessing(childId) {
     const child = appState.children.find(item => item.id === childId);
-    const tokens = Math.max(1, Math.floor(appState.questmasterBlessingTokens ?? 5));
     if (!child) {
         showNotification('Choose a hero profile before granting a blessing.', 'error');
         return;
     }
+    if (!(await requireParentBiometric('grant-questmaster-boon'))) return;
+    const tokens = Math.max(1, Math.floor(appState.questmasterBlessingTokens ?? 5));
     child.tokens += tokens;
     child.blessingHistory = Array.isArray(child.blessingHistory) ? child.blessingHistory : [];
     child.blessingHistory.push({ grantedAt: new Date().toISOString(), tokens, source: 'questmaster_boon' });
@@ -1067,7 +1083,7 @@ function markQuestComplete(childId, questInstanceId) {
     }
 }
 
-function approveQuest(childId, questInstanceId) {
+async function approveQuest(childId, questInstanceId) {
     const ongoingQuest = appState.children.find(c => c.id === childId)?.ongoingQuests.find(q => q.instanceId === questInstanceId);
     if (!ongoingQuest) return;
     
@@ -1075,6 +1091,7 @@ function approveQuest(childId, questInstanceId) {
     const quest = appState.quests.find(q => q.id === ongoingQuest.questId);
     
     if (!child || !quest || !ongoingQuest) return;
+    if (!(await requireParentBiometric('approve-quest'))) return;
     
     const age = calculateAge(child.dateOfBirth);
     const questTokens = calculateTokens(quest.baseTokenReward, age, child.currentQMLTier, child.qmlType);

@@ -154,3 +154,12 @@
 - [x] Add a distinct, shared sound effect for every bottom-navigation tab press.
 - [x] Validate long-name readability, tab audio coverage, and reduced-motion behavior.
 - [x] Build, synchronize, and deliver the Android revision.
+
+# Biometric Parent Verification
+
+- [x] Inspect the Questmaster's Boon, child-profile, quest-completion, and Capacitor Android integration paths.
+- [x] Select a secure Android biometric plugin and define fingerprint/biometric fallback behavior.
+- [x] Guard direct token granting behind parent biometric verification.
+- [x] Guard child-profile detail access and quest-approval actions behind parent biometric verification.
+- [x] Add clear denial, unavailable-biometric, and cancellation feedback without changing local reward data rules.
+- [x] Validate protected actions on supported and unsupported devices, then build, document, synchronize, and deliver the Android revision.
