@@ -27,15 +27,15 @@
 
 ## Follow-up
 
-- TypeScript and production builds passed before the final shared-scan-entry correction. Re-run both after this final correction before packaging.
-- Native Android release build and source synchronization remain pending for the feature revision.
+- TypeScript and production builds passed after the final shared-scan-entry correction and after the leaderboard/tab-feedback changes.
+- The Android 1.4.6 debug APK and release AAB built successfully, and the source was synchronized to GitHub commit `203fa77`.
 ## Interaction checks
 
 The NFC Scan control opened the redesigned scan station from the Quest tab. The station entered the scanning state with the gold NFC core, animated beam styling, and hold-near-phone instruction. A browser simulation of a successful read set both `nfc-scan-success` and `is-scan-success` and rendered `Card scanned` with `Hero checkpoint found · opening profile`; the success event was dispatched for native sound feedback.
 
 The Family Quest Playbook opened from Settings and displayed all six mechanism sections in the pixel-styled modal. The Quest tab retained the Questmaster's Boon child actions and the configured `+5` amount. No visible QML terminology appeared in the rendered Settings or Quest content.
 
-The latest TypeScript and production checks passed after the final shared NFC scan-entry correction. Native Android packaging and source synchronization remain pending.
+The latest TypeScript and production checks passed after the final shared NFC scan-entry correction. Android packaging and source synchronization for the feature revision are complete.
 
 ## Leaderboard and bottom-navigation update
 

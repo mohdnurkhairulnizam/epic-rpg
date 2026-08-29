@@ -153,4 +153,4 @@
 - [x] Add a responsive horizontal marquee for names that exceed the leaderboard card width.
 - [x] Add a distinct, shared sound effect for every bottom-navigation tab press.
 - [x] Validate long-name readability, tab audio coverage, and reduced-motion behavior.
-- [ ] Build, synchronize, and deliver the Android revision.
+- [x] Build, synchronize, and deliver the Android revision.
