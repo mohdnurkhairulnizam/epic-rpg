@@ -6,7 +6,7 @@ import {
 } from "@aparajita/capacitor-biometric-auth";
 import { Capacitor } from "@capacitor/core";
 
-type ParentBiometricReason = "open-child-profile" | "approve-quest" | "grant-questmaster-boon";
+type ParentBiometricReason = "open-child-profile" | "approve-quest" | "grant-questmaster-boon" | "open-settings" | "open-support-link";
 
 type ParentBiometricResult = {
   ok: boolean;
@@ -38,6 +38,12 @@ function messageForFailure(code: string | undefined, reason: ParentBiometricReas
   if (reason === "approve-quest") {
     return "Parent fingerprint verification is required before approving a quest.";
   }
+  if (reason === "open-settings") {
+    return "Parent fingerprint verification is required before opening Settings.";
+  }
+  if (reason === "open-support-link") {
+    return "Parent fingerprint verification is required before opening developer support.";
+  }
   return "Parent fingerprint verification is required before opening child details.";
 }
 
@@ -60,7 +66,11 @@ async function requestParentBiometric(reason: ParentBiometricReason): Promise<Pa
           ? "Verify your fingerprint to grant Questmaster's Boon tokens"
           : reason === "approve-quest"
             ? "Verify your fingerprint to approve this quest"
-            : "Verify your fingerprint to open child details",
+            : reason === "open-settings"
+              ? "Verify your fingerprint to open Settings"
+              : reason === "open-support-link"
+                ? "Verify your fingerprint to support the developer"
+                : "Verify your fingerprint to open child details",
         cancelTitle: "Cancel",
         allowDeviceCredential: false,
         androidTitle: "Parent verification",

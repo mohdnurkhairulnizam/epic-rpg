@@ -7,6 +7,7 @@ import { registerNativeFeedback } from "./nativeFeedback";
 import { registerResponsiveViewport } from "./responsiveViewport";
 import { registerNativeNfc } from "./nativeNfc";
 import { registerNativeBiometric } from "./nativeBiometric";
+import { registerNativeDonation } from "./nativeDonation";
 
 registerNativeBackButton();
 registerNativeNotifications();
@@ -14,4 +15,5 @@ registerNativeFeedback();
 registerResponsiveViewport();
 registerNativeNfc();
 registerNativeBiometric();
+registerNativeDonation();
 createRoot(document.getElementById("root")!).render(<App />);

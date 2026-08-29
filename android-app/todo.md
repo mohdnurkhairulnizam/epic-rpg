@@ -163,3 +163,17 @@
 - [x] Guard child-profile detail access and quest-approval actions behind parent biometric verification.
 - [x] Add clear denial, unavailable-biometric, and cancellation feedback without changing local reward data rules.
 - [x] Validate protected actions on supported and unsupported devices, then build, document, synchronize, and deliver the Android revision.
+
+# Google Play Donations Policy Review
+
+- [x] Verify current Google Play rules for voluntary developer donations and in-app payment links.
+- [x] Compare Play Billing, PayPal, Stripe, and Payoneer for this free app scenario.
+- [x] Prepare a compliant donation recommendation and note any required policy disclosures.
+
+# Parent Settings and Developer Support
+
+- [x] Inspect Settings tab navigation and locate a policy-safe donation-link configuration point.
+- [x] Add parent biometric verification before opening the Settings tab.
+- [x] Add an optional developer-support donation button in Settings with no in-app reward.
+- [x] Configure the final hosted payment link and parent-only wording after the user supplies the link details.
+- [ ] Validate denied and approved Settings access and safe external-link behavior, then build, document, synchronize, and deliver the Android revision.

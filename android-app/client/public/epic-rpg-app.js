@@ -32,7 +32,25 @@ async function requireParentBiometric(reason) {
     const result = await verifier(reason);
     return result?.ok === true;
 }
-
+async function openDeveloperSupportPage() {
+    if (!(await requireParentBiometric('open-support-link'))) return;
+    const opener = window.openDeveloperSupport;
+    if (typeof opener !== 'function') {
+        showNotification('The developer support page is not available right now.', 'error');
+        return;
+    }
+    try {
+        const result = await opener();
+        if (result?.ok) {
+            showNotification('Opening the developer support page. Thank you!', 'success');
+        } else {
+            showNotification('Unable to open the developer support page.', 'error');
+        }
+    } catch (error) {
+        console.error('Unable to open developer support page', error);
+        showNotification('Unable to open the developer support page.', 'error');
+    }
+}
 window.addEventListener('epic-biometric-status', event => {
     const detail = event.detail || {};
     if (detail.type === 'error' && detail.message) showNotification(detail.message, 'error');
@@ -413,7 +431,10 @@ function formatTime(seconds) {
 // NAVIGATION
 // ============================================
 
-function switchTab(tabId) {
+async function switchTab(tabId) {
+    if (tabId === 'settings' && appState.currentTab !== 'settings') {
+        if (!(await requireParentBiometric('open-settings'))) return;
+    }
     window.dispatchEvent(new CustomEvent('epic-bottom-tab-pressed', { detail: { tabId } }));
     appState.currentTab = tabId;
     appState.currentProfileChildId = null;
@@ -1670,6 +1691,15 @@ function renderSettings() {
         </div>
     `;
     
+    html += `
+        <div class="profile-section arena-settings-panel developer-support-panel">
+            <div class="profile-section-title">☕ Developer Campfire</div>
+            <p class="setting-help">Keep EPIC RPG free by optionally supporting the developer. This opens Ko-fi in a secure browser page.</p>
+            <button class="btn btn-small arena-wide-action developer-support-button" onclick="openDeveloperSupportPage()">☕ Buy me a coffee</button>
+            <p class="setting-help developer-support-note">Optional parent support only. No tokens, treasures, features, or gameplay advantages are provided. Parent verification is required.</p>
+        </div>
+    `;
+
     html += `
         <div class="profile-section feedback-settings arena-settings-panel">
             <div class="profile-section-title">Phone Alerts & Sound Feedback</div>
