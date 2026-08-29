@@ -176,4 +176,4 @@
 - [x] Add parent biometric verification before opening the Settings tab.
 - [x] Add an optional developer-support donation button in Settings with no in-app reward.
 - [x] Configure the final hosted payment link and parent-only wording after the user supplies the link details.
-- [ ] Validate denied and approved Settings access and safe external-link behavior, then build, document, synchronize, and deliver the Android revision.
+- [x] Validate denied and approved Settings access and safe external-link behavior, then build, document, synchronize, and deliver the Android revision.
