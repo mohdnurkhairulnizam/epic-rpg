@@ -400,6 +400,7 @@ function formatTime(seconds) {
 // ============================================
 
 function switchTab(tabId) {
+    window.dispatchEvent(new CustomEvent('epic-bottom-tab-pressed', { detail: { tabId } }));
     appState.currentTab = tabId;
     appState.currentProfileChildId = null;
     
@@ -1454,6 +1455,24 @@ function renderDashboard() {
     }).join('');
 }
 
+function syncLeaderboardNameMarquees() {
+    document.querySelectorAll('.weekly-racer-name').forEach(button => {
+        const viewport = button.querySelector('.weekly-racer-name-viewport');
+        const text = button.querySelector('.weekly-racer-name-text');
+        if (!viewport || !text) return;
+        const overflowDistance = Math.max(0, text.scrollWidth - viewport.clientWidth);
+        const shouldMarquee = overflowDistance > 4;
+        button.classList.toggle('is-marquee', shouldMarquee);
+        if (shouldMarquee) {
+            button.style.setProperty('--weekly-name-distance', `${overflowDistance}px`);
+            button.style.setProperty('--weekly-name-duration', `${Math.min(18, Math.max(8, 6 + overflowDistance / 8)).toFixed(1)}s`);
+        } else {
+            button.style.removeProperty('--weekly-name-distance');
+            button.style.removeProperty('--weekly-name-duration');
+        }
+    });
+}
+
 function renderLeaderboard() {
     const statsContainer = document.getElementById('weekly-stats');
     
@@ -1509,7 +1528,7 @@ function renderLeaderboard() {
                         <article class="weekly-racer weekly-racer-${index + 1}">
                             <div class="weekly-rank-badge"><span>${rankIcon(index)}</span><strong>${hasWeeklyActivity ? `#${index + 1}` : 'TIE'}</strong></div>
                             <div class="weekly-racer-main">
-                                <div class="weekly-racer-topline"><button class="weekly-racer-name" onclick="openChildProfile('${entry.child.id}')">${entry.child.name}</button><span class="weekly-rank-label">${rankLabel(index)}</span></div>
+                                <div class="weekly-racer-topline"><button class="weekly-racer-name" onclick="openChildProfile('${entry.child.id}')" aria-label="Open profile for ${entry.child.name}" title="${entry.child.name}"><span class="weekly-racer-name-viewport"><span class="weekly-racer-name-text">${entry.child.name}</span></span></button><span class="weekly-rank-label">${rankLabel(index)}</span></div>
                                 <div class="weekly-score-line"><strong>${entry.weeklyScore}</strong><span>Quest Points</span><em>${gapText}</em></div>
                                 <div class="weekly-pace-track" aria-label="${entry.child.name} holds ${roundedPointShare}% of active Quest Points"><div class="weekly-pace-fill" style="width: ${pointShare.toFixed(2)}%"></div></div>
                                 <div class="weekly-share-caption"><span>ARENA SHARE</span><strong>${roundedPointShare}% of ${activeQuestPointTotal} active Quest Points</strong></div>
@@ -1524,6 +1543,9 @@ function renderLeaderboard() {
             </div>
         </section>
     `;
+    const refreshMarquees = () => syncLeaderboardNameMarquees();
+    if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(refreshMarquees);
+    else window.setTimeout(refreshMarquees, 0);
 }
 
 function renderPlay() {

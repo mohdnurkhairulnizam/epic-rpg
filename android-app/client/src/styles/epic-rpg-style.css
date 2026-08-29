@@ -1037,13 +1037,13 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    min-width: 0;
 }
 
 .weekly-racer-name {
+    flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     background: transparent;
     border: 0;
     color: #2D5016;
@@ -1053,6 +1053,29 @@ body {
     font-weight: 900;
     padding: 0;
     text-align: left;
+}
+
+.weekly-racer-name-viewport {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.weekly-racer-name-text {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+.weekly-racer-name.is-marquee .weekly-racer-name-text {
+    animation: weekly-racer-name-marquee var(--weekly-name-duration, 12s) ease-in-out infinite alternate;
+    padding-right: 32px;
+}
+
+@keyframes weekly-racer-name-marquee {
+    0%, 28% { transform: translateX(0); }
+    72%, 100% { transform: translateX(calc(-1 * var(--weekly-name-distance, 0px))); }
 }
 
 .weekly-rank-label {
@@ -2158,6 +2181,11 @@ textarea:focus-visible {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
+    }
+
+    .weekly-racer-name.is-marquee .weekly-racer-name-text {
+        animation: none !important;
+        transform: translateX(0) !important;
     }
 }
 

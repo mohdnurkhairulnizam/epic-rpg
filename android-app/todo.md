@@ -145,4 +145,12 @@
 - [x] Add a Settings Playbook button and in-app mechanism guide.
 - [x] Replace visible QML labels with Quran Mastery Level without disturbing layouts.
 - [x] Validate all new interactions, terminology fit, and existing Quest Arena behavior.
-- [ ] Build, synchronize, and deliver the Android feature revision.
+- [x] Build, synchronize, and deliver the Android feature revision.
+
+# Leaderboard Marquee and Bottom-Tab Feedback
+
+- [x] Inspect leaderboard child-name markup and bottom-navigation event handlers.
+- [x] Add a responsive horizontal marquee for names that exceed the leaderboard card width.
+- [x] Add a distinct, shared sound effect for every bottom-navigation tab press.
+- [x] Validate long-name readability, tab audio coverage, and reduced-motion behavior.
+- [ ] Build, synchronize, and deliver the Android revision.

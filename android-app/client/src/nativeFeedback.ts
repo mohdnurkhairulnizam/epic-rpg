@@ -137,6 +137,13 @@ function playActionReversed() {
   playPattern([[330, 0.09, 0, "triangle", 0.55], [247, 0.14, 0.1, "triangle", 0.65]]);
 }
 
+function playBottomTabPressed(event: Event) {
+  // A short inventory-select chime confirms every bottom-tab press without becoming a notification-like alarm.
+  const tabId = (event as CustomEvent<{ tabId?: string }>).detail?.tabId;
+  const baseFrequency = ({ dashboard: 262, leaderboard: 330, play: 392, shop: 523, settings: 659 } as Record<string, number>)[tabId || ""] || 392;
+  playPattern([[baseFrequency, 0.045, 0, "square", 0.42], [baseFrequency * 1.5, 0.07, 0.06, "triangle", 0.58]]);
+}
+
 export function registerNativeFeedback() {
   if (Capacitor.getPlatform() !== "android") return;
 
@@ -161,5 +168,6 @@ export function registerNativeFeedback() {
   window.addEventListener("epic-quest-ready", playQuestReady);
   window.addEventListener("epic-item-created", playItemCreated);
   window.addEventListener("epic-action-reversed", playActionReversed);
+  window.addEventListener("epic-bottom-tab-pressed", playBottomTabPressed);
   window.addEventListener("epic-test-sound", playAchievement);
 }

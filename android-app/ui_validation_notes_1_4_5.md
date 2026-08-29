@@ -36,3 +36,11 @@ The NFC Scan control opened the redesigned scan station from the Quest tab. The 
 The Family Quest Playbook opened from Settings and displayed all six mechanism sections in the pixel-styled modal. The Quest tab retained the Questmaster's Boon child actions and the configured `+5` amount. No visible QML terminology appeared in the rendered Settings or Quest content.
 
 The latest TypeScript and production checks passed after the final shared NFC scan-entry correction. Native Android packaging and source synchronization remain pending.
+
+## Leaderboard and bottom-navigation update
+
+The Leaderboard name treatment now measures the rendered child name after the weekly race board is created. Names that overflow their available row width receive a horizontal marquee with a duration based on the overflow distance; shorter names remain still. The name button also retains the full name in its accessibility label and title.
+
+A preview test replaced one rendered name with `Muhammad Abdul Rahman Al-Farouq Ibn Khalid Al-Madani`. The measured overflow was `56px`, the marquee class was active, and the calculated duration was `13.0s`. The same test pressed Dashboard, Leaderboard, Quest, Shop, and Settings and captured exactly one `epic-bottom-tab-pressed` event for each destination. Native audio remains gated by the existing Android-only feedback registration and sound preferences.
+
+The visual preview kept the intentionally long child name inside the first weekly race card while the rank label remained aligned at the right edge. The name was visibly clipped at the captured frame because the marquee was mid-cycle, with the full text still available through the button accessibility label and title; the CSS animation continues to reveal the hidden portion over time.
