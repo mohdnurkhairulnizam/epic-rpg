@@ -2777,3 +2777,24 @@ textarea:focus-visible {
 .developer-support-panel .setting-help { line-height: 1.45; margin-top: 12px; }
 .developer-support-button { background: linear-gradient(135deg, #7d4a12, #c28724); color: #fff8dc; }
 .developer-support-note { color: #5b4a2c; font-size: 10px; }
+
+/* Quest roster: only heroes with an ongoing quest are rendered here. */
+.ongoing-quest-roster { background: linear-gradient(135deg, #2b5129, #416e32); border: 3px solid #1a1a1a; box-shadow: inset 3px 3px 0 rgba(255,255,255,.2), inset -3px -3px 0 rgba(0,0,0,.28), 4px 4px 0 rgba(0,0,0,.24); color: #fff; margin-bottom: 12px; }
+.ongoing-quest-roster-header { align-items: center; background: linear-gradient(135deg, #254322, #526e28); display: grid; gap: 4px 10px; grid-template-columns: minmax(0, 1fr) auto; padding: 10px 11px; }
+.ongoing-quest-roster-header span { color: #ffd95f; font-size: 8px; font-weight: 900; letter-spacing: .8px; }
+.ongoing-quest-roster-header strong { font-family: 'Press Start 2P', cursive; font-size: 11px; line-height: 1.45; }
+.ongoing-quest-roster-header em { color: #dff5b9; font-size: 10px; font-style: normal; font-weight: 900; grid-row: span 2; text-align: right; }
+.ongoing-quest-roster-list { display: grid; gap: 7px; padding: 10px 11px 11px; }
+.ongoing-quest-roster-child { background: #eef1e8; border: 2px solid #1a1a1a; box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 #c4cab9; color: #1a1a1a; padding: 7px; }
+.ongoing-quest-roster-child-heading { align-items: center; display: grid; gap: 8px; grid-template-columns: 34px minmax(0, 1fr); min-width: 0; }
+.ongoing-quest-roster-child-heading img { background: #d7e0cf; border: 2px solid #1a1a1a; height: 34px; object-fit: cover; width: 34px; }
+.ongoing-quest-roster-child-heading span { display: grid; gap: 3px; min-width: 0; }
+.ongoing-quest-roster-child-heading strong { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ongoing-quest-roster-child-heading small, .ongoing-quest-roster-quest small { color: #53604b; font-size: 9px; font-weight: 800; }
+.ongoing-quest-roster-quests { display: grid; gap: 4px; margin: 7px 0 0 42px; }
+.ongoing-quest-roster-quest { align-items: center; border-top: 1px solid #c4cab9; display: flex; gap: 8px; justify-content: space-between; min-width: 0; padding-top: 5px; }
+.ongoing-quest-roster-quest strong { font-size: 10px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ongoing-quest-roster-quest small { flex: 0 0 auto; text-align: right; }
+.ongoing-quest-roster-empty p { color: #e1f5ca; font-size: 10px; line-height: 1.45; margin: 10px 11px 12px; }
+@media (max-width: 380px) { .ongoing-quest-roster-header { grid-template-columns: 1fr; } .ongoing-quest-roster-header em { grid-row: auto; text-align: left; } .ongoing-quest-roster-quests { margin-left: 0; } }
+@media (prefers-reduced-motion: reduce) { .ongoing-quest-roster, .ongoing-quest-roster * { animation: none; } }

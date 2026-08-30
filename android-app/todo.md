@@ -177,3 +177,11 @@
 - [x] Add an optional developer-support donation button in Settings with no in-app reward.
 - [x] Configure the final hosted payment link and parent-only wording after the user supplies the link details.
 - [x] Validate denied and approved Settings access and safe external-link behavior, then build, document, synchronize, and deliver the Android revision.
+
+# Quest Roster, Biometric Scope, and NFC Close Rules
+
+- [x] Inspect Quest tab ongoing-quest rendering, all biometric call sites, and NFC child-window action handlers.
+- [x] Add an ongoing-quest roster showing only children who currently have an ongoing quest.
+- [x] Limit biometric authentication to opening Settings, opening child profiles, and granting direct token blessings.
+- [x] Keep NFC child windows open after non-claim actions; close only on treasure claim success or explicit X/Close controls.
+- [x] Validate the updated Quest, biometric, and NFC flows, then build, document, synchronize, and deliver the Android revision.

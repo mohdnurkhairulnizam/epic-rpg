@@ -33,7 +33,6 @@ async function requireParentBiometric(reason) {
     return result?.ok === true;
 }
 async function openDeveloperSupportPage() {
-    if (!(await requireParentBiometric('open-support-link'))) return;
     const opener = window.openDeveloperSupport;
     if (typeof opener !== 'function') {
         showNotification('The developer support page is not available right now.', 'error');
@@ -860,9 +859,10 @@ function refreshNfcChildActionWindow() {
     if (treasureRows) treasureRows.innerHTML = renderNfcEligibleTreasures(child);
 }
 
-function openNfcChildActionWindow(childId) {
+async function openNfcChildActionWindow(childId) {
     const child = appState.children.find(c => c.id === childId);
     if (!child) return;
+    if (!(await requireParentBiometric('open-child-profile'))) return;
     document.querySelectorAll('#nfcChildActionModal').forEach(modal => modal.remove());
     const modal = document.createElement('div');
     modal.id = 'nfcChildActionModal';
@@ -909,13 +909,17 @@ function markQuestCompleteFromNfc(childId, questInstanceId) {
 
 function requestQuestFromNfc(childId, questId) {
     requestQuest(childId, questId);
-    closeModal('nfcChildActionModal');
-    showNotification('Quest requested for this child.', 'success');
+    refreshNfcChildActionWindow();
+    showNotification('Quest requested for this child. The NFC window stays open.', 'success');
     renderDashboard();
 }
 
 function claimTreasureFromNfc(childId, treasureId) {
-    claimTreasure(childId, treasureId);
+    const claimed = claimTreasure(childId, treasureId);
+    if (!claimed) {
+        refreshNfcChildActionWindow();
+        return;
+    }
     closeModal('nfcChildActionModal');
     renderDashboard();
 } 
@@ -1104,7 +1108,7 @@ function markQuestComplete(childId, questInstanceId) {
     }
 }
 
-async function approveQuest(childId, questInstanceId) {
+function approveQuest(childId, questInstanceId) {
     const ongoingQuest = appState.children.find(c => c.id === childId)?.ongoingQuests.find(q => q.instanceId === questInstanceId);
     if (!ongoingQuest) return;
     
@@ -1112,7 +1116,6 @@ async function approveQuest(childId, questInstanceId) {
     const quest = appState.quests.find(q => q.id === ongoingQuest.questId);
     
     if (!child || !quest || !ongoingQuest) return;
-    if (!(await requireParentBiometric('approve-quest'))) return;
     
     const age = calculateAge(child.dateOfBirth);
     const questTokens = calculateTokens(quest.baseTokenReward, age, child.currentQMLTier, child.qmlType);
@@ -1260,11 +1263,11 @@ function claimTreasure(childId, treasureId) {
     const child = appState.children.find(c => c.id === childId);
     const treasure = appState.treasures.find(t => t.id === treasureId);
     
-    if (!child || !treasure) return;
+    if (!child || !treasure) return false;
 
     if (child.tokens < treasure.costTokens) {
         showNotification('Not enough tokens!', 'error');
-        return;
+        return false;
     }
     
     child.tokens -= treasure.costTokens;
@@ -1303,6 +1306,7 @@ function claimTreasure(childId, treasureId) {
     showNotification(`${treasure.name} claimed by ${child.name}!`, 'success');
     const activeTreasure = child.activeTreasures[child.activeTreasures.length - 1];
     window.dispatchEvent(new CustomEvent('epic-treasure-claimed', { detail: { childId, childName: child.name, treasureId, treasureName: treasure.name, endAt, notificationKey: activeTreasure.notificationKey } }));
+    return true;
 }
 
 function pauseTreasure(childId, index) {
@@ -1586,6 +1590,40 @@ function renderLeaderboard() {
     else window.setTimeout(refreshMarquees, 0);
 }
 
+function renderOngoingQuestRoster() {
+    const questingChildren = appState.children.filter(child => Array.isArray(child.ongoingQuests) && child.ongoingQuests.length > 0);
+    if (questingChildren.length === 0) {
+        return `
+            <section class="ongoing-quest-roster ongoing-quest-roster-empty" aria-label="Ongoing quest roster">
+                <div class="ongoing-quest-roster-header"><span>⚔️ QUEST BOARD</span><strong>Heroes On Quest</strong><em>0 active heroes</em></div>
+                <p>No heroes are on a quest right now. Assign a quest below to start the next adventure.</p>
+            </section>
+        `;
+    }
+    return `
+        <section class="ongoing-quest-roster" aria-label="Children with ongoing quests">
+            <div class="ongoing-quest-roster-header"><span>⚔️ QUEST BOARD</span><strong>Heroes On Quest</strong><em>${questingChildren.length} active hero${questingChildren.length === 1 ? '' : 'es'}</em></div>
+            <div class="ongoing-quest-roster-list">
+                ${questingChildren.map(child => `
+                    <div class="ongoing-quest-roster-child">
+                        <div class="ongoing-quest-roster-child-heading">
+                            <img src="${avatarPath(child.avatarId)}" alt="">
+                            <span><strong>${child.name}</strong><small>${child.ongoingQuests.length} ongoing quest${child.ongoingQuests.length === 1 ? '' : 's'}</small></span>
+                        </div>
+                        <div class="ongoing-quest-roster-quests">
+                            ${child.ongoingQuests.map(ongoingQuest => {
+                                const quest = appState.quests.find(item => item.id === ongoingQuest.questId);
+                                const status = ongoingQuest.status === 'pending_approval' ? 'Awaiting approval' : 'In progress';
+                                return `<div class="ongoing-quest-roster-quest"><strong>⚔️ ${quest ? quest.name : 'Quest'}</strong><small>${status}</small></div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </section>
+    `;
+}
+
 function renderPlay() {
     const container = document.getElementById('quests-list');
     const blessingTokens = appState.questmasterBlessingTokens ?? 5;
@@ -1597,10 +1635,10 @@ function renderPlay() {
         </section>
     `;
     if (appState.quests.length === 0) {
-        container.innerHTML = `${blessingPanel}<div class="empty-state">No quests yet.</div>`;
+        container.innerHTML = `${renderOngoingQuestRoster()}${blessingPanel}<div class="empty-state">No quests yet.</div>`;
         return;
     }
-    container.innerHTML = blessingPanel + appState.quests.map(quest => `
+    container.innerHTML = renderOngoingQuestRoster() + blessingPanel + appState.quests.map(quest => `
         <article class="quest-card arena-item-card">
             <div class="quest-header arena-item-topline" style="position: relative;">
                 <div class="quest-type">${quest.type}</div>
